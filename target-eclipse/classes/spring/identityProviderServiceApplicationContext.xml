@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+ xmlns:util="http://www.springframework.org/schema/util"
+ xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+  http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+ 
+
+ <util:properties id="propSource" location="file:grails-app/conf/spring/localIdentityProviderConf.properties" />
+                                   
+  <bean id="local" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerLocalIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
+  <bean id="handle" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerHandleIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
+  <bean id="orcid" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerORCIDIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
+  <bean id="nla" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerNLAIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
+
+</beans>
