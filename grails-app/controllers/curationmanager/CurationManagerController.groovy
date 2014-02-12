@@ -2,6 +2,7 @@ package curationmanager
 
 import org.springframework.beans.factory.annotation.Autowired
 
+import au.com.redboxresearchdata.curationmanager.constants.CurationManagerConstants
 import au.com.redboxresearchdata.curationmanager.response.CurationManagerResponse
 import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
 import au.com.redboxresearchdata.curationmanager.businessservice.CurationManagerBusinessService
@@ -23,7 +24,7 @@ class CurationManagerController{
 		 }catch(CurationManagerBSException bex){
 		   render(status:  bex.getKey(), text:  bex.getValue());
 		 }catch(Exception bex){
-		   render(status: "500", text:  "Failed");
+		   render(status: CurationManagerConstants.STATUS_500, text:  CurationManagerConstants.FAILED);
 		 }	
 	}
 }
