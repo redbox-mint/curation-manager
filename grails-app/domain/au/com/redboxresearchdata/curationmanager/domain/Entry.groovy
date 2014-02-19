@@ -14,7 +14,6 @@ class Entry {
 	static hasMany = [curations: Curation];
 
 	static mapping = {
-		//curations cascade: 'all-delete-orphan'
 		table 'entry'
 		id column: "oid", generator: 'assigned', name: 'id', type: 'string'
 		entryTypeLookup column : 'type_id'
