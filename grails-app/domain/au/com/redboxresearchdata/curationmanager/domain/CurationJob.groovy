@@ -17,6 +17,5 @@ class CurationJob {
 		 id column : 'job_id'
 		 curationStatusLookup column : 'status_id'
 		 curationJobItems lazy: false
-		 //curationJobItems joinTable:[name:'curation_job_items', column:'job_id']
 	}
 }
