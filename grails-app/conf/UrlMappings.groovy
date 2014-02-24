@@ -5,9 +5,20 @@ class UrlMappings {
 				constraints {
 					// apply constraints here
 				}
+			}		
+			
+			"/job/$id"(controller:"CurationManagerController", parseRequest:true){
+				action = [GET:"showJob"]
 			}
-			"/job"(controller: "CurationManagerController", action = [GET:"show", POST:"save"], parseRequest: true) //POST
-	
+			
+			"/job"(controller:"CurationManagerController", parseRequest:true){
+				action = [POST:"save"]
+			}
+			
+			"/oid/$id"(controller:"CurationManagerController", parseRequest:true){
+				action = [GET:"oid"]
+			}
+			
 			"/"(view:"/index")
 			"500"(view:'/error')
 		}

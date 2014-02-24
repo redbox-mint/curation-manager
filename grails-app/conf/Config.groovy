@@ -10,7 +10,8 @@
 // if (System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
-
+//import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy
+//import ch.qos.logback.core.rolling.FixedWindowRollingPolicy
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
@@ -92,15 +93,32 @@ environments {
 		// TODO: grails.serverURL = "http://www.changeme.com"
 	}
 }
+//
+//logback = {
+//	appenders {
+//	   console name: 'stdout', encoder: pattern(pattern: '%c{2} %m%n')
+//	   file name: 'mylog', file: 'grails-app/logs/curationmanager.log'
+//	}
+//	error mylog: ['grails.app','org.apache', 'org.springframework'], additivity:false
+//}
+
 
 // log4j configuration
-log4j = {
-	// Example of changing the log pattern for the default console appender:
-	//
-	//appenders {
-	//    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-	//}
-
+ log4j = {	
+	appenders {
+		rollingFile name: "mainRollingFileAppender", maxFileSize:1048576, maxFileIndex:10, file:'grails-app/logs/curationmanager.log'
+		//console name:"console"
+	environments {
+		development {
+		   debug mainRollingFileAppender: ['grails.app','org.apache', 'org.springframework'], additivity:false
+		}
+		test {
+		   debug mainRollingFileAppender: ['grails.app','org.apache', 'org.springframework'], additivity:false
+		}
+		production {
+		   debug mainRollingFileAppender: ['grails.app','org.apache', 'org.springframework'], additivity:false
+		}
+	 }	
 	error  'org.codehaus.groovy.grails.web.servlet',        // controllers
 		   'org.codehaus.groovy.grails.web.pages',          // GSP
 		   'org.codehaus.groovy.grails.web.sitemesh',       // layouts
@@ -112,4 +130,5 @@ log4j = {
 		   'org.springframework',
 		   'org.hibernate',
 		   'net.sf.ehcache.hibernate'
+	}
 }

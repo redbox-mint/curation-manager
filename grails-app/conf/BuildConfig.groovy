@@ -24,14 +24,14 @@ grails.project.fork = [
 grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
-    inherits("global") {
-        // specify dependency exclusions here; for example, uncomment this to disable ehcache:
-        // excludes 'ehcache'
+   inherits("global") {
+	   // excludes "grails-plugin-logging", "log4j"
+	   // excludes 'grails-plugin-log4j', 'log4j', 'slf4j-jdk14', 'slf4j-log4j12'
     }
-    log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
+    log "info" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     checksums true // Whether to verify checksums on resolve
     legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
-
+	String logbackVersion = '1.0.12'
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
 
@@ -40,6 +40,7 @@ grails.project.dependency.resolution = {
         mavenLocal()
         grailsCentral()
         mavenCentral()
+		mavenRepo "http://repo.grails.org/grails/libs-releases"
         // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -47,8 +48,12 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
-        // runtime 'mysql:mysql-connector-java:5.1.24'
+		//compile 'org.grails.plugins:logback:0.3.1'
+		//runtime "ch.qos.logback:logback-core:0.9.29"
+		
+		runtime 'org.apache.derby:derby:10.8.2.2'
+		runtime 'org.apache.derby:derbynet:10.8.2.2'
+		runtime 'org.apache.derby:derbyclient:10.8.2.2'
     }
 
     plugins {

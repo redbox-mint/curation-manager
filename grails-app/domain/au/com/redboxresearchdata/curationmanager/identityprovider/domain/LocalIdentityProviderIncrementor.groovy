@@ -1,4 +1,4 @@
-package au.com.redboxresearchdata.curationmanager.domain
+package au.com.redboxresearchdata.curationmanager.identityprovider.domain
 
 class LocalIdentityProviderIncrementor {
 

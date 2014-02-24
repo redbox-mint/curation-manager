@@ -1,21 +1,26 @@
 package au.com.redboxresearchdata.curationmanager.identityProviderService
 
-import au.com.redboxresearchdata.curationmanager.constants.CurationManagerConstants
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.BaseIdentityResult
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.IdentifierResult
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationContext
+import org.codehaus.groovy.grails.context.support.PluginAwareResourceBundleMessageSource
 
-import au.com.redboxresearchdata.curationmanager.domain.Curation
-import au.com.redboxresearchdata.curationmanager.domain.CurationJob
-import au.com.redboxresearchdata.curationmanager.domain.CurationJobItems
-import au.com.redboxresearchdata.curationmanager.domain.CurationStatusLookup
-import au.com.redboxresearchdata.curationmanager.domain.LocalIdentityProviderIncrementor
+import au.com.redboxresearchdata.curationmanager.identityprovider.domain.LocalIdentityProviderIncrementor
+import au.com.redboxresearchdata.curationmanager.identityServiceProvider.constants.IdentityServiceProviderConstants
+import au.com.redboxresearchdata.curationmanager.identityProviderService.messsageresolver.MessageResolver;
+import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.ApplicationContextHolder
 
+import org.apache.commons.logging.LogFactory
+import org.apache.commons.logging.Log
 
+import java.util.Locale;
 
 class CurationManagerLocalIPService  implements IdentityProviderService{
-
+	
+	private static final Log log = LogFactory.getLog(this)
+	
 	@Value("#{propSource[Id]}")
 	String id;
 	
@@ -52,22 +57,26 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 	
 	@Override
 	public BaseIdentityResult curate(String oid, String[] metaData) throws Exception {
-		BaseIdentityResult baseIdentifier; 
+		BaseIdentityResult baseIdentifier = null; 
 		try {
-		   if(null != template){
-		      String template = getTemplate();
-		      String identifier = template.replace(CurationManagerConstants.OID_DELIMITER, oid);
-			  if (identifier.contains(CurationManagerConstants.INC_DELIMITER)) {
+		   String template = getTemplate();
+		   if(null != template && !template.isEmpty()){
+		      String identifier = template.replace(IdentityServiceProviderConstants.OID_DELIMITER, oid);
+			  if (identifier.contains(IdentityServiceProviderConstants.INC_DELIMITER)) {
 				  LocalIdentityProviderIncrementor localIdentityProviderIncrementor = new LocalIdentityProviderIncrementor()
 				  localIdentityProviderIncrementor.save();
-			     identifier = identifier.replace(CurationManagerConstants.INC_DELIMITER, localIdentityProviderIncrementor.id.toString());
-			  }
-		      baseIdentifier = new IdentifierResult(identifier);
+			      identifier = identifier.replace(IdentityServiceProviderConstants.INC_DELIMITER, localIdentityProviderIncrementor.id.toString());
+			   }
+		        baseIdentifier = new IdentifierResult(identifier);		
 		    } else{
-			    throw new Exception();
+				  def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_PROVIDER_SERVICE_TEMPLATE_MISSING);
+				  log.error(msg);
+				  throw new Exception(IdentityServiceProviderConstants.STATUS_400, new Throwable(msg));
 		    }
 	     }catch(Exception ex){
-		   throw new Exception();
+			 def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_PROVIDER_SERVICE_FAILED);
+		    log.error(msg+ ex.getMessage());
+		     throw new Exception(IdentityServiceProviderConstants.STATUS_400, new Throwable(msg));
 		}	
 		 return baseIdentifier;
 	 }

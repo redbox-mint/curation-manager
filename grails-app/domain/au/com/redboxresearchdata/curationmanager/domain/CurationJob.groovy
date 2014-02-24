@@ -10,9 +10,9 @@ class CurationJob {
 	Date dateCreated;
 	Date dateCompleted
 	CurationStatusLookup curationStatusLookup;
-	
+
 	static hasMany = [curationJobItems: CurationJobItems]
-	
+
 	static mapping ={
 		 id column : 'job_id'
 		 curationStatusLookup column : 'status_id'

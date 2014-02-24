@@ -11,7 +11,7 @@ class StringUtil {
 		String[]  newFilter = reqIdentifiers.split("\"identifier_type\""+":");
 		for(int i=0; i<newFilter.length; i++){
 			String newFilterField =  newFilter[i];
-			   if(!"[{".equals(newFilterField) || !"metadata".equals(newFilterField)){
+			   if(!"[{".equals(newFilterField)){
 				   Pattern p = Pattern.compile("\"([^\"]*)\"");
 				   Matcher m = p.matcher(newFilterField);
 				   while (m.find()) {
@@ -19,6 +19,9 @@ class StringUtil {
 				   }
 			   }
 			}
+		if(newFilters.contains("metadata")){
+			newFilters.remove("metadata");
+		}
 		return newFilters;
 	}	
 }

@@ -13,12 +13,13 @@ class Curation {
 	static hasMany = [curationJobItems: CurationJobItems]
 	Entry entry;
 	static belongsTo = [curationJobItems: CurationJobItems];
-    static mapping = {
+	static mapping = {
 		id column: 'curation_id'
 		entry column: 'oid'
 		curationStatusLookup column : 'status_id'
 		curationStatusLookup lazy: false
 		curationJobItems lazy: false
+		curationJobItems batchSize : 30
 		entry lazy: false
 	}
 	String error;

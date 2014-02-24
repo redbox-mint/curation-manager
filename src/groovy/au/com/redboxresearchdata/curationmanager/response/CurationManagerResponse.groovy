@@ -28,7 +28,7 @@ class CurationManagerResponse {
 		this.dateCompleted = dateCompleted;
 	}
 	
-	public Long getDateCompleted(){
+	public Date getDateCompleted(){
 		return dateCompleted;
 	}
 	
