@@ -40,7 +40,7 @@ grails.project.dependency.resolution = {
 		mavenRepo "http://dev.redboxresearchdata.com.au/nexus/content/repositories/central-snapshots/"
 		mavenRepo "http://download.java.net/maven/2/"
 		mavenRepo "http://repository.jboss.org/nexus/content/groups/public-jboss/"
-	}	
+	}
 
 	dependencies {
 		compile 'org.dspace:handle:6.2.5.02'
@@ -56,9 +56,7 @@ grails.project.dependency.resolution = {
 			exported = false
 		}
 		compile 'org.apache.commons:commons-io:1.3.2'
-		compile('commons-httpclient:commons-httpclient:3.1') {
-            excludes 'commons-logging'
-        }
+		compile 'commons-httpclient:commons-httpclient:3.1'	
 		compile 'org.springframework:spring-context:3.2.5.RELEASE'
 		compile 'org.springframework:spring-aop:3.2.5.RELEASE'
 		compile 'org.springframework:spring-beans:3.2.5.RELEASE'
@@ -85,9 +83,6 @@ grails.project.dependency.resolution = {
 		runtime 'org.apache.derby:derby:10.8.2.2'
 		runtime 'org.apache.derby:derbynet:10.8.2.2'
 		runtime 'org.apache.derby:derbyclient:10.8.2.2'		
-		runtime "jaxen:jaxen:1.1.1",{
-			transitive = false
-		}
 	}
 
 	plugins {

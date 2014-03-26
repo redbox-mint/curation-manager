@@ -64,17 +64,11 @@ class CurationManagerBusinessDelegate {
 			 }
 		  }
 		}
-		if(curationCompleted && !curationFailed && !curating){
+		if(curationCompleted && !curationFailed){
 			curationManagerES.updateCurationJob(curationJob, CurationManagerConstants.COMPLETED)
-		}else if(curationCompleted && curationFailed && curating){
-			curationManagerES.updateCurationJob(curationJob, CurationManagerConstants.FAILED)
-		} else if(curationCompleted && !curationFailed && curating){
-		    curationManagerES.updateCurationJob(curationJob, CurationManagerConstants.CURATING);
-		}else if(!curationCompleted && !curationFailed && curating){
-		    curationManagerES.updateCurationJob(curationJob, CurationManagerConstants.CURATING);
-		}else{
-		    curationManagerES.updateCurationJob(curationJob, CurationManagerConstants.FAILED)
-		}
+		}else {
+	 	    curationManagerES.updateCurationJob(curationJob, CurationManagerConstants.FAILED)
+		}	
 	}
 	
 	def void updateCurationAndIdentityService(curationJob, curationJobItems, curationManagerES)

@@ -140,13 +140,13 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	   Map metaDataMap = mapFromMetaData(oid, metaData[0], metaData[1], metaData[2], metaData[3]);	 
 	   JSON jsonMessage = map2Json(metaDataMap)
 	   String validJson = jsonMessage.toString();
-	   def jmsService = applicationContext.getBean(IdentityServiceProviderConstants.JMS_SERVICE);
-	   jmsService.send(queue:"CurationManagerQueue", validJson);
+	  // def jmsService = applicationContext.getBean(IdentityServiceProviderConstants.JMS_SERVICE);
+	  // jmsService.send(queue:"CurationManagerQueue", validJson);
 	   baseIdentityResult = new PromiseResult()
 	   baseIdentityResult.setIdentifier(oid);
 	}catch(Exception ex){
-	  log.error(ex.getMessage() + "NLA Identityy provider failed" + ex.getCause());
-	  throw new Exception("NLA Identityy provider failed");
+	  log.error("No NLA Identy provider failed");
+	  throw new Exception("No NLA Identy provider failed");
 	}
 	  return baseIdentityResult;
 	} 
@@ -159,8 +159,8 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 		return null;
 	}
 	
-	private Map mapFromMetaData(String oid, String metaData, String jobId, String type, String depdentIdentifier)
-	 throws Exception{	   
+	private Map mapFromMetaData(String oid, String metaData, String jobId, String type, String depdentIdentifier) throws Exception{	 
+	  
 	  Map<String, String> event = new HashMap();
 	  Map requestJsonMap = JsonUtil.getMapFromMetaDataForNLA(metaData);
 	  event.put("eventDateTime_standardDateTime", requestJsonMap.get("eventDateTime_standardDateTime"));
