@@ -1,34 +1,114 @@
 package au.com.redboxresearchdata.curationmanager.identityProviderService
+
+import java.util.Map;
+
+import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.ApplicationContextHolder;
+import au.com.redboxresearchdata.curationmanager.identityProviderService.validator.NLAValidator
+import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.BaseIdentityResult
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.IdentifierResult
+import au.com.redboxresearchdata.curationmanager.identityProviderResult.PromiseResult
+import grails.converters.JSON
 
+import javax.xml.bind.JAXBException
+
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationContext
+import org.apache.commons.logging.LogFactory
+import org.apache.commons.logging.Log
+
+import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.JsonUtil;
+import au.com.redboxresearchdata.curationmanager.identityprovider.domain.IdentityProviderIncrementor
+
 
 class CurationManagerNLAIPService implements IdentityProviderService{
+	
+	private static final Log log = LogFactory.getLog(this)
 
-	@Value("#{propSource[Id]}")
+	@Value("#{nlaPropSource[Id]}")
 	String id;
 	
-	@Value("#{propSource[Name]}")
+	@Value("#{nlaPropSource[Name]}")
 	String name;
 	
-	//@Value("#{propSource[Synchronous]}")
-	Boolean isSynchronous = Boolean.TRUE;
-	
-	@Value("#{propSource[Template]}")
+	@Value("#{nlaPropSource[Template]}")
 	String template;
 	
-	//@Value("#{propSource[Exists]}")
-	Boolean exists;
+	@Value("#{nlaPropSource[Agent]}")
+	String agent
+	
+	@Value("#{nlaPropSource[AgencyCode]}")
+	String agencyCode;
+	
+	@Value("#{nlaPropSource[AgencyName]}")
+	String agencyName;
+	
+	@Value("#{nlaPropSource[MetadataPrefix]}")
+	String metadataPrefix;
+	
+	@Value("#{nlaPropSource[RecordSource]}")
+	String recordSource;
+	
+	@Value("#{nlaPropSource[DependentIdentityProviderName]}")
+	String dependentIdentityProviderName;
+	
+	
+	private Boolean isSynchronous = Boolean.FALSE;
+	 
+	private Boolean exists;
 	
     @Override
-	public String getID() {
+	public String getId() {
 		return id;
 	}
 
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public String getAgent() {
+		return agent;
+	}
+	
+	@Override
+	public String getRecordSource() {
+		return recordSource;
+	}
+	
+	@Override
+	public String getMetadataPrefix() {
+		return metadataPrefix;
+	}
+	
+	public Map<String, String> getMetaDataMap(String metaData) {
+		return Boolean.TRUE;
+	}
+	
+	public Boolean validate(Map.Entry pairs) throws Exception{
+		IdentityProviderService  dependentIdtityPrviderService = getDependentProviderService();
+		if(dependentIdtityPrviderService.validate(pairs)){
+		   NLAValidator nlaValidator = new NLAValidator();
+		   return nlaValidator.validateMetaData(pairs);
+		}
+		return Boolean.FALSE;
+	}
+	
+	public String getDependentIdentityProviderName(){
+		return dependentIdentityProviderName;
+	}
+	
+	public IdentityProviderService getDependentProviderService() throws Exception{
+	  if(null!= getDependentIdentityProviderName()) {
+		 ApplicationContext applicationContext =  ApplicationContextHolder.getApplicationContext();
+		 return applicationContext.getBean(getDependentIdentityProviderName());
+	  } else if(null == getDependentIdentityProviderName()){
+		log.error("No Dependent Identity Provider Service configured");
+	    throw new Exception(IdentityServiceProviderConstants.STATUS_400, 
+				  "No Dependent Identity Provider Service configured");
+	  }
 	}
 
 	@Override
@@ -40,10 +120,104 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 		return template;
 	}
 	
+	public String getAgencyCode(){
+		return agencyCode;
+	}
+	
+	public String getAgencyName(){
+		return agencyName;
+	}
+	
 	@Override
-	public BaseIdentityResult curate(String oid, String[] metaData) throws Exception {
-		 return null;
-	 }
+	public BaseIdentityResult curate(String oid, String... metaData) throws Exception {	 
+    if(null!= getDependentProviderService() && null == metaData[3]){
+		log.error("No Dependent Identifier");
+        throw new Exception("No Dependent Identifier");
+    }
+	 BaseIdentityResult baseIdentityResult = null;
+	 try{	
+	   ApplicationContext applicationContext =  ApplicationContextHolder.getApplicationContext();
+	   Map metaDataMap = mapFromMetaData(oid, metaData[0], metaData[1], metaData[2], metaData[3]);	 
+	   JSON jsonMessage = map2Json(metaDataMap)
+	   String validJson = jsonMessage.toString();
+	   def jmsService = applicationContext.getBean(IdentityServiceProviderConstants.JMS_SERVICE);
+	   jmsService.send(queue:"CurationManagerQueue", validJson);
+	   baseIdentityResult = new PromiseResult()
+	   baseIdentityResult.setIdentifier(oid);
+	}catch(Exception ex){
+	  log.error(ex.getMessage() + "NLA Identityy provider failed" + ex.getCause());
+	  throw new Exception("NLA Identityy provider failed");
+	}
+	  return baseIdentityResult;
+	} 
+	
+	private JSON map2Json(Map metaDataMap) throws Exception{
+		JSON json = metaDataMap as JSON
+		if(null != json){
+		  return json;
+		}
+		return null;
+	}
+	
+	private Map mapFromMetaData(String oid, String metaData, String jobId, String type, String depdentIdentifier)
+	 throws Exception{	   
+	  Map<String, String> event = new HashMap();
+	  Map requestJsonMap = JsonUtil.getMapFromMetaDataForNLA(metaData);
+	  event.put("eventDateTime_standardDateTime", requestJsonMap.get("eventDateTime_standardDateTime"));
+	  event.put("agent", getAgent());
+	  	  
+	  Map maintenanceEvent = new HashMap();
+	  maintenanceEvent.put("maintenenceEvent", event);
+	  
+	  Map<String, String> agency = new HashMap<String, String>();
+	  agency.put("agencyCode", getAgencyCode());
+	  agency.put("agencyName", getAgencyName());
+	  
+	  Map<String, Map> maintenanceAgency = new HashMap();
+	  maintenanceAgency.put("maintenanceAgency", agency);
+	  maintenanceAgency.put("maintenanceHistory", maintenanceEvent);
+	  
+	  Map<String, String> recordId = new HashMap();
+	  IdentityProviderIncrementor localIdentityProviderIncrementor = new IdentityProviderIncrementor()
+	  localIdentityProviderIncrementor.save();
+	  recordId.put("recordId", jobId + oid + localIdentityProviderIncrementor.id.toString());
+	  recordId.put("metadataPrefix", getMetadataPrefix());
+	  recordId.put("source", getRecordSource());
+	  
+	  Map<String, String> name = new HashMap<String, String>();
+	  name.put("surname", requestJsonMap.get("family_name"));
+	  name.put("forename", requestJsonMap.get("given_name"));
+	  
+	  Map<String, Map> partType = new HashMap<String, Map>();
+	  partType.put("part_localtype", name);
+	  
+	  Map entity = new HashMap();
+	  
+	  entity.put("entityId", depdentIdentifier);
+	  entity.put("nameEntry", partType);
+	 
+	  Map identity = new HashMap();
+	  identity.put("identity", entity);
+	  
+	  Map recordOid = new HashMap();
+	  recordOid.put("recordId", oid);
+	  recordOid.put("control", maintenanceAgency);
+	  recordOid.put("cpfDescription", identity);
+	   
+	  recordId.put("jsonData", recordOid);
+	  
+	  Map<String, Map> data = new HashMap();
+	  data.put("data", recordId);
+
+	  Map<String, Map> typeRecord = new TreeMap();
+	  typeRecord.put("record_person", type);	
+	 
+	  Map<String, Map> header = new HashMap<String, Map>();
+	  header.put("header",  typeRecord);
+	  header.put("data",  recordId);
+
+	  return header;
+	}
 	
 	@Override
 	public Boolean exists(String oid, String[] metaData) {

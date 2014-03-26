@@ -14,7 +14,7 @@ import grails.util.Holders
 @Singleton
 class ApplicationContextHolder implements ApplicationContextAware {
  
-    ApplicationContext getApplicationContext() {
+  static  ApplicationContext getApplicationContext() {
         Holders.grailsApplication.mainContext
    }
    

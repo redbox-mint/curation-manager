@@ -10,14 +10,14 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 
 
 class CurationManagerController{
-   
+  
     def job(){
 	    if(request.method == 'GET'){
-	       showJob()
+ 	      showJob()
 	    } else if(request.method == 'POST'){
-	       save();
+	      save();
 	   }
-    }
+    }	
 	
 	def save() {
 		try{		
@@ -35,7 +35,7 @@ class CurationManagerController{
 		   def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
 		   render(status: CurationManagerConstants.STATUS_500, text:  msg)
 		 }
-	 }	 
+	 }	 	
 	 
 	 def showJob(){
 		try{
@@ -52,7 +52,7 @@ class CurationManagerController{
 		   def msg = MessageResolver.getMessage(CurationManagerConstants.CURATIONMANAGER_IDENTITYSERVICE_FAILED);
 		   render(status: CurationManagerConstants.STATUS_500, text:  msg)
 		 }
-	 }	 
+	 }	 	 
 	 
 	 def oid(){
 		try{

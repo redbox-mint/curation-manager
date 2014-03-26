@@ -15,4 +15,5 @@
   <bean id="handle" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerHandleIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="orcid" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerORCIDIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="nla" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerNLAIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
+
 </beans>

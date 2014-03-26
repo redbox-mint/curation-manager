@@ -1,6 +1,7 @@
 package au.com.redboxresearchdata.curationmanager.entityservice
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -8,7 +9,7 @@ import org.apache.commons.logging.Log;
 import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsHibernateUtil;
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-import au.com.redboxresearchdata.curationmanager.utility.StringUtil;
+import au.com.redboxresearchdata.curationmanager.utility.JsonUtil;
 import au.com.redboxresearchdata.curationmanager.response.CurationManagerResponse
 import au.com.redboxresearchdata.curationmanager.entityvalidationexception.CurationManagerEVException
 import au.com.redboxresearchdata.curationmanager.entityvalidator.CurationManagerEV
@@ -21,17 +22,16 @@ import au.com.redboxresearchdata.curationmanager.domain.CurationStatusLookup
 import au.com.redboxresearchdata.curationmanager.domain.Entry
 import au.com.redboxresearchdata.curationmanager.domain.EntryTypeLookup
 import au.com.redboxresearchdata.curationmanager.utility.MessageResolver;
+
 import org.apache.commons.logging.LogFactory
 import org.hibernate.FetchMode
-
 
 class CurationManagerES {
 
 	private static final Log log = LogFactory.getLog(this)
 
 	def CurationManagerResponse createOrFindEntityAndRelationship(requestParams)
-	throws CurationManagerEVException, Exception {
-
+	 throws CurationManagerEVException, Exception {
 		Date dateW3C = DateUtil.getW3CDate();
 		CurationStatusLookup curationStatusLookup = statusLookup(CurationManagerConstants.IN_PROGRESS)
 		CurationJob curationJob = createCurationJobEntity(requestParams, dateW3C);
@@ -45,8 +45,10 @@ class CurationManagerES {
 			def type = jsonObject.get(CurationManagerConstants.TYPE);
 			def title = jsonObject.get(CurationManagerConstants.TITLE);
 			String reqIdentifiers = jsonObject.get(CurationManagerConstants.REQUIRED_IDENTIFIERS);
-			List  newFilters = StringUtil.getFilters(reqIdentifiers)
-			Entry entry = findEntryAndRelationships(oid, newFilters);
+			Map  newFiltersMap = JsonUtil.getFilters(reqIdentifiers);
+			Set newFiltersUnique = newFiltersMap.keySet();
+			List newFilters = new ArrayList(newFiltersUnique);
+			Entry entry = findEntryAndRelationships(oid);
 			if(null == entry){
 				List curationsByOid = findCurationsByOid(oid);
 				createEntryFromCurations(curationJob, curationsByOid, oid, type, title);
@@ -56,8 +58,10 @@ class CurationManagerES {
 			if(null != entry){
 				if(oid.equals(entry.getId())){
 					curationManagerEV.validateEntryType(oid, entry,  type)
-					Map reqIdentifiersNewMap = createCurationJobItemsFromEntry(entry, reqIdentifiersNew, curationJob, oid,
-							type, title, jobItems,curationStatusLookup, newFilters, dateW3C);
+					Map reqIdentifiersNewMap = createCurationJobItemsFromEntry(entry, reqIdentifiersNew, 
+						curationJob, oid,type, title, jobItems,
+						curationStatusLookup, reqIdentifiers , 
+						newFilters, newFiltersMap ,dateW3C);
 					if(null != reqIdentifiersNewMap)
 						jobItems.add(reqIdentifiersNewMap);
 				}
@@ -65,7 +69,7 @@ class CurationManagerES {
 				setRequiredIdentifersMap(reqIdentifiersNew, oid, title, type)
 				Entry newEntry = createEntryEntity(oid, type, title);
 				Map reqIdentifiersNewMap = createCurationEntities(oid, type, title, jobItems, curationJob,
-						newEntry, curationStatusLookup,  newFilters,  dateW3C);
+						newEntry, curationStatusLookup, reqIdentifiers,  newFilters, newFiltersMap,  dateW3C);
 				jobItems.add(reqIdentifiersNewMap);
 			}
 		}
@@ -113,11 +117,11 @@ class CurationManagerES {
 
 
 	def Map createCurationJobItemsFromEntry(entry, reqIdentifiersNew, curationJob, oid, type, title,
-			jobItems, curationStatusLookup, newFilters, dateW3C) throws Exception{
+			jobItems, curationStatusLookup, reqIdentifiers, newFilters, newFiltersMap, dateW3C) throws Exception{
 		Map requiredIdentifiersNew =  new HashMap();
 		if (!GrailsHibernateUtil.isInitialized(entry, CurationManagerConstants.CURATIONS) || entry.isAttached()){
 			entry.attach();
-		}	
+		}
 		List curations = entry.getCurations();
 		List previousNewFilters = new ArrayList(newFilters.size());
 		previousNewFilters = newFilters.clone();
@@ -133,10 +137,9 @@ class CurationManagerES {
 		if(!newFilters.isEmpty())  {
 			setRequiredIdentifersMap(reqIdentifiersNew, oid, title, type)
 			Map reqIdent = createCurationJobItemsFromEntry(entry, curationJob, oid, type, title,
-				jobItems, curationStatusLookup, existingIdentifiers, dateW3C)
-			
+				jobItems, curationStatusLookup, reqIdentifiers, existingIdentifiers, dateW3C)		
 			Map reqIdentNew = createCurationEntities(oid, type, title, jobItems, curationJob,
-			entry, curationStatusLookup,  newFilters,  dateW3C);
+			entry, curationStatusLookup, reqIdentifiers, newFilters, newFiltersMap, dateW3C);
 		   if(!reqIdent.isEmpty()){
 			  List reqIdentifers = reqIdent.get(CurationManagerConstants.REQIDENTIFIERS);
 			  List reqIdentifersNew =  reqIdentNew.get(CurationManagerConstants.REQIDENTIFIERS);
@@ -144,22 +147,25 @@ class CurationManagerES {
 			  reqIdentNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifersNew)
 			  return reqIdentNew;
 		   }else {
-		     return reqIdentNew;
+			 return reqIdentNew;
 		   }
 		} else if(newFilters.isEmpty()){
 			setRequiredIdentifersMap(reqIdentifiersNew, oid, title, type)
 			return createCurationJobItemsFromEntry(entry, curationJob, oid, type, title,
-			jobItems, curationStatusLookup, previousNewFilters, dateW3C)
+			jobItems, curationStatusLookup, reqIdentifiers, previousNewFilters, newFiltersMap, dateW3C)
 		}
 		return null;
 	}
 
 	def Map createCurationJobItemsFromEntry(entry, curationJob, oid, type, title,
-			jobItems, curationStatusLookup, previousNewFilters, dateW3C)throws Exception{
-		List curations = entry.getCurations();
+			jobItems, curationStatusLookup, reqIdentifiers, previousNewFilters, newFiltersMap, dateW3C) 
+	    throws CurationManagerEVException, Exception{
+		
 		Map requiredIdentifiersNew =  new HashMap();
 		List reqIdentifiersNew = new ArrayList();
-		for(Curation curationNew : curations){
+		try {
+		 List curations = entry.getCurations();
+		 for(Curation curationNew : curations){
 			String entryOid = curationNew.getEntry().getId();
 			String identifierType = curationNew.getIdentifierType();
 			if(previousNewFilters.contains(identifierType) && entryOid.equals(oid)){
@@ -176,12 +182,15 @@ class CurationManagerES {
 				requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curationNew.getDateCompleted());
 				reqIdentifiersNew.add(requiredIdentifiers);
 			}
-		}
-		requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew)
-		if(previousNewFilters.size() > 0 && entry.getId().equals(oid)){
+		  }
+		  requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew)
+		  if(previousNewFilters.size() > 0 && entry.getId().equals(oid)){
 			requiredIdentifiersNew.putAll(createCurationEntities(oid, type, title, jobItems,  curationJob,
-					entry, curationStatusLookup,  previousNewFilters,  dateW3C, false));
-		}
+					entry, curationStatusLookup, reqIdentifiers,  previousNewFilters, newFiltersMap,  dateW3C));
+		  }
+		} catch(Exception ex){
+		   throwEntityException(ex)
+	    }		
 		return requiredIdentifiersNew;
 	}
 
@@ -203,28 +212,36 @@ class CurationManagerES {
 		requiredIdentifiersNew.put(CurationManagerConstants.TYPE, type);
 	}
 
-	def Entry findEntryAndRelationships(oid, newFilters) throws Exception{
-		Entry entry = Entry.findById(oid.toString());
+	def Entry findEntryAndRelationships(oid) throws CurationManagerEVException, Exception{
+		Entry entry 
+		try {
+		   entry = Entry.findById(oid.toString());
+		} catch(Exception ex){
+		  throwEntityException(ex)
+	    }
 		return entry;
 	}
 
 	def Map createCurationEntities(oid, type, title, jobItems, curationJob,
-			entry, curationStatusLookup,  newFilters,  dateW3C) throws Exception{
+			entry, curationStatusLookup, reqIdentifiers, newFilters,  newFiltersMap, dateW3C) 
+	    throws CurationManagerEVException, Exception{		
 		Map requiredIdentifiersNew =  new HashMap();
 		List reqIdentifiersNew = new ArrayList();
 		for(int i=0; i<newFilters.size(); i++){
-			createCurationEntity(entry, newFilters[i],  curationStatusLookup, reqIdentifiersNew,
+			String metaData = newFiltersMap.get(newFilters[i]);
+			createCurationEntity(entry, newFilters[i], metaData, curationStatusLookup, reqIdentifiersNew,
 					newFilters, curationJob, dateW3C)
 		}
 		requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew)
 		return requiredIdentifiersNew;
 	}
 
-	def Curation createCurationEntity(entry, newFilterFiled,  curationStatusLookup, reqIdentifiersNew,
-			newFilters, curationJob, dateW3C) throws Exception{
+	def Curation createCurationEntity(entry, newFilterFiled,  metaData, curationStatusLookup, reqIdentifiersNew,
+			newFilters, curationJob, dateW3C) throws Exception{		
 		Map requiredIdentifiers =  new HashMap();
 		CurationJobItems curationJobItems = createCurationJobItemsEntity(curationJob);
 		Curation curation  = new Curation();
+		curation.setMetaData(metaData);
 		curation.setDateCreated(dateW3C);
 		curation.setIdentifierType(newFilterFiled);
 		curation.setCurationStatusLookup(curationStatusLookup);
@@ -249,10 +266,14 @@ class CurationManagerES {
 	}
 
 
-	def CurationJob createCurationJobEntity(requestParams, dateW3C) throws Exception{
+	def CurationJob createCurationJobEntity(requestParams, dateW3C) throws CurationManagerEVException, Exception{
 		CurationJob curationJob = new CurationJob();
 		curationJob.setDateCreated(dateW3C);
-		curationJob.setCurationStatusLookup(CurationStatusLookup.findByValue(CurationManagerConstants.IN_PROGRESS));
+		try {
+		  curationJob.setCurationStatusLookup(CurationStatusLookup.findByValue(CurationManagerConstants.IN_PROGRESS));
+		} catch(Exception ex){
+		  throwEntityException(ex)
+	    }
 		return curationJob;
 	}
 
@@ -271,7 +292,10 @@ class CurationManagerES {
 		return entry;
 	}
 
-	def void updateCuration(curation, identifier, curationStatus, dateCompleted,   errorMsg) throws Exception{
+	def void updateCuration(curation, identifier, curationStatus, dateCompleted,   errorMsg)
+	  throws CurationManagerEVException,  Exception{
+	 
+     try{	
 		curation.setIdentifier(identifier);
 		curation.setError(errorMsg);
 		curation.setDateCompleted(dateCompleted);
@@ -279,52 +303,65 @@ class CurationManagerES {
 		curation.setCurationStatusLookup(curationStatusLookup);
 		curation.lock();
 		curation.save(flush:true);
+	  } catch(Exception ex){
+	    throwEntityException(ex)
+	  }
 	}
 
-	def void updateCurationJob(curationJob, curationStatus) throws Exception{
-		curationJob.lock();
-		CurationStatusLookup curationStatusLookup = statusLookup(curationStatus);
-		curationJob.setCurationStatusLookup(curationStatusLookup);
-		curationJob.setDateCompleted(DateUtil.getW3CDate());
-		curationJob.lock();
-		curationJob.save(flush:true);
+	def void updateCurationJob(curationJob, curationStatus) throws CurationManagerEVException, Exception{
+		
+	  try{
+		  CurationStatusLookup curationStatusLookup = statusLookup(curationStatus);
+		  curationJob.setCurationStatusLookup(curationStatusLookup);
+		  curationJob.setDateCompleted(DateUtil.getW3CDate());
+		  curationJob.lock();
+		  curationJob.save(flush:true);
+		} catch(Exception ex){
+		throwEntityException(ex)
+	  }
 	}
 
 	def CurationStatusLookup statusLookup(statusValue) throws Exception{
 		return CurationStatusLookup.findByValue(statusValue);
 	}
 
-	def CurationManagerResponse retreiveJobByOID(oid) throws CurationManagerEVException{
+	def CurationManagerResponse retreiveJobByOID(oid) throws CurationManagerEVException, Exception{
 		CurationManagerResponse  curationManagerResponse;
-		Entry.withNewTransaction {
+		try{
+		    Entry.withNewTransaction {
 			Entry entry = Entry.findById(oid.toString());
-			if(null == entry){
+		    if(null == entry){
 				def msg = MessageResolver.getMessage(CurationManagerConstants.OID_EXISTS);
 				log.error(CurationManagerConstants.STATUS_404 + msg);
 				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
-			}
+			  }
 			List jobItems = new ArrayList();
 			curationManagerResponse = retreiveJobByEntryAndCurationJob(entry, jobItems, oid)
-		}
+		    }
+		 } catch(Exception ex){
+		   throwEntityException(ex)
+	  }
 		return curationManagerResponse;
 	}
 
-	def CurationManagerResponse retreiveJobByEntryAndCurationJob(entry, jobItems, previousOid) throws Exception{
+	def CurationManagerResponse retreiveJobByEntryAndCurationJob(entry, jobItems, previousOid) 
+	    throws CurationManagerEVException, Exception{
 		CurationManagerResponse curationManagerResponse = new CurationManagerResponse();
-		if (!GrailsHibernateUtil.isInitialized(entry, CurationManagerConstants.CURATIONS) ||  entry.isAttached()){
-			entry.attach();
-		}
-		List<Curation> curations = entry.getCurations();
-		List reqIdentifiersNew = new ArrayList();
-		Map requiredIdentifiersNew =  new HashMap();
-		String oid = entry.getId();
-		String title = entry.getTitle();
-		EntryTypeLookup entryTypeLookup = entry.getEntryTypeLookup();
-		String type = entryTypeLookup.getValue();
-		setRequiredIdentifersMap(requiredIdentifiersNew, oid, title, type);
-		jobItems.addAll(requiredIdentifiersNew);
-		for(Curation curation : curations){
-			if(previousOid.equals(curation.getEntry().getId())) {
+		try {
+		   if (!GrailsHibernateUtil.isInitialized(entry, CurationManagerConstants.CURATIONS) ||  entry.isAttached()){
+			   entry.attach();
+		   }
+		   List<Curation> curations = entry.getCurations();
+		   List reqIdentifiersNew = new ArrayList();
+		   Map requiredIdentifiersNew =  new HashMap();
+		   String oid = entry.getId();
+		   String title = entry.getTitle();
+		   EntryTypeLookup entryTypeLookup = entry.getEntryTypeLookup();
+		   String type = entryTypeLookup.getValue();
+		   setRequiredIdentifersMap(requiredIdentifiersNew, oid, title, type);
+		   jobItems.addAll(requiredIdentifiersNew);
+		   for(Curation curation : curations){
+			  if(previousOid.equals(curation.getEntry().getId())) {
 				Map requiredIdentifiers =  new HashMap();
 				CurationStatusLookup curationStatusLookup = curation.getCurationStatusLookup();
 				String curationStatus = curationStatusLookup.getValue();
@@ -334,24 +371,28 @@ class CurationManagerES {
 				requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curation.getDateCreated());
 				requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curation.getDateCompleted());
 				reqIdentifiersNew.add(requiredIdentifiers);
-			}
+			   }
+		    }
+		    Map requiredIdentifiersNew2 =  new HashMap();
+		    requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew);
+		    jobItems.addAll(requiredIdentifiersNew2);
+		    setCurationManagerResponse(null, curationManagerResponse, jobItems, null);
+		} catch(Exception ex){
+		  throwEntityException(ex)
 		}
-		Map requiredIdentifiersNew2 =  new HashMap();
-		requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew);
-		jobItems.addAll(requiredIdentifiersNew2);
-		setCurationManagerResponse(null, curationManagerResponse, jobItems, null);
 		return curationManagerResponse;
 	}
 
-	//	def void throwEntityException(ex){
-	//		log.error(ex.getMessage() + ex.getCause());
-	//		def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
-	//		throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
-	//  }
+		def void throwEntityException(Exception ex) throws CurationManagerEVException { 
+			log.error(ex.getMessage() + ex.getCause());
+			def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
+			throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
+	  }
 
-	def CurationManagerResponse retreiveJobByEntry(entry, jobItems, curationJob) throws Exception{
+	def CurationManagerResponse retreiveJobByEntry(entry, jobItems, curationJob) throws CurationManagerEVException, Exception{
 		CurationManagerResponse curationManagerResponse = new CurationManagerResponse();
-		if(null != curationJob)  {
+		try{
+		  if(null != curationJob)  {
 			if (!GrailsHibernateUtil.isInitialized(entry, CurationManagerConstants.CURATIONS) || entry.isAttached()){
 				entry.attach();
 			}
@@ -391,13 +432,16 @@ class CurationManagerES {
 			String curationJobStatus = curationJob.getCurationStatusLookup().getValue();
 			setCurationManagerResponse(curationJob, curationManagerResponse, jobItems, curationJobStatus);
 		}
+		} catch(Exception ex){
+		  throwEntityException(ex)
+		}
 		return curationManagerResponse;
 	}
 
-	def CurationManagerResponse retreiveJob(jobId) throws CurationManagerEVException{
+	def CurationManagerResponse retreiveJob(jobId) throws CurationManagerEVException, Exception{
 		CurationManagerResponse curationManagerResponse;
-
-		Entry.withNewTransaction {
+		try {
+		 Entry.withNewTransaction {
 			CurationJob curationJob = CurationJob.findById(jobId);
 			if(null == curationJob){
 				def msg = MessageResolver.getMessage(CurationManagerConstants.JOBID_EXISTS);
@@ -421,6 +465,36 @@ class CurationManagerES {
 				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
 			}
 		}
+		} catch(Exception ex){
+		throwEntityException(ex)
+	  }
 		return curationManagerResponse;
 	}
+	
+	def void insertCurationWithDependentIdentifier(metaData, oid, depdentIdentifier, dependentIdentifierName, type, title){
+		try {
+		  Curation.withNewTransaction {
+		     Curation curation  = new Curation();		
+		     curation.setMetaData(metaData);
+			 curation.setIdentifier(depdentIdentifier)
+			 Date dateW3C = DateUtil.getW3CDate();
+		     curation.setDateCreated(dateW3C);
+		     curation.setIdentifierType(dependentIdentifierName);
+			 if(null != depdentIdentifier){
+		       CurationStatusLookup completedCurationStatusLookup = CurationStatusLookup.findByValue(CurationManagerConstants.COMPLETED);
+			   curation.setDateCompleted(dateW3C);
+		       curation.setCurationStatusLookup(completedCurationStatusLookup);
+			 }else{
+			   CurationStatusLookup failedCurationStatusLookup = CurationStatusLookup.findByValue(CurationManagerConstants.FAILED);
+			   curation.setCurationStatusLookup(failedCurationStatusLookup);
+			 }
+			 Entry entry = findEntryAndRelationships(oid);
+		     entry.addToCurations(curation);
+		     curation.setEntry(entry);
+		     curation.save();
+		    }
+	 	} catch(Exception ex){
+	 	  throwEntityException(ex)
+	    }
+	}	
 }

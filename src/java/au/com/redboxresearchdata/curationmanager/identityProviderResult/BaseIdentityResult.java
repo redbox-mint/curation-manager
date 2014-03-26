@@ -1,5 +1,4 @@
 package au.com.redboxresearchdata.curationmanager.identityProviderResult;
-
 public class BaseIdentityResult {
 	String identifier = null;
 
@@ -14,7 +13,6 @@ public class BaseIdentityResult {
 	public String getIdentifier(){
 		return identifier;
 	}
-
 }
 
 

@@ -45,9 +45,8 @@ class CurationManagerBusinessService{
 		  }
      }
 	
-	
-	def CurationManagerResponse retrieveJob(jobId) throws CurationManagerBSException, Exception{
-		CurationManagerResponse curationManagerResponse;
+    def CurationManagerResponse retrieveJob(jobId) throws CurationManagerBSException, Exception{
+	   CurationManagerResponse curationManagerResponse = new CurationManagerResponse();
 	   try{
 		 CurationManagerBV curationManagerBV = new CurationManagerBV();
 		 Boolean validJobId = curationManagerBV.validateJobId(jobId);
@@ -56,15 +55,15 @@ class CurationManagerBusinessService{
 			curationManagerResponse = curationManagerES.retreiveJob(jobId);
 	     }
 	   }catch(CurationManagerEVException csex) {
-			  log.error(csex.getKey() + " " +csex.getValue());
+			log.error(csex.getKey() + " " +csex.getValue());
 	        throw new CurationManagerBSException(csex.getKey(), csex.getValue());
 	   }
 		return curationManagerResponse;
 	}
 	
 	
-	def CurationManagerResponse retrieveJobByOid(oid) throws CurationManagerBSException, Exception{
-		CurationManagerResponse curationManagerResponse;
+   def CurationManagerResponse retrieveJobByOid(oid) throws CurationManagerBSException, Exception{
+	   CurationManagerResponse curationManagerResponse;
 	   try{
 		 CurationManagerBV curationManagerBV = new CurationManagerBV();
 		 Boolean validJobId = curationManagerBV.validateOID(oid);

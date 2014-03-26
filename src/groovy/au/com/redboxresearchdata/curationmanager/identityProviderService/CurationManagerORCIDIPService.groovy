@@ -1,29 +1,33 @@
-package au.com.redboxresearchdata.curationmanager.identityProviderService
-import identityProviderResult.BaseIdentityResult
-import au.com.redboxresearchdata.curationmanager.identityProviderResult.IdentifierResult
+package au.com.redboxresearchdata.curationmanager.identityProviderService;
+
+import identityProviderResult.BaseIdentityResult;
+import java.util.Map;
+
+import au.com.redboxresearchdata.curationmanager.identityProviderResult.IdentifierResult;
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.BaseIdentityResult;
 
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Value;
 
 class CurationManagerORCIDIPService implements IdentityProviderService{
 
-	@Value("#{propSource[Id]}")
+	@Value("#{orcPropSource[Id]}")
 	String id;
 	
-	@Value("#{propSource[Name]}")
+	@Value("#{orcPropSource[Name]}")
 	String name;
 	
-	//@Value("#{propSource[Synchronous]}")
-	Boolean isSynchronous = Boolean.TRUE;
+	@Value("#{orcPropSource[Description]}")
+	String description;
 	
-	@Value("#{propSource[Template]}")
-	String template;
+	@Value("#{orcPropSource[DependentIdentityProviderName]}")
+	String dependentIdentityProviderName;
 	
-	//@Value("#{propSource[Exists]}")
-	Boolean exists;
+	private Boolean isSynchronous = Boolean.FALSE;
+	
+	private Boolean exists;
 	
     @Override
-	public String getID() {
+	public String getId() {
 		return id;
 	}
 
@@ -31,23 +35,39 @@ class CurationManagerORCIDIPService implements IdentityProviderService{
 	public String getName() {
 		return name;
 	}
+	
+	public Boolean validate(Map.Entry pairs) throws Exception{
+		return Boolean.TRUE;
+	}
+	
+	public String getDependentIdentityProviderName(){
+		return dependentIdentityProviderName;
+	}
+	
+	public IdentityProviderService getDependentProviderService() throws Exception{
+		return null;
+	}
 
+	public String getDescription(){
+		return description;
+	}	
+	
 	@Override
 	public Boolean isSynchronous() {
 		return isSynchronous;
 	}
-
-	public String getTemplate(){
-		return template;
-	}
 	
 	@Override
-	public BaseIdentityResult curate(String oid, String[] metaData) throws Exception {
+	public BaseIdentityResult curate(String oid, String... metaData) throws Exception {
 		 return null;
 	 }
 	
 	@Override
 	public Boolean exists(String oid, String[] metaData) {
 		return exists;
+	}
+	
+	public Map<String, String> getMetaDataMap(String metaData) {
+		return null;
 	}
 }

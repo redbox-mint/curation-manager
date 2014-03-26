@@ -3,6 +3,7 @@ package au.com.redboxresearchdata.curationmanager.constants
 class CurationManagerConstants {
 
 	static final String  OID = "oid";
+	static final String METADATA = "metadata";
 	static final String JOIN = "join";
 	static final String TYPE = "type";
 	static final String TITLE = "Title";
@@ -25,6 +26,7 @@ class CurationManagerConstants {
 	static final String REQUEST_PARAMS_NULL = "requestparams.null"
 	static final String CURATION_JOB_ITEMS = "CurationJobItems";
 	static final String DUPLICATE_OID = "duplicate.oids"
+	static final String  FAILED_TO_PROCESS_REQUIRED_IDENTIFIERS = "failed.to.process.required.identifiers"
 	static final String DUPLICATE_IDENTIFIER_TYPE = "duplicate.identifier.type"
 	static final String IDENTITY_SERVICE_FAILED = "curationmanager.identityService.failed"
 	static final String REQUIRED_IDENTIFIER_TYPE_NULL = "requiredidentifiertype.null"

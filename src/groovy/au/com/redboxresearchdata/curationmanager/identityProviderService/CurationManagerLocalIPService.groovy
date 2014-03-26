@@ -7,38 +7,41 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationContext
 import org.codehaus.groovy.grails.context.support.PluginAwareResourceBundleMessageSource
 
-import au.com.redboxresearchdata.curationmanager.identityprovider.domain.LocalIdentityProviderIncrementor
-import au.com.redboxresearchdata.curationmanager.identityServiceProvider.constants.IdentityServiceProviderConstants
-import au.com.redboxresearchdata.curationmanager.identityProviderService.messsageresolver.MessageResolver;
+import au.com.redboxresearchdata.curationmanager.identityprovider.domain.IdentityProviderIncrementor
+import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants
+import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.MessageResolver;
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.ApplicationContextHolder
 
 import org.apache.commons.logging.LogFactory
 import org.apache.commons.logging.Log
 
 import java.util.Locale;
+import java.util.Map;
 
 class CurationManagerLocalIPService  implements IdentityProviderService{
 	
 	private static final Log log = LogFactory.getLog(this)
 	
-	@Value("#{propSource[Id]}")
+	@Value("#{localPropSource[Id]}")
 	String id;
 	
-	@Value("#{propSource[Name]}")
+	@Value("#{localPropSource[Name]}")
 	String name;
 	
-	//@Value("#{propSource[Synchronous]}")
-	Boolean isSynchronous = Boolean.TRUE;
-	
-	@Value("#{propSource[Template]}")
+	@Value("#{localPropSource[Template]}")
 	String template;
 	
-	//@Value("#{propSource[Exists]}")
-	Boolean exists = Boolean.FALSE;
+	private Boolean isSynchronous = Boolean.TRUE;
+	
+	private Boolean exists = Boolean.FALSE;
 	
     @Override
-	public String getID() {
+	public String getId() {
 		return id;
+	}
+	
+	public Boolean validate(Map.Entry pairs) throws Exception{
+		return Boolean.TRUE;
 	}
 
 	@Override
@@ -55,28 +58,37 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 		return template;
 	}
 	
+	public IdentityProviderService getDependentProviderService() throws Exception{
+		return null;
+	}
+	
+	public Map<String, String> getMetaDataMap(String metaData) {
+		return null;
+	}
+	
 	@Override
-	public BaseIdentityResult curate(String oid, String[] metaData) throws Exception {
+	public BaseIdentityResult curate(String oid, String... metaData) throws Exception {
 		BaseIdentityResult baseIdentifier = null; 
 		try {
 		   String template = getTemplate();
 		   if(null != template && !template.isEmpty()){
 		      String identifier = template.replace(IdentityServiceProviderConstants.OID_DELIMITER, oid);
-			  if (identifier.contains(IdentityServiceProviderConstants.INC_DELIMITER)) {
-				  LocalIdentityProviderIncrementor localIdentityProviderIncrementor = new LocalIdentityProviderIncrementor()
+			  if (identifier.contains(IdentityServiceProviderConstants.INC)) {
+				  IdentityProviderIncrementor localIdentityProviderIncrementor = new IdentityProviderIncrementor()
 				  localIdentityProviderIncrementor.save();
-			      identifier = identifier.replace(IdentityServiceProviderConstants.INC_DELIMITER, localIdentityProviderIncrementor.id.toString());
+			      identifier = identifier.replace(IdentityServiceProviderConstants.INC, 
+					  localIdentityProviderIncrementor.id.toString());
 			   }
 		        baseIdentifier = new IdentifierResult(identifier);		
 		    } else{
-				  def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_PROVIDER_SERVICE_TEMPLATE_MISSING);
+				  def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_PROVIDER_SERVICE_TEMPLATE_INC_MISSING);
 				  log.error(msg);
 				  throw new Exception(IdentityServiceProviderConstants.STATUS_400, new Throwable(msg));
 		    }
 	     }catch(Exception ex){
 			 def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_PROVIDER_SERVICE_FAILED);
 		    log.error(msg+ ex.getMessage());
-		     throw new Exception(IdentityServiceProviderConstants.STATUS_400, new Throwable(msg));
+		     throw new Exception(IdentityServiceProviderConstants.STATUS_400, ex);
 		}	
 		 return baseIdentifier;
 	 }

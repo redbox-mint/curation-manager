@@ -8,23 +8,23 @@ import org.apache.commons.logging.Log
 import au.com.redboxresearchdata.curationmanager.utility.JsonUtil;
 import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 
- class HandleValidator {
+ class NLAValidator {
 	
 	private static final Log log = LogFactory.getLog(this)
 	
 	def Boolean validateMetaData(Map.Entry pairs) throws Exception{	
 	  String key = pairs.getKey();	
 	  String metaData = pairs.getValue();
-	 	  Map metaDataMap = JsonUtil.getMapFromMetaData(metaData);
+	     Map metaDataMap = JsonUtil.getMapFromMetaDataForNLA(metaData);
 		  if(null != metaDataMap || !metaDataMap.isEmpty()) {
-		     String description = metaDataMap.get("description");
-		     String url = metaDataMap.get("url");
-		     if(null == description && null == url){
-		        log.error("No Description or Url provided for the Handle MetaData!");
-		        throw new Exception(IdentityServiceProviderConstants.STATUS_400, 
-					      "No Description or Url provided for the Handle MetaData!");
-		 	    }
-  	   }
+		     String givenName = metaDataMap.get("given_name");
+			  String familyName = metaDataMap.get("family_name");
+			  if(null == givenName && null == familyName) {
+				 log.error("No family name or given name provided for the nla MetaData!");
+				 throw new Exception(IdentityServiceProviderConstants.STATUS_400,
+					       "No family name or given name provided for the nla MetaData!");
+			  }
+  		   }
 	   return Boolean.TRUE
 	 }
  }

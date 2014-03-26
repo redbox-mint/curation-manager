@@ -2,6 +2,7 @@ import au.com.redboxresearchdata.curationmanager.domain.CurationStatusLookup
 import au.com.redboxresearchdata.curationmanager.domain.EntryTypeLookup
 
 class BootStrap {
+
     def init = { servletContext ->
 		
 		new CurationStatusLookup(value: "IN_PROGRESS").save();
@@ -12,7 +13,7 @@ class BootStrap {
 		new EntryTypeLookup(value: "person").save();
 		new EntryTypeLookup(value: "group").save();
 		new EntryTypeLookup(value: "document").save();
-
+		String cronExpression = "";
     }
     def destroy = {
     }
