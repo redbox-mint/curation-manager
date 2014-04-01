@@ -12,7 +12,7 @@ class CurationJob {
 	CurationStatusLookup curationStatusLookup;
 
 	static hasMany = [curationJobItems: CurationJobItems]
-
+	
 	static mapping ={
 		 id column : 'job_id'
 		 curationStatusLookup column : 'status_id'

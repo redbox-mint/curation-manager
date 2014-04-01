@@ -49,7 +49,7 @@ class CurationManagerController{
 		   render(status:  bex.getKey(), text:  bex.getValue());
 		 }catch(Exception ex){
 		   log.error(ex.getMessage() + " " + ex.getCause());
-		   def msg = MessageResolver.getMessage(CurationManagerConstants.CURATIONMANAGER_IDENTITYSERVICE_FAILED);
+		   def msg = MessageResolver.getMessage(CurationManagerConstants.CURATIONMANAGER_JOB_LOOKUP_FAILED);
 		   render(status: CurationManagerConstants.STATUS_500, text:  msg)
 		 }
 	 }	 	 

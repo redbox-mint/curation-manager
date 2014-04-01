@@ -30,5 +30,6 @@ class Curation {
 	Date dateCreated;
 	Date dateCompleted;
 	String identifierType;
+	//CurationStatusLookup sruLookup;
 	String identifier;
 }

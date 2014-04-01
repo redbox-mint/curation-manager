@@ -55,6 +55,9 @@ class CurationManagerHandleIPService implements IdentityProviderService{
 	@Value("#{handlePropSource[Name]}")
 	String name;
 	
+	@Value("#{nlaPropSource[Type]}")
+	String type;
+	
 	@Value("#{handlePropSource[Description]}")
 	String description
 	
@@ -197,6 +200,7 @@ class CurationManagerHandleIPService implements IdentityProviderService{
 		 HandleResolver resolver  = new HandleResolver();
 		 AbstractResponse response = resolver.processRequest(req);
 		 if (response.responseCode != AbstractMessage.RC_SUCCESS){
+			 log.info(response);
 			 if (response.responseCode == AbstractMessage.RC_HANDLE_ALREADY_EXISTS) {
 				 def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.HANDLE_ALREADY_IN_USE);
 				 log.error(msg+ templateSuffix);

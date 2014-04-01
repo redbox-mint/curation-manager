@@ -27,7 +27,7 @@ class JobRunner {
 		ExecutorService es = Executors.newSingleThreadExecutor();
 		final Future future = es.submit(new Callable() {
 		public Object call() throws Exception {
-			 Curation.withTransaction {
+			 Curation.withNewTransaction {
 				 new CurationManagerBusinessDelegate().doProcess(jobId);
 			  }
 				 return null;

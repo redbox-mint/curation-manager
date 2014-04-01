@@ -42,4 +42,5 @@ class IdentityServiceProviderConstants {
 	static final String REQUIRED_IDENTIFIERS = "required_identifiers";
 	static final String REQIDENTIFIERS  = "requiredIdentifiers"
 	static final String FAILED_VALIDATION = "Failed Validation";
+	static final String PERSON = "person";
 }

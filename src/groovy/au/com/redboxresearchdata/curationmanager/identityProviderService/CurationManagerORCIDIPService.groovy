@@ -16,6 +16,9 @@ class CurationManagerORCIDIPService implements IdentityProviderService{
 	@Value("#{orcPropSource[Name]}")
 	String name;
 	
+	@Value("#{nlaPropSource[Type]}")
+	String type;
+	
 	@Value("#{orcPropSource[Description]}")
 	String description;
 	
@@ -34,6 +37,11 @@ class CurationManagerORCIDIPService implements IdentityProviderService{
 	@Override
 	public String getName() {
 		return name;
+	}	
+	
+	@Override
+	public String getType() {
+		return type;
 	}
 	
 	public Boolean validate(Map.Entry pairs) throws Exception{

@@ -3,6 +3,8 @@ package au.com.redboxresearchdata.curationmanager.constants
 class CurationManagerConstants {
 
 	static final String  OID = "oid";
+	static final String NLA = "nla";
+	static final String ASC = "asc";
 	static final String METADATA = "metadata";
 	static final String JOIN = "join";
 	static final String TYPE = "type";
@@ -47,12 +49,14 @@ class CurationManagerConstants {
     static final String STATUS_PENDING = "PENDING";
 	static final String ENTRY = "entry";
 	static final String CURATIONS = "curations";
+	static final String CURATION = "curation";
 	static final String INC_DELIMITER = "[[INC]]";
 	static final String OID_DELIMITER = "[[OID]]";
 	static final String ENTRY_ID = "entry.id";
 	static final String REQUIRED_IDENTIFIERS = "required_identifiers";
 	static final String REQIDENTIFIERS  = "requiredIdentifiers"
 	static final String FAILED_VALIDATION = "Failed Validation";
+	static final String CURATIONMANAGER_JOB_LOOKUP_FAILED = "curationmanager.job.lookup.failed"
 	static final String CURATIONMANAGER_IDENTITYSERVICE_FAILED = "curationmanager.identityService.failed"
 	static final String CURATIONMANAGER_IDENTITYSERVICE_IDENTIFIER_NULL = "curationmanager.identityService.identifier.null"
 	static final String CURATIONMANAGER_IDENTITYSERVICE_NO_RESULT = "curationmanager.identityService.no.result";

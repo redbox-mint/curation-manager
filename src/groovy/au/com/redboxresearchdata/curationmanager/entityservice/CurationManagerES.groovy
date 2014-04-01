@@ -25,6 +25,7 @@ import au.com.redboxresearchdata.curationmanager.utility.MessageResolver;
 
 import org.apache.commons.logging.LogFactory
 import org.hibernate.FetchMode
+import org.hibernate.PessimisticLockException;
 
 class CurationManagerES {
 
@@ -78,8 +79,8 @@ class CurationManagerES {
 				curationJob.save(flush:true);
 			}
 		}catch(org.springframework.dao.OptimisticLockingFailureException oex){
-			log.error(oex.getMessage() + oex.getCause());
-			curationJob.lock();
+			log.error(oex.getMessage());
+			log.error(oex.getCause());
 			curationJob.save(flush:true);
 		}
 		if(null !=  curationJob && null != curationJob.getId()){
@@ -293,32 +294,50 @@ class CurationManagerES {
 	}
 
 	def void updateCuration(curation, identifier, curationStatus, dateCompleted,   errorMsg)
-	  throws CurationManagerEVException,  Exception{
-	 
+	  throws CurationManagerEVException{	 
      try{	
-		curation.setIdentifier(identifier);
-		curation.setError(errorMsg);
-		curation.setDateCompleted(dateCompleted);
+	  Long curationId = curation.id;	 
+	  Curation.withNewTransaction {
+		Curation newCuration = Curation.findById(curationId, [lock: true]);
+		newCuration.lock(curationId);
+		newCuration.setIdentifier(identifier);
+		newCuration.setError(errorMsg);
+		newCuration.setDateCompleted(dateCompleted);
 		CurationStatusLookup curationStatusLookup = statusLookup(curationStatus);
-		curation.setCurationStatusLookup(curationStatusLookup);
-		curation.lock();
-		curation.save(flush:true);
-	  } catch(Exception ex){
-	    throwEntityException(ex)
+		newCuration.setCurationStatusLookup(curationStatusLookup);
+		newCuration.save(flush:true);
 	  }
+	  }catch(org.springframework.dao.OptimisticLockingFailureException e){
+	    updateCuration(curation, identifier, curationStatus, dateCompleted, errorMsg);
+	  }  catch(PessimisticLockException pex){
+	    updateCuration(curation, identifier, curationStatus, dateCompleted, errorMsg);
+	  }catch(Exception ex){
+	    updateCuration(curation, identifier, curationStatus, dateCompleted, errorMsg);
+	  }
+     
 	}
 
-	def void updateCurationJob(curationJob, curationStatus) throws CurationManagerEVException, Exception{
-		
+	def void updateCurationJob(curationJob, curationStatus) throws CurationManagerEVException{		
 	  try{
-		  CurationStatusLookup curationStatusLookup = statusLookup(curationStatus);
-		  curationJob.setCurationStatusLookup(curationStatusLookup);
-		  curationJob.setDateCompleted(DateUtil.getW3CDate());
-		  curationJob.lock();
-		  curationJob.save(flush:true);
-		} catch(Exception ex){
-		throwEntityException(ex)
-	  }
+		  Long curationJobId = curationJob.id;
+			//curationJob.lock();
+		  CurationJob.withNewTransaction {
+			CurationJob newCurationJob= CurationJob.findById(curationJobId, [lock: true]);
+			newCurationJob.lock(curationJobId);
+		    CurationStatusLookup curationStatusLookup = statusLookup(curationStatus);
+		    newCurationJob.setCurationStatusLookup(curationStatusLookup);
+		    newCurationJob.setDateCompleted(DateUtil.getW3CDate());
+		    newCurationJob.save(flush:true);
+		  }
+		} catch(org.springframework.dao.OptimisticLockingFailureException e){
+		  updateCurationJob(curationJob, curationStatus);
+	    } catch(PessimisticLockException pex){
+	      updateCurationJob(curationJob, curationStatus);
+	    }catch(Exception ex){
+		 log.error(ex.getMessage());
+		 log.error(ex.getCause());
+		 throwEntityException(ex)
+	    }
 	}
 
 	def CurationStatusLookup statusLookup(statusValue) throws Exception{
@@ -383,11 +402,11 @@ class CurationManagerES {
 		return curationManagerResponse;
 	}
 
-		def void throwEntityException(Exception ex) throws CurationManagerEVException { 
-			log.error(ex.getMessage() + ex.getCause());
-			def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
-			throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
-	  }
+	def void throwEntityException(Exception ex) throws CurationManagerEVException { 
+		log.error(ex.getMessage() + ex.getCause());
+		def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
+		throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
+   }
 
 	def CurationManagerResponse retreiveJobByEntry(entry, jobItems, curationJob) throws CurationManagerEVException, Exception{
 		CurationManagerResponse curationManagerResponse = new CurationManagerResponse();
@@ -440,9 +459,9 @@ class CurationManagerES {
 
 	def CurationManagerResponse retreiveJob(jobId) throws CurationManagerEVException, Exception{
 		CurationManagerResponse curationManagerResponse;
-		try {
+
 		 Entry.withNewTransaction {
-			CurationJob curationJob = CurationJob.findById(jobId);
+			CurationJob curationJob = CurationJob.findById(jobId, [lock: true]);
 			if(null == curationJob){
 				def msg = MessageResolver.getMessage(CurationManagerConstants.JOBID_EXISTS);
 				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
@@ -465,9 +484,6 @@ class CurationManagerES {
 				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
 			}
 		}
-		} catch(Exception ex){
-		throwEntityException(ex)
-	  }
 		return curationManagerResponse;
 	}
 	
@@ -493,8 +509,31 @@ class CurationManagerES {
 		     curation.setEntry(entry);
 		     curation.save();
 		    }
-	 	} catch(Exception ex){
-	 	  throwEntityException(ex)
-	    }
+	 	} catch(org.springframework.dao.OptimisticLockingFailureException e){
+		  insertCurationWithDependentIdentifier(metaData, oid, depdentIdentifier, dependentIdentifierName, type, title);
+	    } catch(PessimisticLockException pex){
+	      insertCurationWithDependentIdentifier(metaData, oid, depdentIdentifier, dependentIdentifierName, type, title);
+	    }catch(Exception ex){
+	     throwEntityException(ex)
+	  }
 	}	
+	
+	def void insertCuration(curation, nlaId){
+	  if(null!= curation.id) {	
+		 Long curationId = curation.id; 
+		 Curation.withNewTransaction  {
+			Curation newCuration = Curation.findById(curationId, [lock: true]);
+			if(null != nlaId) {
+			  newCuration.setIdentifier(nlaId);
+			  Date dateW3C = DateUtil.getW3CDate();
+			  newCuration.setDateCompleted(dateW3C);
+			  CurationStatusLookup completedCurationStatusLookup = CurationStatusLookup.findByValue(CurationManagerConstants.COMPLETED);
+		      newCuration.setCurationStatusLookup(completedCurationStatusLookup);
+			}
+			Set<CurationJobItems> curationJobItems = newCuration.getCurationJobItems();
+		    newCuration.lock(curationId);
+		    newCuration.save(flush:true);
+	    }
+	  }
+	}
 }

@@ -1,5 +1,6 @@
 import au.com.redboxresearchdata.curationmanager.domain.CurationStatusLookup
 import au.com.redboxresearchdata.curationmanager.domain.EntryTypeLookup
+import au.com.redboxresearchdata.curationmanager.taskexecutor.TaskExecutor
 
 class BootStrap {
     def init = { servletContext ->
@@ -12,7 +13,8 @@ class BootStrap {
 		new EntryTypeLookup(value: "person").save();
 		new EntryTypeLookup(value: "group").save();
 		new EntryTypeLookup(value: "document").save();
-
+		
+		TaskExecutor taskExecutor = new TaskExecutor();
     }
     def destroy = {
     }

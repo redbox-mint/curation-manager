@@ -1,5 +1,6 @@
 package au.com.redboxresearchdata.curationmanager.businessvalidator
 
+import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 import org.apache.commons.logging.LogFactory
 import org.apache.commons.logging.Log;
 import java.util.List;
@@ -47,6 +48,20 @@ class CurationManagerBV {
 	def void validateNullRequestParams(requestParams) throws CurationManagerBSException{
 		if(null == requestParams){
 			createException(CurationManagerConstants.REQUEST_PARAMS_NULL);
+		}
+	}
+	
+	def void validateJMS(ctx){
+		try{
+		 def jmsService = ctx.getBean(IdentityServiceProviderConstants.JMS_SERVICE);
+		  if(null == jmsService){
+			  log.error("Check if the JMS is running");
+			  throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, "Check if the JMS is running");
+		  }
+		}catch(Exception ex){
+		 log.error(ex.getMessage());
+		 log.error(ex.getCause());
+		 throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, "Check if the JMS is running");
 		}
 	}
 	

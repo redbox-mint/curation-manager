@@ -9,18 +9,21 @@ import org.apache.commons.logging.Log;
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.springframework.context.ApplicationContext
 
 import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
 import au.com.redboxresearchdata.curationmanager.constants.CurationManagerConstants;
+import au.com.redboxresearchdata.curationmanager.identityProviderService.IdentityProviderService
 import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 
 class JsonUtil {
 
 	private static final Log log = LogFactory.getLog(this);
 	
-	def static Map getFilters(reqIdentifiers) throws CurationManagerBSException{
+	def static Map getFilters(reqIdentifiers) throws CurationManagerBSException{		
 	  Map identiferAndMetaData = new HashMap();
 	  try{	
+		ApplicationContext applicationContext =  ApplicationContextHolder.getApplicationContext();
 		reqIdentifiers = "{"+"required_identifiers"+":"+ reqIdentifiers +"}";
 		JSONObject jsonMetaData = new JSONObject(reqIdentifiers);
 		JSONArray jsonArray = jsonMetaData.getJSONArray(CurationManagerConstants.REQUIRED_IDENTIFIERS);
@@ -38,8 +41,15 @@ class JsonUtil {
 			}			
 			identiferAndMetaData.put(identifierType, metaData);
 		}
-		if(null != identiferAndMetaData.get("handle") && null != identiferAndMetaData.get("nla")) {
-			identiferAndMetaData.remove("handle");
+		if(identiferAndMetaData.containsKey("nla")) {
+			IdentityProviderService identityProviderService = applicationContext.getBean("nla");
+			if(null != identityProviderService){
+			   IdentityProviderService dependentIdentityProviderService = identityProviderService.getDependentProviderService();
+			   String dependentServiceId = dependentIdentityProviderService.getId();
+			   if(null != dependentServiceId) {
+			     identiferAndMetaData.remove(dependentServiceId);
+			   }
+			}
 		}
 	  } catch (Exception ex) {
 		def msg = MessageResolver.getMessage(IdentityServiceProviderConstants. ERROR_ACCESS_FILE);
@@ -52,7 +62,6 @@ class JsonUtil {
 	
 	def static Map getMapFromMetaData(String metaData){	
 		JSONObject jsonMetaData = new JSONObject(metaData);
-		println jsonMetaData;
 		Map filterMap = new HashMap();
 		if(null != jsonMetaData){
 			String description = (String)jsonMetaData.get("description");
@@ -66,7 +75,6 @@ class JsonUtil {
 	
 	def static Map getMapFromMetaDataForNLA(String metaData){
 		JSONObject jsonMetaData = new JSONObject(metaData);
-		println jsonMetaData;
 		Map filterMap = new HashMap();
 		if(null != jsonMetaData){
 			String description = (String)jsonMetaData.get("given_name");

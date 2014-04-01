@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -309,12 +309,12 @@ public class SRUClient {
      * this does not cover HTTP errors returned from the web server; use the
      * returned Object to check for these.
      */
-//    private GetMethod getUrl(String url) throws IOException {
-//        BasicHttpClient client = new BasicHttpClient(url);
-//        GetMethod get = new GetMethod(url);
-//        client.executeMethod(get);
-//        return get;
-//    }
+    private GetMethod getUrl(String url) throws IOException {
+        BasicHttpClient client = new BasicHttpClient(url);
+        GetMethod get = new GetMethod(url);
+        client.executeMethod(get);
+        return get;
+    }
 
     /**
      * <p>Generate a basic search URL for this SRU interface.</p>
@@ -459,9 +459,9 @@ public class SRUClient {
         }
 
         // Perform the search
-      //  GetMethod get = null;
+        GetMethod get = null;
         try {
-           def get = getUrl(searchUrl);
+            get = getUrl(searchUrl);
             int status = get.getStatusCode();
             if (status != 200) {
                 String text = get.getStatusText();
@@ -562,7 +562,7 @@ public class SRUClient {
      * @param id The identifier to search for
      * @return String The record matching this identifier. Null if not found
      */
-    public String nlaGetNationalId(String id) {
+    public String nlaGetNationalId(String id) throws Exception {
         Node node = nlaGetRecordNodeById(id);
 
         if (node == null) {
@@ -570,6 +570,11 @@ public class SRUClient {
         }
 
         List<Node> otherIds = node.selectNodes("eac:control/eac:otherRecordId");
+		if(null != otherIds && otherIds.size() > 1){
+			log.error("More than one record found with the same Name");
+			throw new Exception("More than one record found with the same Name");
+		}
+		
         for (Node idNode : otherIds) {
             String otherId = idNode.getText();
             if (otherId.startsWith("http://nla.gov.au")) {

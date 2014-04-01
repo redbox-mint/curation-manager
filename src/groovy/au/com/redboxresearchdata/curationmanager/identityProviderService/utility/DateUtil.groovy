@@ -1,5 +1,8 @@
 package au.com.redboxresearchdata.curationmanager.identityProviderService.utility
 
+/* @author Devika Indla
+ */
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -10,7 +13,15 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory
+import org.apache.commons.logging.Log
 class DateUtil {
+	
+	private static final Log log = LogFactory.getLog(this)
+	
 	private static final String W3CDTF_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
 	  private static SimpleDateFormat FULL_DATE = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
@@ -163,7 +174,7 @@ class DateUtil {
 		  cal.setTimeZone(TimeZone.getTimeZone(zone));
 		  return cal.getTime();
 		} catch (Exception e) {
-		  System.out.println(w3cDTFDate + " is invalid date string.");
+		  log.error(w3cDTFDate + " is invalid date string.");
 		}
 	
 		return null;

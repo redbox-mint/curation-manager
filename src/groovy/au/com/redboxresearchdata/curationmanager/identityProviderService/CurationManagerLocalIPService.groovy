@@ -40,14 +40,18 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 		return id;
 	}
 	
-	public Boolean validate(Map.Entry pairs) throws Exception{
-		return Boolean.TRUE;
-	}
-
 	@Override
 	public String getName() {
 		return name;
 	}
+	
+	@Value("#{nlaPropSource[Type]}")
+	String type;
+	
+	public Boolean validate(Map.Entry pairs) throws Exception{
+		return Boolean.TRUE;
+	}
+
 
 	@Override
 	public Boolean isSynchronous() {

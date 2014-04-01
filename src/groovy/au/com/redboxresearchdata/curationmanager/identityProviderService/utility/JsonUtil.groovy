@@ -53,7 +53,6 @@ class JsonUtil {
 	
 	def static Map getMapFromMetaData(String metaData){	
 		JSONObject jsonMetaData = new JSONObject(metaData);
-		println jsonMetaData;
 		Map filterMap = new HashMap();
 		if(null != jsonMetaData){
 			String description = (String)jsonMetaData.get("description");
@@ -67,7 +66,6 @@ class JsonUtil {
 	
 	def static Map getMapFromMetaDataForNLA(String metaData){
 		JSONObject jsonMetaData = new JSONObject(metaData);
-		println jsonMetaData;
 		Map filterMap = new HashMap();
 		if(null != jsonMetaData){
 			String description = (String)jsonMetaData.get("given_name");

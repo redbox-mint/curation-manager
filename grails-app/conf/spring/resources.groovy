@@ -5,7 +5,8 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 beans = {
 	vndJsonErrorRenderer(grails.rest.render.errors.VndErrorJsonRenderer)
 	jmsConnectionFactory(org.apache.activemq.ActiveMQConnectionFactory) {
-		brokerURL = 'tcp://localhost:61616'
+		//brokerURL = 'tcp://localhost:61616'
+		brokerURL = 'tcp://0.0.0.0:9301'
 	  }
 	importBeans('file:grails-app/conf/spring/identityProviderServiceApplicationContext.xml')
 	applicationContextHolder(ApplicationContextHolder) { bean ->
