@@ -5,7 +5,10 @@ grails.project.test.reports.dir = "target/test-reports"
 grails.project.work.dir = "target/work"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.project.war.file = "target/${appName}.war"
+grails.project.repos["redbox-nexus-snapshots"].url = "http://dev.redboxresearchdata.com.au/nexus/content/repositories/snapshots/"
+grails.project.repos.default = "redbox-nexus-snapshots"
+grails.release.scm.enabled = false
 grails.project.fork = [
 	// configure settings for compilation JVM, note that if you alter the Groovy version forked compilation is required
 	//  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
@@ -22,7 +25,7 @@ def activemqVersion = '5.7.0'
 grails.project.dependency.resolver = "maven" // or ivy
 grails.project.dependency.resolution = {
 	// inherit Grails' default dependencies
-    
+	
 	inherits("global") {
 	}
 	
@@ -43,10 +46,10 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
-		compile "org.quartz-scheduler:quartz:2.1.5" 
+		compile "org.quartz-scheduler:quartz:2.1.5"
 		compile 'org.dspace:handle:6.2.5.02'
 		compile 'org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1'
-	    compile('org.apache.activemq:activemq-core:5.3.0',
+		compile('org.apache.activemq:activemq-core:5.3.0',
 			'org.apache.activemq:activeio-core:3.1.2',
 			'org.apache.xbean:xbean-spring:3.7') {
 			excludes 'activemq-openwire-generator'
@@ -57,7 +60,7 @@ grails.project.dependency.resolution = {
 			exported = false
 		}
 		compile 'org.apache.commons:commons-io:1.3.2'
-		compile 'commons-httpclient:commons-httpclient:3.1'	
+		compile 'commons-httpclient:commons-httpclient:3.1'
 		compile 'org.springframework:spring-context:3.2.5.RELEASE'
 		compile 'org.springframework:spring-aop:3.2.5.RELEASE'
 		compile 'org.springframework:spring-beans:3.2.5.RELEASE'
@@ -80,10 +83,10 @@ grails.project.dependency.resolution = {
 		compile 'org.aspectj:aspectjrt:1.7.2'
 		compile 'cglib:cglib:2.2.2'
 		compile 'org.grails:grails-datastore-simple:2.0.6.RELEASE'
-		compile 'org.springframework:spring-webmvc:3.2.5.RELEASE'	
+		compile 'org.springframework:spring-webmvc:3.2.5.RELEASE'
 		runtime 'org.apache.derby:derby:10.8.2.2'
 		runtime 'org.apache.derby:derbynet:10.8.2.2'
-		runtime 'org.apache.derby:derbyclient:10.8.2.2'	
+		runtime 'org.apache.derby:derbyclient:10.8.2.2'
 		runtime 'postgresql:postgresql:9.1-902.jdbc4'
 	}
 
@@ -93,7 +96,7 @@ grails.project.dependency.resolution = {
 		build ":tomcat:7.0.47"
 		compile ":scaffolding:2.0.1"
 		compile ':cache:1.1.1'
-		runtime ":hibernate:3.6.10.6" 
+		runtime ":hibernate:3.6.10.6"
 		runtime ":database-migration:1.3.8"
 		runtime ":jquery:1.10.2.2"
 		runtime ":resources:1.2.1"
