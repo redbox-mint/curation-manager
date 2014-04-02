@@ -87,7 +87,7 @@ grails.project.dependency.resolution = {
 		runtime 'org.apache.derby:derby:10.8.2.2'
 		runtime 'org.apache.derby:derbynet:10.8.2.2'
 		runtime 'org.apache.derby:derbyclient:10.8.2.2'
-		runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
+		runtime 'postgresql:postgresql:9.1-902.jdbc4'
 	}
 
 	plugins {
