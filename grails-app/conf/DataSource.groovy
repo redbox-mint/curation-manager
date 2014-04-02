@@ -4,7 +4,6 @@ dataSource {
 	driverClassName = "org.postgresql.Driver"
 	dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
 	url = "jdbc:postgresql://localhost/curationmanager"
-	dialect = "org.hibernate.dialect.PostgreSQLDialect"
 	username = "curationmanager"
 	password = "curationmanager"
  // Derby database
@@ -29,7 +28,6 @@ environments {
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
 			url = "jdbc:postgresql://localhost/curationmanager"
-			dialect = "org.hibernate.dialect.PostgreSQLDialect"
 			username = "curationmanager"
 			password = "curationmanager"
 		// Derby datasource
@@ -45,7 +43,6 @@ environments {
 		  driverClassName = "org.postgresql.Driver"
 		  dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
 		  url = "jdbc:postgresql://localhost/curationmanager"
-		  dialect = "org.hibernate.dialect.PostgreSQLDialect"
 		  username = "curationmanager"
 		  password = "curationmanager"
 		}
@@ -56,7 +53,7 @@ environments {
 		  driverClassName = "org.postgresql.Driver"
 		  dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
 		  url = "jdbc:postgresql://localhost/curationmanager"
-		  dialect = "org.hibernate.dialect.PostgreSQLDialect"
+		  //dialect = "org.hibernate.dialect.PostgreSQLDialect"
 		  username = "curationmanager"
 		  password = "curationmanager"
 		}
