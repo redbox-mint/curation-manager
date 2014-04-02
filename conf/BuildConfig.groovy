@@ -83,7 +83,8 @@ grails.project.dependency.resolution = {
 		compile 'org.springframework:spring-webmvc:3.2.5.RELEASE'	
 		runtime 'org.apache.derby:derby:10.8.2.2'
 		runtime 'org.apache.derby:derbynet:10.8.2.2'
-		runtime 'org.apache.derby:derbyclient:10.8.2.2'		
+		runtime 'org.apache.derby:derbyclient:10.8.2.2'	
+		runtime 'postgresql:postgresql:9.1-902.jdbc4'
 	}
 
 	plugins {
