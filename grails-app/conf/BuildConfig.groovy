@@ -6,6 +6,9 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 grails.project.war.file = "target/${appName}.war"
+grails.project.repos["redbox-nexus-snapshots"].url = "http://dev.redboxresearchdata.com.au/nexus/content/repositories/snapshots/"
+grails.project.repos.default = "redbox-nexus-snapshots"
+grails.release.scm.enabled = false
 grails.project.fork = [
 	// configure settings for compilation JVM, note that if you alter the Groovy version forked compilation is required
 	//  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
