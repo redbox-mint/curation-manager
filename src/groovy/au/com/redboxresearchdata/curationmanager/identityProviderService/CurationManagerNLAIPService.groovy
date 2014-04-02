@@ -152,7 +152,7 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	   JSON jsonMessage = map2Json(metaDataMap)
 	   String validJson = jsonMessage.toString();
 	   def jmsService = applicationContext.getBean(IdentityServiceProviderConstants.JMS_SERVICE);
-	   jmsService.send(queue:"CurationManagerQueue", validJson);
+	   jmsService.send(queue:"oaiPmhFeed", validJson);
 	   baseIdentityResult = new PromiseResult()
 	   baseIdentityResult.setIdentifier(oid);
 	}catch(Exception ex){
