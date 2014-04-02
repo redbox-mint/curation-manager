@@ -28,6 +28,5 @@ beans = {
 					bean.factoryMethod = 'getInstance'
 				}
 		}
-	}
-	
+	}	
 }
