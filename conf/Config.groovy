@@ -95,7 +95,7 @@ environments {
 }
  log4j = {	
 	appenders {
-		rollingFile name: "mainRollingFileAppender", maxFileSize:1048576, maxFileIndex:10, file:'grails-app/logs/curationmanager.log'
+		rollingFile name: "mainRollingFileAppender", maxFileSize:1048576, maxFileIndex:10, file:'/var/local/curationmanager/logs/curationmanager.log'
 	environments {
 		development {
 		   debug mainRollingFileAppender: ['grails.app','org.apache', 'org.springframework'], additivity:false
