@@ -21,7 +21,12 @@
   <bean id="handle" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerHandleIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="orcid" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerORCIDIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="nla" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerNLAIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
-<!-- 
+  
+  <bean class="au.com.redboxresearchdata.curationmanager.taskexecutor.TaskExecutor">
+  	<constructor-arg ref="curationTaskExecutor" />
+  </bean>  
+  	  
+	 
  <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
     <property name="corePoolSize" value="1" />
     <property name="maxPoolSize" value="1" />
@@ -31,5 +36,5 @@
   <bean id="curationTaskExecutor" class="au.com.redboxresearchdata.curationmanager.taskexecutor.CurationTaskExecutor">
      <constructor-arg ref="taskExecutor" />
   </bean>
-  -->   
+     
 </beans>

@@ -14,7 +14,7 @@ class BootStrap {
 		new EntryTypeLookup(value: "group").save();
 		new EntryTypeLookup(value: "document").save();
 		
-		TaskExecutor taskExecutor = new TaskExecutor();
+//		TaskExecutor taskExecutor = new TaskExecutor();
     }
     def destroy = {
     }
