@@ -11,11 +11,11 @@
  
     <task:annotation-driven />
  
- <util:properties id="asynchronousPropSource" location="file:web-app/WEB-INF/conf/spring/identityProdiverServiceProperties/asynchronousSchedule.properties"/>
- <util:properties id="orcPropSource" location="file:web-app/WEB-INF/conf/spring/identityProdiverServiceProperties/localIdentityProviderConf.properties"/>
- <util:properties id="localPropSource" location="file:web-app/WEB-INF/conf/spring/identityProdiverServiceProperties/localIdentityProviderConf.properties"/>
- <util:properties id="handlePropSource" location="file:web-app/WEB-INF/conf/spring/identityProdiverServiceProperties/handleIdentityProviderConf.properties"/>  
- <util:properties id="nlaPropSource" location="file:web-app/WEB-INF/conf/spring/identityProdiverServiceProperties/nlaIdentityProviderConf.properties"/>                               
+ <util:properties id="asynchronousPropSource" location="file:/var/local/curationmanager/asynchronousSchedule.properties"/>
+ <util:properties id="orcPropSource" location="file:/var/local/curationmanager/localIdentityProviderConf.properties"/>
+ <util:properties id="localPropSource" location="/var/local/curationmanager/localIdentityProviderConf.properties"/>
+ <util:properties id="handlePropSource" location="file:/var/local/curationmanager/handleIdentityProviderConf.properties"/>  
+ <util:properties id="nlaPropSource" location="file:/var/local/curationmanager/nlaIdentityProviderConf.properties"/>                               
                                    
   <bean id="local" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerLocalIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="handle" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerHandleIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
