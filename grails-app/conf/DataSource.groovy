@@ -3,14 +3,9 @@ dataSource {
 	pooled = false
 	driverClassName = "org.postgresql.Driver"
 	dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-	url = "jdbc:postgresql://localhost:5433/curationmanager"
-	username = "postgres"
-	password = "123devi"
- // Derby database
-//	pooled = false
-//	driverClassName = "org.apache.derby.jdbc.ClientDriver"
-//	dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-//	url = "jdbc:derby://127.0.0.1:1527/CURATIONMANAGER;create=TRUE"
+	url = "jdbc:postgresql://localhost/curationmanager"
+	username = "curationmanager"
+	password = "curationmanager"
 }
 
 hibernate {
@@ -27,14 +22,9 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost:5433/curationmanager"
-			username = "postgres"
-			password = "123devi"
-		// Derby datasource
-//		   pooled = false
-//		   driverClassName = "org.apache.derby.jdbc.ClientDriver"
-//		   dbCreate = "create" // one of 'create', 'create-drop', 'update', 'validate', ''
-//		   url = "jdbc:derby://127.0.0.1:1527/CURATIONMANAGER;create=TRUE"
+			url = "jdbc:postgresql://localhost/curationmanager"
+			username = "curationmanager"
+			password = "curationmanager"
 		}
 	}
 	test {
@@ -42,9 +32,9 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost:5433/curationmanager"
-			username = "postgres"
-			password = "123devi"
+			url = "jdbc:postgresql://localhost/curationmanager"
+			username = "curationmanager"
+			password = "curationmanager"
 		}
 	}
 	production {
@@ -52,9 +42,9 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost:5433/curationmanager"
-			username = "postgres"
-			password = "123devi"
+			url = "jdbc:postgresql://localhost/curationmanager"
+			username = "curationmanager"
+			password = "curationmanager"
 		}
 	}
 }
