@@ -12,7 +12,7 @@ beans = {
 					//brokerURL = 'tcp://localhost:61616'
 					brokerURL = 'tcp://0.0.0.0:9301'
 				}
-				importBeans('file:/var/local/curationmanager/resource.xml')
+				importBeans('file:/var/local/curationmanager2/resource.xml')
 				applicationContextHolder(ApplicationContextHolder) { bean ->
 					bean.factoryMethod = 'getInstance'
 				}
@@ -23,7 +23,7 @@ beans = {
 					//brokerURL = 'tcp://localhost:61616'
 					brokerURL = 'tcp://0.0.0.0:9301'
 				}
-				importBeans('file:/var/local/curationmanager/resource.xml')
+				importBeans('file:/var/local/curationmanager2/resource.xml')
 				applicationContextHolder(ApplicationContextHolder) { bean ->
 					bean.factoryMethod = 'getInstance'
 				}
