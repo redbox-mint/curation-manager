@@ -3,9 +3,9 @@ dataSource {
 	pooled = false
 	driverClassName = "org.postgresql.Driver"
 	dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-	url = "jdbc:postgresql://localhost/curationmanager"
-	username = "curationmanager"
-	password = "curationmanager"
+	url = "jdbc:postgresql://localhost:5433/curationmanager"
+	username = "postgres"
+	password = "123devi"
  // Derby database
 //	pooled = false
 //	driverClassName = "org.apache.derby.jdbc.ClientDriver"
@@ -27,9 +27,9 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			url = "jdbc:postgresql://localhost:5433/curationmanager"
+			username = "postgres"
+			password = "123devi"
 		// Derby datasource
 //		   pooled = false
 //		   driverClassName = "org.apache.derby.jdbc.ClientDriver"
@@ -39,23 +39,22 @@ environments {
 	}
 	test {
 		dataSource {
-		  pooled = false
-		  driverClassName = "org.postgresql.Driver"
-		  dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-		  url = "jdbc:postgresql://localhost/curationmanager"
-		  username = "curationmanager"
-		  password = "curationmanager"
+			pooled = false
+			driverClassName = "org.postgresql.Driver"
+			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:postgresql://localhost:5433/curationmanager"
+			username = "postgres"
+			password = "123devi"
 		}
 	}
 	production {
 		dataSource {
-		  pooled = false
-		  driverClassName = "org.postgresql.Driver"
-		  dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-		  url = "jdbc:postgresql://localhost/curationmanager"
-		  //dialect = "org.hibernate.dialect.PostgreSQLDialect"
-		  username = "curationmanager"
-		  password = "curationmanager"
+			pooled = false
+			driverClassName = "org.postgresql.Driver"
+			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:postgresql://localhost:5433/curationmanager"
+			username = "postgres"
+			password = "123devi"
 		}
 	}
 }

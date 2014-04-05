@@ -47,8 +47,8 @@ class CurationJobRunner {
 					curationResult.each {
 						Curation handleCuration = it;
 						String identifier = handleCuration.getIdentifier();
-						//nlaId = sRUClient.nlaGetNationalId("b4c535606557c854b0560cd45d454640");
-						nlaId = sRUClient.nlaGetNationalId(identifier);
+						nlaId = sRUClient.nlaGetNationalId("b4c535606557c854b0560cd45d454640");
+						//nlaId = sRUClient.nlaGetNationalId(identifier);
 						if(null == nlaId || "".equals(nlaId)){
 							log.error("Object '{}' does not yet have a national Identity in NLA"+ oid);
 						}else if(null != nlaId){

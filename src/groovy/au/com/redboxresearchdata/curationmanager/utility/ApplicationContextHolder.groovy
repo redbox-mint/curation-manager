@@ -12,34 +12,26 @@ import grails.util.Holders
  
 @Singleton
 class ApplicationContextHolder implements ApplicationContextAware {
- 
-  static  ApplicationContext getApplicationContext() {
-        Holders.grailsApplication.mainContext
-   }
+ static ApplicationContext ctx;
    
-   static GrailsApplication getGrailsApplication() {
-		ApplicationContext ctx = Holders.grailsApplication.mainContext
-		ctx.getBean('grailsApplication')
+	static ApplicationContext getApplicationContext() {
+		   getInstance().ctx
 	}
   
 	static ServletContext getServletContext() {
-		 ApplicationContext ctx = Holders.grailsApplication.mainContext
-		 ctx.getBean('servletContext')
+		 getApplicationContext().getBean('servletContext')
 	}
    static GrailsPluginManager getPluginManager() {
-	   ApplicationContext ctx = Holders.grailsApplication.mainContext
-	   ctx.getBean('pluginManager')
+	   getApplicationContext().getBean('pluginManager')
 	}
-	
-	
+
 	static PluginAwareResourceBundleMessageSource getMessageSource() {
-		ApplicationContext ctx = Holders.grailsApplication.mainContext
-	    ctx.getBean("messageSource");
-	} 
+		getApplicationContext().getBean("messageSource");
+	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext ctx)
+	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
-		
+		ctx = applicationContext
 	}
 }

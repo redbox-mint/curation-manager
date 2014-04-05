@@ -37,7 +37,7 @@ class JsonUtil {
 			if(null != identiferAndMetaData.get(identifierType)){
 				def msg = MessageResolver.getMessage(CurationManagerConstants.FAILED_VALIDATION);
 				log.error(msg);
-				throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, msg);
+				throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, new Throwable(msg));
 			}			
 			identiferAndMetaData.put(identifierType, metaData);
 		}

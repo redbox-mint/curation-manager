@@ -91,7 +91,7 @@ grails.project.dependency.resolution = {
 	}
 
 	plugins {
-		compile ":quartz:1.0.1"
+		//compile ":quartz:1.0.1"
 		compile ":jms:1.2"
 		build ":tomcat:7.0.47"
 		compile ":scaffolding:2.0.1"

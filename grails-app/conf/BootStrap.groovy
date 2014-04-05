@@ -13,8 +13,6 @@ class BootStrap {
 		new EntryTypeLookup(value: "person").save();
 		new EntryTypeLookup(value: "group").save();
 		new EntryTypeLookup(value: "document").save();
-		
-//		TaskExecutor taskExecutor = new TaskExecutor();
     }
     def destroy = {
     }

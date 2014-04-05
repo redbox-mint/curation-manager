@@ -11,13 +11,13 @@
  
  <util:properties id="asynchronousPropSource" location="file:/var/local/curationmanager/asynchronousSchedule.properties"/>
  <util:properties id="orcPropSource" location="file:/var/local/curationmanager/localIdentityProviderConf.properties"/>
- <util:properties id="localPropSource" location="file:/var/local/curationmanagerlocalIdentityProviderConf.properties"/>
- <util:properties id="handlePropSource" location="/var/local/curationmanager/handleIdentityProviderConf.properties"/>  
+ <util:properties id="localPropSource" location="file:/var/local/curationmanager/localIdentityProviderConf.properties"/>
+ <util:properties id="handlePropSource" location="file:/var/local/curationmanager/handleIdentityProviderConf.properties"/>  
  <util:properties id="nlaPropSource" location="file:/var/local/curationmanager/nlaIdentityProviderConf.properties"/>                               
-                                   
+                            
   <bean id="local" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerLocalIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="handle" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerHandleIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="orcid" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerORCIDIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="nla" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerNLAIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
- 
+     
 </beans>

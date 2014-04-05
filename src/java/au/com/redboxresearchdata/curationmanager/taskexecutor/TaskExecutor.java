@@ -1,12 +1,7 @@
 package au.com.redboxresearchdata.curationmanager.taskexecutor;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.apache.commons.logging.LogFactory;
 
 public class TaskExecutor {
 	private static final Log log = LogFactory.getLog(TaskExecutor.class);
@@ -14,7 +9,7 @@ public class TaskExecutor {
     public TaskExecutor(CurationTaskExecutor myTaskExecutor){
     	try{    		
     	  
-    	  myTaskExecutor.executeTask();
+    	 // myTaskExecutor.executeTask();
     	}catch(Exception ex){
     		log.error(ex.getMessage());
     		log.error(ex.getCause());

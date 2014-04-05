@@ -7,10 +7,13 @@ import au.com.redboxresearchdata.curationmanager.businesservicexception.Curation
 import au.com.redboxresearchdata.curationmanager.businessservice.CurationManagerBusinessService
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.springframework.context.ApplicationContext
 
 
 class CurationManagerController{
   
+	def grailsApplication;
+	
     def job(){
 	    if(request.method == 'GET'){
  	      showJob()
@@ -21,6 +24,11 @@ class CurationManagerController{
 	
 	def save() {
 		try{		
+			println grailsApplication;
+			println grailsApplication.mainContext;
+			ApplicationContext context =  grailsApplication.mainContext
+			println context.getBean("local");
+			println context.getBeanDefinitionNames().toString();
 			JSONArray requestParams = (JSONArray)  request.JSON.records;
 			CurationManagerBusinessService curationMgrBS = new CurationManagerBusinessService();
 			CurationManagerResponse curationManagerResponse = curationMgrBS.curate(requestParams);

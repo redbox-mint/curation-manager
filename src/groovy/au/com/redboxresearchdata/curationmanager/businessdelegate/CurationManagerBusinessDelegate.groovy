@@ -8,6 +8,7 @@ import au.com.redboxresearchdata.curationmanager.identityProviderResult.BaseIden
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.IdentifierResult;
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.PromiseResult;
 import au.com.redboxresearchdata.curationmanager.identityProviderService.IdentityProviderService;
+import au.com.redboxresearchdata.curationmanager.jobrunner.CurationJobRunner
 
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -34,9 +35,9 @@ class CurationManagerBusinessDelegate {
 		def results =  CurationJob.withCriteria(uniqueResult: true){
 			createAlias("curationJobItems", "curJobItems")
 			createAlias("curationStatusLookup", "curJobStatusLookup")
-			//createAlias("curJobItems.curation", "cur")
-			//createAlias("cur.curationStatusLookup","curStatslookup")
-			//eq("curStatslookup.value", "IN_PROGRESS")
+			createAlias("curJobItems.curation", "cur")
+			createAlias("cur.curationStatusLookup","curStatslookup")
+			eq("curStatslookup.value", "IN_PROGRESS")
 			eq("curJobStatusLookup.value", CurationManagerConstants.IN_PROGRESS)
 			maxResults(1)
 			order("dateCreated", CurationManagerConstants.ASC)
@@ -47,6 +48,7 @@ class CurationManagerBusinessDelegate {
 		  updateCurationAndIdentityService(it, curationJobItems, curationManagerES);
 		  updateCurationJob(curationJobItems, curationManagerES);
 		} 	   
+		new CurationJobRunner().executeJob();
 	}
 	
 	def void updateCurationJob(curationJobItems, curationManagerES) throws Exception{
