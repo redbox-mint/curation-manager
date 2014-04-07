@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.JsonUtil;
 import au.com.redboxresearchdata.curationmanager.identityprovider.domain.IdentityProviderIncrementor
 
+import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.DateUtil;
 
 class CurationManagerNLAIPService implements IdentityProviderService{
 	
@@ -87,8 +88,8 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	}
 	
 	@Override
-	public String getMetadataPrefix() {
-		return metadataPrefix;
+	public String[] getMetadataPrefix() {
+		 return metadataPrefix.split(",");
 	}
 	
 	public Map<String, String> getMetaDataMap(String metaData) {
@@ -165,6 +166,8 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	private JSON map2Json(Map metaDataMap) throws Exception{
 		JSON json = metaDataMap as JSON
 		if(null != json){
+		  println "-----------I am in the JSON---------------";
+		  println json
 		  return json;
 		}
 		return null;
@@ -191,37 +194,37 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	  Map<String, String> recordId = new HashMap();
 	  IdentityProviderIncrementor localIdentityProviderIncrementor = new IdentityProviderIncrementor()
 	  localIdentityProviderIncrementor.save();
-	  recordId.put("recordId", jobId + oid + localIdentityProviderIncrementor.id.toString());
+	  String idIncrementor;
+	  if(null != localIdentityProviderIncrementor && null != localIdentityProviderIncrementor.id){
+		  idIncrementor = localIdentityProviderIncrementor.id.toString();
+		  recordId.put("recordId", jobId + oid + idIncrementor);
+	  }else{
+	     recordId.put("recordId", jobId + oid);
+	  }
 	  recordId.put("metadataPrefix", getMetadataPrefix());
-	  recordId.put("source", getRecordSource());
+	  recordId.put("source", getRecordSource()); 
 	  
-	  Map<String, String> name = new HashMap<String, String>();
-	  name.put("surname", requestJsonMap.get("family_name"));
-	  name.put("forename", requestJsonMap.get("given_name"));
-	  
-	  Map<String, Map> partType = new HashMap<String, Map>();
-	  partType.put("part_localtype", name);
-	  
-	  Map entity = new HashMap();
-	  
-	  entity.put("entityId", depdentIdentifier);
-	  entity.put("nameEntry", partType);
-	 
-	  Map identity = new HashMap();
-	  identity.put("identity", entity);
-	  
-	  Map recordOid = new HashMap();
-	  recordOid.put("recordId", oid);
-	  recordOid.put("control", maintenanceAgency);
-	  recordOid.put("cpfDescription", identity);
+	  Map jsonData = new HashMap();
+	  jsonData.put("recordId", oid);
+	  jsonData.put("control", maintenanceAgency);
+	  jsonData.put("entityId", requestJsonMap.get("depdentIdentifier"));
+	  jsonData.put("surname", requestJsonMap.get("family_name"));
+	  jsonData.put("forename", requestJsonMap.get("given_name"));
+	  jsonData.put("description", requestJsonMap.get("description"));
+	  jsonData.put("salutation", requestJsonMap.get("salutation"));
+	  jsonData.put("dateStamp", DateUtil.getW3CDate());
 	   
-	  recordId.put("jsonData", recordOid);
+	  recordId.put("jsonData", jsonData);
 	  
 	  Map<String, Map> data = new HashMap();
 	  data.put("data", recordId);
 
 	  Map<String, Map> typeRecord = new TreeMap();
-	  typeRecord.put("record_person", getType());	
+	  String record = "record";
+	  if(null != getType()){
+		 record =  "record"+"_"+getType()
+	  }
+	  typeRecord.put("type", record);	
 	 
 	  Map<String, Map> header = new TreeMap<String, Map>();
 	  header.put("header",  typeRecord);
