@@ -68,12 +68,20 @@ class JsonUtil {
 		JSONObject jsonMetaData = new JSONObject(metaData);
 		Map filterMap = new HashMap();
 		if(null != jsonMetaData){
-			String description = (String)jsonMetaData.get("given_name");
-			String url = (String)jsonMetaData.get("family_name");
+			if(jsonMetaData.containsKey("description")){
+			   String description = (String)jsonMetaData.get("description");
+			   filterMap.put("description", description);
+			}
+			if(jsonMetaData.containsKey("salutation")){
+			  String salutation = (String)jsonMetaData.get("salutation");
+			  filterMap.put("salutation", salutation);
+			}
+			String givenName = (String)jsonMetaData.get("given_name");
+			String familyName = (String)jsonMetaData.get("family_name");
 		    String eventDate =  jsonMetaData.get("eventDateTime_standardDateTime");
 			Date date = DateUtil.parseW3CDTFDate(eventDate);
-			filterMap.put("given_name", description);
-			filterMap.put("family_name", url);
+			filterMap.put("given_name", givenName);
+			filterMap.put("family_name", familyName);
 			filterMap.put("eventDateTime_standardDateTime", date);
 		}
 		return filterMap;
