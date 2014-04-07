@@ -166,8 +166,6 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	private JSON map2Json(Map metaDataMap) throws Exception{
 		JSON json = metaDataMap as JSON
 		if(null != json){
-		  println "-----------I am in the JSON---------------";
-		  println json
 		  return json;
 		}
 		return null;
@@ -207,7 +205,7 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	  Map jsonData = new HashMap();
 	  jsonData.put("recordId", oid);
 	  jsonData.put("control", maintenanceAgency);
-	  jsonData.put("entityId", requestJsonMap.get("depdentIdentifier"));
+	  jsonData.put("entityId", depdentIdentifier);
 	  jsonData.put("surname", requestJsonMap.get("family_name"));
 	  jsonData.put("forename", requestJsonMap.get("given_name"));
 	  jsonData.put("description", requestJsonMap.get("description"));
