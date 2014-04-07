@@ -166,7 +166,7 @@ class CurationManagerES {
 		throws CurationManagerEVException, Exception{
 		
 		Map requiredIdentifiersNew =  new HashMap();
-		List reqIdentifiersNew = new ArrayList();
+		Map requiredIdentifiersType =  new HashMap();
 		try {
 		 List curations = entry.getCurations();
 		 for(Curation curationNew : curations){
@@ -174,6 +174,7 @@ class CurationManagerES {
 			String identifierType = curationNew.getIdentifierType();
 			if(previousNewFilters.contains(identifierType) && entryOid.equals(oid)){
 				Map requiredIdentifiers =  new HashMap();
+				List reqIdentifiersNew = new ArrayList();
 				CurationJobItems curationJobItemsNew = createCurationJobItemsEntity(curationJob);
 				curationJobItemsNew.setCuration(curationNew);
 				curationJobItemsNew.setCurationJob(curationJob);
@@ -185,9 +186,10 @@ class CurationManagerES {
 				requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curationNew.getDateCreated());
 				requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curationNew.getDateCompleted());
 				reqIdentifiersNew.add(requiredIdentifiers);
+				requiredIdentifiersType.put(curationNew.getIdentifierType(), reqIdentifiersNew);
 			}
 		  }
-		  requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew)
+		  requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType)
 		  if(previousNewFilters.size() > 0 && entry.getId().equals(oid)){
 			requiredIdentifiersNew.putAll(createCurationEntities(oid, type, title, jobItems,  curationJob,
 					entry, curationStatusLookup, reqIdentifiers,  previousNewFilters, newFiltersMap,  dateW3C));
@@ -230,19 +232,20 @@ class CurationManagerES {
 			entry, curationStatusLookup, reqIdentifiers, newFilters,  newFiltersMap, dateW3C)
 		throws CurationManagerEVException, Exception{
 		Map requiredIdentifiersNew =  new HashMap();
-		List reqIdentifiersNew = new ArrayList();
+		Map requiredIdentifiersType = new HashMap();
 		for(int i=0; i<newFilters.size(); i++){
 			String metaData = newFiltersMap.get(newFilters[i]);
-			createCurationEntity(entry, newFilters[i], metaData, curationStatusLookup, reqIdentifiersNew,
+			createCurationEntity(entry, newFilters[i], metaData, curationStatusLookup, requiredIdentifiersType,
 					newFilters, curationJob, dateW3C)
 		}
-		requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew)
+		requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType)
 		return requiredIdentifiersNew;
 	}
 
-	def Curation createCurationEntity(entry, newFilterFiled,  metaData, curationStatusLookup, reqIdentifiersNew,
+	def Curation createCurationEntity(entry, newFilterFiled,  metaData, curationStatusLookup, requiredIdentifiersType,
 			newFilters, curationJob, dateW3C) throws Exception{
 		Map requiredIdentifiers =  new HashMap();
+	    List reqIdentifiersNew = new ArrayList();
 		CurationJobItems curationJobItems = createCurationJobItemsEntity(curationJob);
 		Curation curation  = new Curation();
 		curation.setMetaData(metaData);
@@ -260,6 +263,8 @@ class CurationManagerES {
 		requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, dateW3C);
 		requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, "");
 		reqIdentifiersNew.add(requiredIdentifiers);
+		requiredIdentifiersType.put(newFilterFiled, reqIdentifiersNew);
+	
 		return curation;
 	}
 
@@ -374,17 +379,19 @@ class CurationManagerES {
 			   entry.attach();
 		   }
 		   List<Curation> curations = entry.getCurations();
-		   List reqIdentifiersNew = new ArrayList();
 		   Map requiredIdentifiersNew =  new HashMap();
+		   Map requiredIdentifiersType =  new HashMap();
 		   String oid = entry.getId();
 		   String title = entry.getTitle();
 		   EntryTypeLookup entryTypeLookup = entry.getEntryTypeLookup();
 		   String type = entryTypeLookup.getValue();
 		   setRequiredIdentifersMap(requiredIdentifiersNew, oid, title, type);
-		   jobItems.addAll(requiredIdentifiersNew);
+		   List jobItemsNew = new ArrayList();
+		   jobItemsNew.addAll(requiredIdentifiersNew);
 		   for(Curation curation : curations){
 			  if(previousOid.equals(curation.getEntry().getId())) {
 				Map requiredIdentifiers =  new HashMap();
+				List reqIdentifiersNew = new ArrayList();
 				CurationStatusLookup curationStatusLookup = curation.getCurationStatusLookup();
 				String curationStatus = curationStatusLookup.getValue();
 				requiredIdentifiers.put(CurationManagerConstants.STATUS, curationStatus);
@@ -393,11 +400,13 @@ class CurationManagerES {
 				requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curation.getDateCreated());
 				requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curation.getDateCompleted());
 				reqIdentifiersNew.add(requiredIdentifiers);
+				requiredIdentifiersType.put(curation.getIdentifierType(), reqIdentifiersNew);
 			   }
 			}
 			Map requiredIdentifiersNew2 =  new HashMap();
-			requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew);
-			jobItems.addAll(requiredIdentifiersNew2);
+			requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType);
+			jobItemsNew.addAll(requiredIdentifiersNew2);
+			jobItems.add(jobItemsNew);
 			setCurationManagerResponse(null, curationManagerResponse, jobItems, null);
 		} catch(Exception ex){
 		  throwEntityException(ex)
@@ -419,23 +428,25 @@ class CurationManagerES {
 				entry.attach();
 			}
 			List<Curation> curations = entry.getCurations();
-			List reqIdentifiersNew = new ArrayList();
+
 			Map requiredIdentifiersNew =  new HashMap();
+			Map requiredIdentifiersType =  new HashMap();
 			CurationJob curationJobNew;
 			String oid = entry.getId();
 			String title = entry.getTitle();
 			EntryTypeLookup entryTypeLookup = entry.getEntryTypeLookup();
 			String type = entryTypeLookup.getValue();
+			List jobItemsNew = new ArrayList();
 			setRequiredIdentifersMap(requiredIdentifiersNew, oid, title, type);
-			jobItems.addAll(requiredIdentifiersNew);
+			jobItemsNew.add(requiredIdentifiersNew);
 			for(Curation curation : curations){
 				if(null != curation.getEntry() && oid.equals(curation.getEntry().getId())) {
 					List results = curationJob.getCurationJobItems();
 					Map requiredIdentifiers =  new HashMap();
 					for(CurationJobItems curationJobItem : results){
 						if(curationJobItem.getCuration().getId().equals(curation.getId())){
+							List reqIdentifiersNew = new ArrayList();
 							Curation curationNew = curationJobItem.getCuration();
-							String previousOid = requiredIdentifiersNew.get(CurationManagerConstants.OID);
 							CurationStatusLookup curationStatusLookup = curation.getCurationStatusLookup();
 							String curationStatus = curationStatusLookup.getValue();
 							requiredIdentifiers.put(CurationManagerConstants.STATUS, curationStatus);
@@ -444,13 +455,15 @@ class CurationManagerES {
 							requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curation.getDateCreated());
 							requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curation.getDateCompleted());
 							reqIdentifiersNew.add(requiredIdentifiers);
+							requiredIdentifiersType.put(curationNew.getIdentifierType(), reqIdentifiersNew);
 						}
 					}
 				}
 			}
 			Map requiredIdentifiersNew2 =  new HashMap();
-			requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew);
-			jobItems.addAll(requiredIdentifiersNew2);
+			requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType);
+			jobItemsNew.addAll(requiredIdentifiersNew2);
+			jobItems.add(jobItemsNew);
 			String curationJobStatus = curationJob.getCurationStatusLookup().getValue();
 			setCurationManagerResponse(curationJob, curationManagerResponse, jobItems, curationJobStatus);
 		}
