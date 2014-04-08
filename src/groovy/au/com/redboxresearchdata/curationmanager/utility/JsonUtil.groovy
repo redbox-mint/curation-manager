@@ -79,11 +79,8 @@ class JsonUtil {
 		if(null != jsonMetaData){
 			String description = (String)jsonMetaData.get("given_name");
 			String url = (String)jsonMetaData.get("family_name");
-		    String eventDate =  jsonMetaData.get("eventDateTime_standardDateTime");
-			Date date = DateUtil.parseW3CDTFDate(eventDate);
 			filterMap.put("given_name", description);
 			filterMap.put("family_name", url);
-			filterMap.put("eventDateTime_standardDateTime", date);
 		}
 		return filterMap;
 	}
