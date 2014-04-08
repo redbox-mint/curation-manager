@@ -78,11 +78,8 @@ class JsonUtil {
 			}
 			String givenName = (String)jsonMetaData.get("given_name");
 			String familyName = (String)jsonMetaData.get("family_name");
-		    String eventDate =  jsonMetaData.get("eventDateTime_standardDateTime");
-			Date date = DateUtil.parseW3CDTFDate(eventDate);
 			filterMap.put("given_name", givenName);
 			filterMap.put("family_name", familyName);
-			filterMap.put("eventDateTime_standardDateTime", date);
 		}
 		return filterMap;
 	}
