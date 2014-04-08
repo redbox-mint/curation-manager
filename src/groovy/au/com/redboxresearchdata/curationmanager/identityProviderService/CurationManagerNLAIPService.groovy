@@ -175,7 +175,7 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	  throws Exception{	 	  
 	  Map<String, String> event = new HashMap();
 	  Map requestJsonMap = JsonUtil.getMapFromMetaDataForNLA(metaData);
-	  event.put("eventDateTime_standardDateTime", requestJsonMap.get("eventDateTime_standardDateTime"));
+	  event.put("eventDateTime_standardDateTime", DateUtil.getW3CDate());
 	  event.put("agent", getAgent());
 	  	  
 	  Map maintenanceEvent = new HashMap();
