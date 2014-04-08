@@ -10,12 +10,13 @@ class BootStrap {
 		new CurationStatusLookup(value: "FAILED").save();
 		new CurationStatusLookup(value: "COMPLETED").save();
 		
-                new EntryTypeLookup(value: "person").save();
+		new EntryTypeLookup(value: "person").save();
 		new EntryTypeLookup(value: "group").save();
 		new EntryTypeLookup(value: "document").save();
 		new EntryTypeLookup(value: "dataset").save();
 		new EntryTypeLookup(value: "service").save();
 		new EntryTypeLookup(value: "activity").save();
+    }
     def destroy = {
     }
 }
