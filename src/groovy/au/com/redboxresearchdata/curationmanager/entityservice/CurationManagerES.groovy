@@ -1,5 +1,6 @@
 package au.com.redboxresearchdata.curationmanager.entityservice
 
+import grails.converters.JSON
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher
@@ -49,14 +50,12 @@ class CurationManagerES {
 			Map  newFiltersMap = JsonUtil.getFilters(reqIdentifiers);
 			Set newFiltersUnique = newFiltersMap.keySet();
 			List newFilters = new ArrayList(newFiltersUnique);
-			List jobItemsNew = new ArrayList();
 			Entry entry = findEntryAndRelationships(oid);
 			if(null == entry){
 				List curationsByOid = findCurationsByOid(oid);
 				createEntryFromCurations(curationJob, curationsByOid, oid, type, title);
 			}
 			Map reqIdentifiersNew = new HashMap();
-			jobItemsNew.add(reqIdentifiersNew);
 			if(null != entry){
 				if(oid.equals(entry.getId())){
 					curationManagerEV.validateEntryType(oid, entry,  type)
@@ -64,17 +63,19 @@ class CurationManagerES {
 						curationJob, oid,type, title, jobItems,
 						curationStatusLookup, reqIdentifiers ,
 						newFilters, newFiltersMap ,dateW3C);
-					if(null != reqIdentifiersNewMap)
-					    jobItemsNew.add(reqIdentifiersNewMap);
-						jobItems.add(jobItemsNew);
+					reqIdentifiersNewMap.put(CurationManagerConstants.OID, oid);
+					reqIdentifiersNewMap.put(CurationManagerConstants.TITLE, title);
+					reqIdentifiersNewMap.put(CurationManagerConstants.TYPE, type);
+					jobItems.add(reqIdentifiersNewMap);
 				}
 			}else{
-				setRequiredIdentifersMap(reqIdentifiersNew, oid, title, type)
 				Entry newEntry = createEntryEntity(oid, type, title);
 				Map reqIdentifiersNewMap = createCurationEntities(oid, type, title, jobItems, curationJob,
 						newEntry, curationStatusLookup, reqIdentifiers,  newFilters, newFiltersMap,  dateW3C);
-				jobItemsNew.add(reqIdentifiersNewMap);
-				jobItems.add(jobItemsNew);
+				reqIdentifiersNewMap.put(CurationManagerConstants.OID, oid);
+		        reqIdentifiersNewMap.put(CurationManagerConstants.TITLE, title);
+		        reqIdentifiersNewMap.put(CurationManagerConstants.TYPE, type);
+				jobItems.add(reqIdentifiersNewMap);
 			}
 		}
 		try{
@@ -164,9 +165,8 @@ class CurationManagerES {
 	def Map createCurationJobItemsFromEntry(entry, curationJob, oid, type, title,
 			jobItems, curationStatusLookup, reqIdentifiers, previousNewFilters, newFiltersMap, dateW3C)
 		throws CurationManagerEVException, Exception{
-		
 		Map requiredIdentifiersNew =  new HashMap();
-		Map requiredIdentifiersType =  new HashMap();
+		List reqIdentifiersNew = new ArrayList();
 		try {
 		 List curations = entry.getCurations();
 		 for(Curation curationNew : curations){
@@ -174,7 +174,6 @@ class CurationManagerES {
 			String identifierType = curationNew.getIdentifierType();
 			if(previousNewFilters.contains(identifierType) && entryOid.equals(oid)){
 				Map requiredIdentifiers =  new HashMap();
-				List reqIdentifiersNew = new ArrayList();
 				CurationJobItems curationJobItemsNew = createCurationJobItemsEntity(curationJob);
 				curationJobItemsNew.setCuration(curationNew);
 				curationJobItemsNew.setCurationJob(curationJob);
@@ -186,10 +185,9 @@ class CurationManagerES {
 				requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curationNew.getDateCreated());
 				requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curationNew.getDateCompleted());
 				reqIdentifiersNew.add(requiredIdentifiers);
-				requiredIdentifiersType.put(curationNew.getIdentifierType(), reqIdentifiersNew);
 			}
 		  }
-		  requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType)
+		  requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew)
 		  if(previousNewFilters.size() > 0 && entry.getId().equals(oid)){
 			requiredIdentifiersNew.putAll(createCurationEntities(oid, type, title, jobItems,  curationJob,
 					entry, curationStatusLookup, reqIdentifiers,  previousNewFilters, newFiltersMap,  dateW3C));
@@ -385,13 +383,13 @@ class CurationManagerES {
 		   String title = entry.getTitle();
 		   EntryTypeLookup entryTypeLookup = entry.getEntryTypeLookup();
 		   String type = entryTypeLookup.getValue();
-		   setRequiredIdentifersMap(requiredIdentifiersNew, oid, title, type);
-		   List jobItemsNew = new ArrayList();
-		   jobItemsNew.addAll(requiredIdentifiersNew);
+		   requiredIdentifiersNew.put(CurationManagerConstants.OID, oid);
+		   requiredIdentifiersNew.put(CurationManagerConstants.TITLE, title);
+		   requiredIdentifiersNew.put(CurationManagerConstants.TYPE, type);
+		   List reqIdentifiersNew = new ArrayList();
 		   for(Curation curation : curations){
 			  if(previousOid.equals(curation.getEntry().getId())) {
 				Map requiredIdentifiers =  new HashMap();
-				List reqIdentifiersNew = new ArrayList();
 				CurationStatusLookup curationStatusLookup = curation.getCurationStatusLookup();
 				String curationStatus = curationStatusLookup.getValue();
 				requiredIdentifiers.put(CurationManagerConstants.STATUS, curationStatus);
@@ -400,13 +398,10 @@ class CurationManagerES {
 				requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curation.getDateCreated());
 				requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curation.getDateCompleted());
 				reqIdentifiersNew.add(requiredIdentifiers);
-				requiredIdentifiersType.put(curation.getIdentifierType(), reqIdentifiersNew);
 			   }
 			}
-			Map requiredIdentifiersNew2 =  new HashMap();
-			requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType);
-			jobItemsNew.addAll(requiredIdentifiersNew2);
-			jobItems.add(jobItemsNew);
+			requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew);
+			jobItems.add(requiredIdentifiersNew);
 			setCurationManagerResponse(null, curationManagerResponse, jobItems, null);
 		} catch(Exception ex){
 		  throwEntityException(ex)
@@ -428,24 +423,22 @@ class CurationManagerES {
 				entry.attach();
 			}
 			List<Curation> curations = entry.getCurations();
-
 			Map requiredIdentifiersNew =  new HashMap();
-			Map requiredIdentifiersType =  new HashMap();
 			CurationJob curationJobNew;
 			String oid = entry.getId();
 			String title = entry.getTitle();
 			EntryTypeLookup entryTypeLookup = entry.getEntryTypeLookup();
 			String type = entryTypeLookup.getValue();
-			List jobItemsNew = new ArrayList();
-			setRequiredIdentifersMap(requiredIdentifiersNew, oid, title, type);
-			jobItemsNew.add(requiredIdentifiersNew);
+			requiredIdentifiersNew.put(CurationManagerConstants.OID, oid);
+			requiredIdentifiersNew.put(CurationManagerConstants.TITLE, title);
+			requiredIdentifiersNew.put(CurationManagerConstants.TYPE, type);
+			List reqIdentifiersNew = new ArrayList();
 			for(Curation curation : curations){
 				if(null != curation.getEntry() && oid.equals(curation.getEntry().getId())) {
 					List results = curationJob.getCurationJobItems();
 					Map requiredIdentifiers =  new HashMap();
 					for(CurationJobItems curationJobItem : results){
 						if(curationJobItem.getCuration().getId().equals(curation.getId())){
-							List reqIdentifiersNew = new ArrayList();
 							Curation curationNew = curationJobItem.getCuration();
 							CurationStatusLookup curationStatusLookup = curation.getCurationStatusLookup();
 							String curationStatus = curationStatusLookup.getValue();
@@ -455,15 +448,12 @@ class CurationManagerES {
 							requiredIdentifiers.put(CurationManagerConstants.DATE_CREATED, curation.getDateCreated());
 							requiredIdentifiers.put(CurationManagerConstants.DATE_COMPLETED, curation.getDateCompleted());
 							reqIdentifiersNew.add(requiredIdentifiers);
-							requiredIdentifiersType.put(curationNew.getIdentifierType(), reqIdentifiersNew);
 						}
 					}
 				}
-			}
-			Map requiredIdentifiersNew2 =  new HashMap();
-			requiredIdentifiersNew2.put(CurationManagerConstants.REQIDENTIFIERS, requiredIdentifiersType);
-			jobItemsNew.addAll(requiredIdentifiersNew2);
-			jobItems.add(jobItemsNew);
+			}		
+			requiredIdentifiersNew.put(CurationManagerConstants.REQIDENTIFIERS, reqIdentifiersNew);
+			jobItems.add(requiredIdentifiersNew);
 			String curationJobStatus = curationJob.getCurationStatusLookup().getValue();
 			setCurationManagerResponse(curationJob, curationManagerResponse, jobItems, curationJobStatus);
 		}
