@@ -8,7 +8,7 @@ class CurationManagerConstants {
 	static final String METADATA = "metadata";
 	static final String JOIN = "join";
 	static final String TYPE = "type";
-	static final String TITLE = "Title";
+	static final String TITLE = "title";
 	static final String STATUS_400 =  "400";
 	static final String STATUS_404 = "404";
 	static final String STATUS_500 =  "500";
