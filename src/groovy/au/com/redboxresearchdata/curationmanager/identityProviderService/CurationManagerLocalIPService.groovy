@@ -33,7 +33,7 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 	@Value("#{localPropSource[Template]}")
 	String template;
 	
-	@Value("#{nlaPropSource[Type]}")
+	@Value("#{localPropSource[Type]}")
 	String type;
 	
 	private Boolean isSynchronous = Boolean.TRUE;

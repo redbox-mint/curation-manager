@@ -57,7 +57,7 @@ class CurationManagerHandleIPService implements IdentityProviderService{
 	@Value("#{handlePropSource[Name]}")
 	String name;
 	
-	@Value("#{nlaPropSource[Type]}")
+	@Value("#{handlePropSource[Type]}")
 	String type;
 	
 	@Value("#{handlePropSource[Description]}")

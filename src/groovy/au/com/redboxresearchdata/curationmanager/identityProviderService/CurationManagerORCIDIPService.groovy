@@ -16,7 +16,7 @@ class CurationManagerORCIDIPService implements IdentityProviderService{
 	@Value("#{orcPropSource[Name]}")
 	String name;
 	
-	@Value("#{nlaPropSource[Type]}")
+	@Value("#{orcPropSource[Type]}")
 	String type;
 	
 	@Value("#{orcPropSource[Description]}")
