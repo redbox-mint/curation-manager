@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory
 import org.apache.commons.logging.Log
 
 import au.com.redboxresearchdata.curationmanager.utility.JsonUtil;
+import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
 import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 
  class NLAValidator {
@@ -21,7 +22,7 @@ import au.com.redboxresearchdata.curationmanager.identityProviderService.constan
 			  String familyName = metaDataMap.get("family_name");
 			  if(null == givenName && null == familyName) {
 				 log.error("No family name or given name provided for the nla MetaData!");
-				 throw new Exception(IdentityServiceProviderConstants.STATUS_400,
+				 throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,
 					       "No family name or given name provided for the nla MetaData!");
 			  }
   		   }

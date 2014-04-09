@@ -19,8 +19,9 @@ class CurationManagerConstants {
 	static final String TITLE_EMPTY = "title.empty"
 	static final String JOB_ID_NULL= "job.id.null"
 	static final String OID_NULL = "oid.null";
+	static final String OID_EXISTS = "oid.exists";
 	static final String OID_EMPTY= "oid.empty"
-	static final String OID_EXISTS = "oid.exists"
+	static final String OID_EXISTS_FOR_JOB = "oid.exists.for.job"
 	static final String JOBID_EXISTS = "jobid.exists"
 	static final String IDENTIFIER = "identifier";
 	static final String DATE_CREATED = "date_created"

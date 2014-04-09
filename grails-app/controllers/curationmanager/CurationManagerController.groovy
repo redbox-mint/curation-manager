@@ -41,7 +41,7 @@ class CurationManagerController{
 		 }catch(Exception ex){
 		   log.error(ex.getMessage() + " " + ex.getCause());
 		   def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
-		   render(status: CurationManagerConstants.STATUS_500, text:  msg)
+		   render(status: CurationManagerConstants.STATUS_500, text:  msg);
 		 }
 	 }	 	
 	 
@@ -58,7 +58,7 @@ class CurationManagerController{
 		 }catch(Exception ex){
 		   log.error(ex.getMessage() + " " + ex.getCause());
 		   def msg = MessageResolver.getMessage(CurationManagerConstants.CURATIONMANAGER_JOB_LOOKUP_FAILED);
-		   render(status: CurationManagerConstants.STATUS_500, text:  msg)
+		   render(status: CurationManagerConstants.STATUS_500, text:  msg) ;
 		 }
 	 }	 	 
 	 
@@ -71,11 +71,11 @@ class CurationManagerController{
 			}
 		 }catch(CurationManagerBSException bex){
 		   log.error(bex.getValue() + bex.getMessage());
-		   render(status:  bex.getKey(), text:  bex.getValue());
+		   render(status:  bex.getKey(), text:  bex.getValue()) ;
 		 }catch(Exception ex){
 		  log.error(ex.getMessage() + " " + ex.getCause());
 		   def msg = MessageResolver.getMessage(CurationManagerConstants.CURATIONMANAGER_IDENTITYSERVICE_FAILED);
-		   render(status: CurationManagerConstants.STATUS_500, text:  msg)
+		   render(status: CurationManagerConstants.STATUS_500, text:  msg) ;
 		 }
 	 }
 }

@@ -113,10 +113,16 @@ class CurationManagerES {
 
 	def List<Curation> findCurationsByOid(oid) throws Exception {
 		List<Curation> curations;
+		try{	
 		Entry entry = Entry.findById(oid.toString());
 		if(null != entry){
 			curations = entry.getCurations();
 		}
+	  }catch(Exception ex){
+	    log.error(ex.getMessage());
+		log.error(ex.getCause());
+		throw ex;
+	  }
 		return curations;
 	}
 
@@ -357,8 +363,8 @@ class CurationManagerES {
 			Entry entry = Entry.findById(oid.toString());
 			if(null == entry){
 				def msg = MessageResolver.getMessage(CurationManagerConstants.OID_EXISTS);
-				log.error(CurationManagerConstants.STATUS_404 + msg);
-				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
+				log.error(CurationManagerConstants.STATUS_404 + msg + " "+ oid);
+				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg + " "+ oid);
 			  }
 			List jobItems = new ArrayList();
 			curationManagerResponse = retreiveJobByEntryAndCurationJob(entry, jobItems, oid)
@@ -410,9 +416,13 @@ class CurationManagerES {
 	}
 
 	def void throwEntityException(Exception ex) throws CurationManagerEVException {
+		if(ex instanceof CurationManagerEVException){
+			throw ex
+		}
 		log.error(ex.getMessage() + ex.getCause());
 		def msg = MessageResolver.getMessage(CurationManagerConstants.UNEXPECTED_ERROR);
 		throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
+		
    }
 
 	def CurationManagerResponse retreiveJobByEntry(entry, jobItems, curationJob) throws CurationManagerEVException, Exception{
@@ -470,7 +480,7 @@ class CurationManagerES {
 			CurationJob curationJob = CurationJob.findById(jobId, [lock: true]);
 			if(null == curationJob){
 				def msg = MessageResolver.getMessage(CurationManagerConstants.JOBID_EXISTS);
-				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
+				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg + "JobId " + jobId);
 			}
 			def results =  Entry.withCriteria(){
 				createAlias("curations", "curation")
@@ -486,7 +496,7 @@ class CurationManagerES {
 					curationManagerResponse = retreiveJobByEntry(entry, jobItems, curationJob)
 				}
 			} else if(null == results || results.isEmpty()){
-				def msg = MessageResolver.getMessage(CurationManagerConstants.OID_EXISTS);
+				def msg = MessageResolver.getMessage(CurationManagerConstants.OID_EXISTS_FOR_JOB);
 				throw new CurationManagerEVException(CurationManagerConstants.STATUS_404, msg);
 			}
 		}

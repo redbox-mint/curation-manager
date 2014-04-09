@@ -2,6 +2,8 @@ package au.com.redboxresearchdata.curationmanager.identityProviderService
 
 import java.util.Map;
 
+import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
+import au.com.redboxresearchdata.curationmanager.businessvalidator.CurationManagerBV
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.ApplicationContextHolder;
 import au.com.redboxresearchdata.curationmanager.identityProviderService.validator.NLAValidator
 import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
@@ -20,7 +22,6 @@ import org.apache.commons.logging.Log
 
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.JsonUtil;
 import au.com.redboxresearchdata.curationmanager.identityprovider.domain.IdentityProviderIncrementor
-
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.DateUtil;
 
 class CurationManagerNLAIPService implements IdentityProviderService{
@@ -73,9 +74,10 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	}
 	
 	@Override
-	public String getType() {
-		return type;
+	public String[] getType() {
+		return  type.split(",");
 	}
+	
 	
 	@Override
 	public String getAgent() {
@@ -96,11 +98,18 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 		return Boolean.TRUE;
 	}
 	
-	public Boolean validate(Map.Entry pairs) throws Exception{
+	public Boolean validate(Map.Entry<String, String> pairs, String requestType) throws Exception{
 		IdentityProviderService  dependentIdtityPrviderService = getDependentProviderService();
-		if(dependentIdtityPrviderService.validate(pairs)){
+		if(dependentIdtityPrviderService.validate(pairs, type)){
 		   if(getType() != IdentityServiceProviderConstants.PERSON){
 			   return Boolean.FALSE;
+		   }
+		   for(String type : getType()){
+		 	   if(type != requestType){
+					log.error("Request Type does not match the Identity Service NLA configured type");
+					throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,
+							  "Request Type does not match the Identity Service NLA configured type");
+				}   
 		   }
 		   NLAValidator nlaValidator = new NLAValidator();
 		   return nlaValidator.validateMetaData(pairs);
@@ -117,9 +126,9 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 		 ApplicationContext applicationContext =  ApplicationContextHolder.getApplicationContext();
 		 return applicationContext.getBean(getDependentIdentityProviderName());
 	  } else if(null == getDependentIdentityProviderName()){
-		log.error("No Dependent Identity Provider Service configured");
+		log.error("No Dependent Identity Provider Service configured for NLA ");
 	    throw new Exception(IdentityServiceProviderConstants.STATUS_400, 
-				  "No Dependent Identity Provider Service configured");
+				  "No Dependent Identity Provider Service configured for NLA");
 	  }
 	}
 

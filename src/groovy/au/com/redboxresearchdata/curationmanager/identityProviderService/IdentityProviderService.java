@@ -12,7 +12,7 @@ public interface IdentityProviderService {
 	
 	public Boolean isSynchronous();
 	
-	public Boolean validate(Map.Entry pairs) throws Exception;
+	public Boolean validate(Map.Entry<String, String> entry, String type) throws Exception;
 	
 	public Map<String, String> getMetaDataMap(String metaData);
 	

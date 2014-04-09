@@ -36,6 +36,7 @@ class IdentityServiceProviderConstants {
 	static final String ERROR_DURING_KEY_RESOLUTION = "error.during.key.resolution";
 	static final String PRIVATE_KEY_FILE_DOES_NOT_EXISTS = "private.key.file.does.not.exists";
 	static final String IDENTITY_PROVIDER_SERVICE_FAILED = "identityService.failed";
+	static final String HANDLE_IDENTITY_PROVIDER_SERVICE_FAILED = "handle.identityService.failed";
 	static final String IDENTITY_PROVIDER_SERVICE_TEMPLATE_INC_MISSING = "identityService.inc.template.missing";
 	static final String ERROR_MESSAGE_SERVICE_NOT_AVAILABLE = "Identity Provider Service not available";
 	static final String ERROR_MESSAGE_CONTACT_SYSTEM_ADMININSTRATOR = "Contact System Administrator";

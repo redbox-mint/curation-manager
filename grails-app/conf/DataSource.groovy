@@ -3,9 +3,10 @@ dataSource {
 	pooled = false
 	driverClassName = "org.postgresql.Driver"
 	dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-	url = "jdbc:postgresql://localhost/curationmanager"
-	username = "curationmanager"
-	password = "curationmanager"
+	url = "jdbc:postgresql://127.0.0.1:5433/curationmanager"
+	//dialect = "org.hibernate.dialect.PostgreSQLDialect"
+	username = "postgres"
+	password = "123devi"
 }
 
 hibernate {
@@ -22,9 +23,15 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			url = "jdbc:postgresql://127.0.0.1:5433/curationmanager"
+			//dialect = "org.hibernate.dialect.PostgreSQLDialect"
+			username = "postgres"
+			password = "123devi"
+		// Derby datasource
+//		   pooled = false
+//		   driverClassName = "org.apache.derby.jdbc.ClientDriver"
+//		   dbCreate = "create" // one of 'create', 'create-drop', 'update', 'validate', ''
+//		   url = "jdbc:derby://127.0.0.1:1527/CURATIONMANAGER;create=TRUE"
 		}
 	}
 	test {
@@ -32,9 +39,10 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			url = "jdbc:postgresql://127.0.0.1:5433/curationmanager"
+			//dialect = "org.hibernate.dialect.PostgreSQLDialect"
+			username = "postgres"
+			password = "123devi"
 		}
 	}
 	production {
@@ -42,9 +50,10 @@ environments {
 			pooled = false
 			driverClassName = "org.postgresql.Driver"
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			url = "jdbc:postgresql://127.0.0.1:5433/curationmanager"
+			//dialect = "org.hibernate.dialect.PostgreSQLDialect"
+			username = "postgres"
+			password = "123devi"
 		}
 	}
 }

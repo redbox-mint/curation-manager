@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory
 import org.apache.commons.logging.Log
 
 import au.com.redboxresearchdata.curationmanager.utility.JsonUtil;
+import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
 import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 
  class HandleValidator {
@@ -21,7 +22,7 @@ import au.com.redboxresearchdata.curationmanager.identityProviderService.constan
 		     String url = metaDataMap.get("url");
 		     if(null == description && null == url){
 		        log.error("No Description or Url provided for the Handle MetaData!");
-		        throw new Exception(IdentityServiceProviderConstants.STATUS_400, 
+		        throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400, 
 					      "No Description or Url provided for the Handle MetaData!");
 		 	    }
   	   }

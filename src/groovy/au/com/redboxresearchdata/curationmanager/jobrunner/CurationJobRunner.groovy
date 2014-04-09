@@ -64,13 +64,12 @@ class CurationJobRunner {
 			curationManagerES.insertCuration(curation, nlaId);
 		}catch(Exception ex){
 			log.error("Error in the curation job runner" + ex.getMessage())
-			log.error(ex.getCause());
 			if(null!= curation){
 				CurationStatusLookup curationStatus = CurationStatusLookup.findByValue(
 						CurationManagerConstants.FAILED);
 				Date dateCompleted = DateUtil.getW3CDate();
 				curationManagerES.updateCuration(curation, null, curationStatus, dateCompleted,
-						ex.getCause())
+						ex.getMessage())
 			}
 		}
 	}

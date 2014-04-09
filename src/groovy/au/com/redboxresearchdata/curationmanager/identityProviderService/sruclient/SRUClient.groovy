@@ -65,7 +65,7 @@ public class SRUClient {
     private Map<String, String> namespaces;
 
     /** Default URL is for the NLA **/
-    private String baseUrl = "http://www.nla.gov.au/apps/srw/search/peopleaustralia";
+    private String baseUrl = "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia";
 
     /** Default Schema is for EAC-CPF records from the NLA **/
     private String recordSchema = "urn:isbn:1-931666-33-4";

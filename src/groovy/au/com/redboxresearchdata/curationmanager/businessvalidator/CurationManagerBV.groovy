@@ -28,6 +28,8 @@ import org.springframework.context.ApplicationContext
 class CurationManagerBV {
 	
    private static final Log log = LogFactory.getLog(this)	
+   
+  private String oidMsg = "with OID";
 
    def Boolean validateRequestParams(requestParams) throws CurationManagerBSException, Exception{
 	   validateNullRequestParams(requestParams);
@@ -40,14 +42,14 @@ class CurationManagerBV {
 		  String reqIdentifiers = jsonObject.get(CurationManagerConstants.REQUIRED_IDENTIFIERS);
 		  Map newFilters = JsonUtil.getFilters(reqIdentifiers);
 		  validateNullRequiredIdType(jsonObject);
-		  validateIdentityService(newFilters, ctx)
+		  validateIdentityService(newFilters,jsonObject, ctx)
 		}					
 		return Boolean.TRUE;
 	}
 	
 	def void validateNullRequestParams(requestParams) throws CurationManagerBSException{
 		if(null == requestParams){
-			createException(CurationManagerConstants.REQUEST_PARAMS_NULL);
+			createException(CurationManagerConstants.REQUEST_PARAMS_NULL, " ",  " ", "");
 		}
 	}
 	
@@ -67,7 +69,7 @@ class CurationManagerBV {
 	
 	def Boolean validateJobId(jobId) throws CurationManagerBSException{
 		if(null == jobId) {
-		   createException(CurationManagerConstants.JOB_ID_NULL);
+		   createException(CurationManagerConstants.JOB_ID_NULL, " ",  jobId, "");
 		}
 		return Boolean.TRUE
 	}
@@ -81,64 +83,74 @@ class CurationManagerBV {
 		
 	def void validateNullOid(jsonObject) throws Exception{
 		if(jsonObject.isNull(CurationManagerConstants.OID) || !jsonObject.has(CurationManagerConstants.OID)){
-		   createException(CurationManagerConstants.OID_NULL)
+		   createException(CurationManagerConstants.OID_NULL, "", "", oidMsg)
 		}
 		def oid = jsonObject.get(CurationManagerConstants.OID);
 		if(null == oid || "".equals(oid.toString())){
-		   createException(CurationManagerConstants.OID_EMPTY)
+		   createException(CurationManagerConstants.OID_EMPTY, "", "", oidMsg)
 		 }
 	}
 	
-	def void validateIdentityService(Map newFilters, ApplicationContext ctx) throws Exception{
+	def void validateIdentityService(Map newFilters, jsonObject, ApplicationContext ctx) throws Exception{
 		Iterator it = newFilters.entrySet().iterator();
+		String type = jsonObject.get(CurationManagerConstants.TYPE);
+		def oid = jsonObject.get(CurationManagerConstants.OID);
+		String key = null; 
 		while (it.hasNext()) {
 		  try {
 			 Map.Entry pairs = (Map.Entry)it.next();
+			 key = pairs.getKey(); 
 		     IdentityProviderService identityProviderService =  ctx.getBean(pairs.getKey());
-			 identityProviderService.validate(pairs);
+			 identityProviderService.validate(pairs, type);
+		  } catch(CurationManagerBSException bex){
+		     log.error(bex.getKey() + " "+ bex.getValue());
+		     throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, bex.getKey()+ " "+ bex.getValue());
 		  } catch(Exception ex){
-		     createException(CurationManagerConstants.IDENTITY_SERVICE_FAILED)
+		     createException(CurationManagerConstants.IDENTITY_SERVICE_FAILED, oid, key, oidMsg)
 		  }
 		}
 	}
 	
 	def Boolean validateNullType(jsonObject)throws CurationManagerBSException{
+		def oid = jsonObject.get(CurationManagerConstants.OID);
 		if(jsonObject.isNull(CurationManagerConstants.TYPE) || !jsonObject.has(CurationManagerConstants.TYPE)){
-		   createException(CurationManagerConstants.TYPE_NULL)
+		   createException(CurationManagerConstants.TYPE_NULL, oid, "", oidMsg)
 		}
 		def type = jsonObject.get(CurationManagerConstants.TYPE);
 		if(null == type || "".equals(type.toString())){
-			createException(CurationManagerConstants.TYPE_EMPTY)
+			createException(CurationManagerConstants.TYPE_EMPTY, oid, "", oidMsg)
 		}
 	    return Boolean.TRUE;
 	}	
 	
 	def Boolean validateNullTitle(jsonObject)throws CurationManagerBSException{
-	   if(jsonObject.isNull(CurationManagerConstants.TITLE) || !jsonObject.has(CurationManagerConstants.TITLE)){
-		  createException(CurationManagerConstants.TITLE_NULL)
+		def oid = jsonObject.get(CurationManagerConstants.OID);
+	    if(jsonObject.isNull(CurationManagerConstants.TITLE) || !jsonObject.has(CurationManagerConstants.TITLE)){
+		  createException(CurationManagerConstants.TITLE_NULL, oid, "", oidMsg)
 		}
-		def type = jsonObject.get(CurationManagerConstants.TITLE);
-		if(null == type || "".equals(type.toString())){
-		   createException(CurationManagerConstants.TITLE_EMPTY)
+		def title = jsonObject.get(CurationManagerConstants.TITLE);
+		if(null == title ||  (title != null && "".equals(title.toString()))){
+		   createException(CurationManagerConstants.TITLE_EMPTY, oid, "", oidMsg)
 		}
 	    return Boolean.TRUE;
 	}	
 	
 	def Boolean validateNullRequiredIdType(jsonObject) throws CurationManagerBSException{
+		def oid = jsonObject.get(CurationManagerConstants.OID);
 		if(jsonObject.isNull(CurationManagerConstants.REQUIRED_IDENTIFIERS) ||
 			!jsonObject.has(CurationManagerConstants.REQUIRED_IDENTIFIERS)){
-			 createException(CurationManagerConstants.REQUIRED_IDENTIFIER_TYPE_NULL)
+			 createException(CurationManagerConstants.REQUIRED_IDENTIFIER_TYPE_NULL, oid, "")
 		 }
-	    def oid = jsonObject.get(CurationManagerConstants.REQUIRED_IDENTIFIERS);
-		if(null == oid || "".equals(oid.toString())){
-		   createException(CurationManagerConstants.REQUIRED_IDENTIFIER_TYPE_EMPTY)
+	    def reqIdentifiers = jsonObject.get(CurationManagerConstants.REQUIRED_IDENTIFIERS);
+		if(null == reqIdentifiers || (null != reqIdentifiers && "".equals(reqIdentifiers.toString()))){
+		   createException(CurationManagerConstants.REQUIRED_IDENTIFIER_TYPE_EMPTY, oid, "", oidMsg)
 		}
 		return Boolean.TRUE;
 	}	
 	
-	def void createException(name) throws CurationManagerBSException{
+	def void createException(name, oid, extramsg, oidMsgNew) throws CurationManagerBSException{
 		def msg = MessageResolver.getMessage(name);
-		String errorMsg = msg + " " + CurationManagerConstants.FAILED_VALIDATION;
+		String errorMsg = CurationManagerConstants.FAILED_VALIDATION +" "+ msg + " " + extramsg  + " " +oidMsgNew + " "+ oid;
 		log.error(errorMsg);
 		throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, errorMsg);
 	}

@@ -9,8 +9,8 @@ beans = {
 			case Environment.DEVELOPMENT:
 				vndJsonErrorRenderer(grails.rest.render.errors.VndErrorJsonRenderer)
 				jmsConnectionFactory(org.apache.activemq.ActiveMQConnectionFactory) {
-					//brokerURL = 'tcp://localhost:61616'
-					brokerURL = 'tcp://0.0.0.0:9301'
+					brokerURL = 'tcp://localhost:61616'
+					//brokerURL = 'tcp://0.0.0.0:9301'
 				}
 				importBeans('file:/var/local/curationmanager/resource.xml')
 				applicationContextHolder(ApplicationContextHolder) { bean ->
@@ -20,8 +20,8 @@ beans = {
 			case Environment.PRODUCTION:		
 				vndJsonErrorRenderer(grails.rest.render.errors.VndErrorJsonRenderer)
 				jmsConnectionFactory(org.apache.activemq.ActiveMQConnectionFactory) {
-					//brokerURL = 'tcp://localhost:61616'
-					brokerURL = 'tcp://0.0.0.0:9301'
+					brokerURL = 'tcp://localhost:61616'
+					//brokerURL = 'tcp://0.0.0.0:9301'
 				}
 				importBeans('file:/var/local/curationmanager/resource.xml')
 				applicationContextHolder(ApplicationContextHolder) { bean ->

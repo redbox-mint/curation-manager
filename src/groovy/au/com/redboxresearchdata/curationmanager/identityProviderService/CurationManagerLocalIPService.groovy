@@ -1,5 +1,7 @@
 package au.com.redboxresearchdata.curationmanager.identityProviderService
 
+import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
+import au.com.redboxresearchdata.curationmanager.businessvalidator.CurationManagerBV
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.BaseIdentityResult
 import au.com.redboxresearchdata.curationmanager.identityProviderResult.IdentifierResult
 
@@ -31,6 +33,9 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 	@Value("#{localPropSource[Template]}")
 	String template;
 	
+	@Value("#{nlaPropSource[Type]}")
+	String type;
+	
 	private Boolean isSynchronous = Boolean.TRUE;
 	
 	private Boolean exists = Boolean.FALSE;
@@ -41,14 +46,24 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 	}
 	
 	@Override
+	public String[] getType() {
+		return type.split(",");
+	}
+	
+	
+	@Override
 	public String getName() {
 		return name;
 	}
 	
-	@Value("#{nlaPropSource[Type]}")
-	String type;
-	
-	public Boolean validate(Map.Entry pairs) throws Exception{
+	public Boolean validate(Map.Entry<String, String> pairs, String requestType) throws Exception{
+		for(String type : getType()){
+			if(type != requestType){
+				log.error("Request Type does not match the Type configure for Identity Service Local");
+				throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,
+						  "Request Type does not match the Type configure for Identity Service Local");
+			}
+	   }
 		return Boolean.TRUE;
 	}
 

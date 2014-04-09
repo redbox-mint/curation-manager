@@ -40,11 +40,12 @@ class CurationManagerORCIDIPService implements IdentityProviderService{
 	}	
 	
 	@Override
-	public String getType() {
-		return type;
+	public String[] getType() {
+		return  type.split(",");
 	}
 	
-	public Boolean validate(Map.Entry pairs) throws Exception{
+	
+	public Boolean validate(Map.Entry<String, String> pairs, String type) throws Exception{
 		return Boolean.TRUE;
 	}
 	
