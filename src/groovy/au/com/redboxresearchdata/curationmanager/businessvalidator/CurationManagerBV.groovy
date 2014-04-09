@@ -57,13 +57,13 @@ class CurationManagerBV {
 		try{
 		 def jmsService = ctx.getBean(IdentityServiceProviderConstants.JMS_SERVICE);
 		  if(null == jmsService){
-			  log.error("Check if the JMS is running");
-			  throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, "Check if the JMS is running");
+			  log.error(CurationManagerConstants.CHECK_JMS_IS_RUNNING);
+			  throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, CurationManagerConstants.CHECK_JMS_IS_RUNNING);
 		  }
 		}catch(Exception ex){
 		 log.error(ex.getMessage());
 		 log.error(ex.getCause());
-		 throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, "Check if the JMS is running");
+		 throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, CurationManagerConstants.CHECK_JMS_IS_RUNNING);
 		}
 	}
 	
@@ -104,7 +104,7 @@ class CurationManagerBV {
 			 identityProviderService.validate(pairs, type);
 		  } catch(CurationManagerBSException bex){
 		     log.error(bex.getKey() + " "+ bex.getValue());
-		     throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, bex.getKey()+ " "+ bex.getValue());
+		     throw new CurationManagerBSException(CurationManagerConstants.STATUS_400, bex.getValue());
 		  } catch(Exception ex){
 		     createException(CurationManagerConstants.IDENTITY_SERVICE_FAILED, oid, key, oidMsg)
 		  }

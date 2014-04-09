@@ -5,8 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import au.com.redboxresearchdata.curationmanager.utility.JsonUtil;
-import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException
-import au.com.redboxresearchdata.curationmanager.businessvalidator.CurationManagerBV
+import au.com.redboxresearchdata.curationmanager.businesservicexception.CurationManagerBSException;
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.MessageResolver;
 import au.com.redboxresearchdata.curationmanager.identityProviderService.constants.IdentityServiceProviderConstants;
 import au.com.redboxresearchdata.curationmanager.identityprovider.domain.IdentityProviderIncrementor
@@ -87,8 +86,8 @@ class CurationManagerHandleIPService implements IdentityProviderService{
 	}
 	
 	@Override
-	public String[] getType() {
-		return  type.split(",");
+	public String getType() {
+		return  type;
 	}
 	
 	
@@ -111,13 +110,11 @@ class CurationManagerHandleIPService implements IdentityProviderService{
 	}
 	
 	public Boolean validate(Map.Entry<String, String> pairs, String requestType) throws Exception{
-		for(String type : getType()){
-			if(type != requestType){
-				log.error("Request Type does not match the Type configure for Identity Service Handle");
-				throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,
-						  "Request Type does not match the Type configure for Identity Service Handle");
-			}
-	   }
+       if(null!= type && !type.contains(requestType)){ 
+			  def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_SERVICE_TYPE_HANDLE_DOES_NOT_MATCH);
+			  log.error(msg+ " " + requestType);
+			  throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400, msg+ " " + requestType);
+		}  
 		HandleValidator handleValidator = new HandleValidator();
 		return handleValidator.validateMetaData(pairs);
 	}

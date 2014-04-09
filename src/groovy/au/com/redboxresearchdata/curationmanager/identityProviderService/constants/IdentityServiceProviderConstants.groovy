@@ -40,6 +40,10 @@ class IdentityServiceProviderConstants {
 	static final String IDENTITY_PROVIDER_SERVICE_TEMPLATE_INC_MISSING = "identityService.inc.template.missing";
 	static final String ERROR_MESSAGE_SERVICE_NOT_AVAILABLE = "Identity Provider Service not available";
 	static final String ERROR_MESSAGE_CONTACT_SYSTEM_ADMININSTRATOR = "Contact System Administrator";
+	static final String IDENTITY_SERVICE_TYPE_HANDLE_DOES_NOT_MATCH = "identiyService.type.does.handle.not.match";
+	static final String IDENTITY_SERVICE_TYPE_LOCAL_DOES_NOT_MATCH = "identiyService.type.does.local.not.match";
+	static final String IDENTITY_SERVICE_TYPE_NLA_DOES_NOT_MATCH = "identiyService.type.does.nla.not.match";
+	static final String IDENTITY_SERVICE_TYPE_ORC_DOES_NOT_MATCH = "identiyService.type.does.orc.not.match";
 	static final String REQUIRED_IDENTIFIERS = "required_identifiers";
 	static final String REQIDENTIFIERS  = "requiredIdentifiers"
 	static final String FAILED_VALIDATION = "Failed Validation";

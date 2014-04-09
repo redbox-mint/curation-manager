@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.JsonUtil;
 import au.com.redboxresearchdata.curationmanager.identityprovider.domain.IdentityProviderIncrementor
 import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.DateUtil;
+import au.com.redboxresearchdata.curationmanager.identityProviderService.utility.MessageResolver;
 
 class CurationManagerNLAIPService implements IdentityProviderService{
 	
@@ -74,8 +75,8 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	}
 	
 	@Override
-	public String[] getType() {
-		return  type.split(",");
+	public String getType() {
+		return  type;
 	}
 	
 	
@@ -99,22 +100,15 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	}
 	
 	public Boolean validate(Map.Entry<String, String> pairs, String requestType) throws Exception{
-		IdentityProviderService  dependentIdtityPrviderService = getDependentProviderService();
-		if(dependentIdtityPrviderService.validate(pairs, type)){
-		   if(getType() != IdentityServiceProviderConstants.PERSON){
-			   return Boolean.FALSE;
-		   }
-		   for(String type : getType()){
-		 	   if(type != requestType){
-					log.error("Request Type does not match the Identity Service NLA configured type");
-					throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,
-							  "Request Type does not match the Identity Service NLA configured type");
-				}   
-		   }
-		   NLAValidator nlaValidator = new NLAValidator();
-		   return nlaValidator.validateMetaData(pairs);
+	   if(null!= type && !type.contains(requestType)){ 
+		  def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_SERVICE_TYPE_NLA_DOES_NOT_MATCH);
+		  log.error(msg + " " + requestType);
+	 	  throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400, msg+ " " + requestType);
 		}
-		return Boolean.FALSE;
+		IdentityProviderService  dependentIdtityPrviderService = getDependentProviderService();
+		dependentIdtityPrviderService.validate(pairs, requestType);
+	    NLAValidator nlaValidator = new NLAValidator();
+	    return nlaValidator.validateMetaData(pairs);
 	}
 	
 	public String getDependentIdentityProviderName(){

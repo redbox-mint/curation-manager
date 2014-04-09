@@ -54,6 +54,7 @@ class CurationManagerConstants {
 	static final String INC_DELIMITER = "[[INC]]";
 	static final String OID_DELIMITER = "[[OID]]";
 	static final String ENTRY_ID = "entry.id";
+	static final String CHECK_JMS_IS_RUNNING = "Check if the JMS is running";
 	static final String REQUIRED_IDENTIFIERS = "required_identifiers";
 	static final String REQIDENTIFIERS  = "requiredIdentifiers"
 	static final String FAILED_VALIDATION = "Failed Validation";

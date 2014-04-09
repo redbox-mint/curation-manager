@@ -16,7 +16,7 @@ beans = {
 					bean.factoryMethod = 'getInstance'
 				}
 			break
-			case Environment.PRODUCTION:		
+			case Environment.PRODUCTION:
 				vndJsonErrorRenderer(grails.rest.render.errors.VndErrorJsonRenderer)
 				jmsConnectionFactory(org.apache.activemq.ActiveMQConnectionFactory) {
 					brokerURL = 'tcp://0.0.0.0:9301'
@@ -26,5 +26,5 @@ beans = {
 					bean.factoryMethod = 'getInstance'
 				}
 		}
-	}	
+	}
 }

@@ -46,8 +46,8 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 	}
 	
 	@Override
-	public String[] getType() {
-		return type.split(",");
+	public String getType() {
+		return type;
 	}
 	
 	
@@ -57,13 +57,11 @@ class CurationManagerLocalIPService  implements IdentityProviderService{
 	}
 	
 	public Boolean validate(Map.Entry<String, String> pairs, String requestType) throws Exception{
-		for(String type : getType()){
-			if(type != requestType){
-				log.error("Request Type does not match the Type configure for Identity Service Local");
-				throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,
-						  "Request Type does not match the Type configure for Identity Service Local");
-			}
-	   }
+		if(null!= type && !type.contains(requestType)){ 
+			def msg = MessageResolver.getMessage(IdentityServiceProviderConstants.IDENTITY_SERVICE_TYPE_LOCAL_DOES_NOT_MATCH);
+			log.error(msg+ " " + requestType);
+			throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,  msg+ " " + requestType);
+		 }
 		return Boolean.TRUE;
 	}
 
