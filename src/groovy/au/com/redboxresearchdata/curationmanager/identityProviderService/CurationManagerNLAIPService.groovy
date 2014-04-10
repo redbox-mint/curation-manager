@@ -209,8 +209,8 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 	  jsonData.put("recordId", oid);
 	  jsonData.put("control", maintenanceAgency);
 	  jsonData.put("entityId", depdentIdentifier);
-	  jsonData.put("surname", requestJsonMap.get("family_name"));
-	  jsonData.put("forename", requestJsonMap.get("given_name"));
+	  jsonData.put("surname", requestJsonMap.get("surname"));
+	  jsonData.put("forename", requestJsonMap.get("forename"));
 	  jsonData.put("description", requestJsonMap.get("description"));
 	  jsonData.put("salutation", requestJsonMap.get("salutation"));
 	  jsonData.put("dateStamp", DateUtil.getW3CDate());

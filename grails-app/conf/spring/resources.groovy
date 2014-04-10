@@ -1,6 +1,8 @@
 import au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerLocalIPService;
 import au.com.redboxresearchdata.curationmanager.utility.ApplicationContextHolder;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
+
 import grails.util.Environment
 
 beans = {
@@ -11,7 +13,7 @@ beans = {
 				jmsConnectionFactory(org.apache.activemq.ActiveMQConnectionFactory) {
 					brokerURL = 'tcp://0.0.0.0:9301'
 				}
-				importBeans('file:/var/local/curationmanager/resource.xml')
+				importBeans('file:'+System.getProperties().get("cmConfigPath")+'/resource.xml')
 				applicationContextHolder(ApplicationContextHolder) { bean ->
 					bean.factoryMethod = 'getInstance'
 				}
@@ -21,7 +23,7 @@ beans = {
 				jmsConnectionFactory(org.apache.activemq.ActiveMQConnectionFactory) {
 					brokerURL = 'tcp://0.0.0.0:9301'
 				}
-				importBeans('file:/var/local/curationmanager/resource.xml')
+				importBeans('file:'+System.getProperties().get("cmConfigPath")+'/resource.xml')
 				applicationContextHolder(ApplicationContextHolder) { bean ->
 					bean.factoryMethod = 'getInstance'
 				}

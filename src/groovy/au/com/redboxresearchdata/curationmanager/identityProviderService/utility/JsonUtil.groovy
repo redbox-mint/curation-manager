@@ -76,10 +76,10 @@ class JsonUtil {
 			  String salutation = (String)jsonMetaData.get("salutation");
 			  filterMap.put("salutation", salutation);
 			}
-			String givenName = (String)jsonMetaData.get("given_name");
-			String familyName = (String)jsonMetaData.get("family_name");
-			filterMap.put("given_name", givenName);
-			filterMap.put("family_name", familyName);
+			String givenName = (String)jsonMetaData.get("forename");
+			String familyName = (String)jsonMetaData.get("surname");
+			filterMap.put("forename", givenName);
+			filterMap.put("surname", familyName);
 		}
 		return filterMap;
 	}

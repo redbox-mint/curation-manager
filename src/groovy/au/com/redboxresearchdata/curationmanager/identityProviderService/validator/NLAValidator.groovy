@@ -18,8 +18,8 @@ import au.com.redboxresearchdata.curationmanager.identityProviderService.constan
 	  String metaData = pairs.getValue();
 	     Map metaDataMap = JsonUtil.getMapFromMetaDataForNLA(metaData);
 		  if(null != metaDataMap || !metaDataMap.isEmpty()) {
-		     String givenName = metaDataMap.get("given_name");
-			  String familyName = metaDataMap.get("family_name");
+		     String givenName = metaDataMap.get("forename");
+			  String familyName = metaDataMap.get("surname");
 			  if(null == givenName && null == familyName) {
 				 log.error("No family name or given name provided for the nla MetaData!");
 				 throw new CurationManagerBSException(IdentityServiceProviderConstants.STATUS_400,

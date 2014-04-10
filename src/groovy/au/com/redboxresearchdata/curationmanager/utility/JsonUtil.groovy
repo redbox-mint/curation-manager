@@ -77,10 +77,10 @@ class JsonUtil {
 		JSONObject jsonMetaData = new JSONObject(metaData);
 		Map filterMap = new HashMap();
 		if(null != jsonMetaData){
-			String description = (String)jsonMetaData.get("given_name");
-			String url = (String)jsonMetaData.get("family_name");
-			filterMap.put("given_name", description);
-			filterMap.put("family_name", url);
+			String description = (String)jsonMetaData.get("forename");
+			String url = (String)jsonMetaData.get("surname");
+			filterMap.put("forename", description);
+			filterMap.put("surname", url);
 		}
 		return filterMap;
 	}

@@ -9,11 +9,11 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
  
- <util:properties id="asynchronousPropSource" location="file:/var/local/curationmanager/asynchronousSchedule.properties"/>
- <util:properties id="orcPropSource" location="file:/var/local/curationmanager/localIdentityProviderConf.properties"/>
- <util:properties id="localPropSource" location="file:/var/local/curationmanagerlocalIdentityProviderConf.properties"/>
- <util:properties id="handlePropSource" location="/var/local/curationmanager/handleIdentityProviderConf.properties"/>  
- <util:properties id="nlaPropSource" location="file:/var/local/curationmanager/nlaIdentityProviderConf.properties"/>                               
+ <util:properties id="asynchronousPropSource" location="file:#{systemProperties.cm.config.path}asynchronousSchedule.properties"/>
+ <util:properties id="orcPropSource" location="file:#{systemProperties.cm.config.path}localIdentityProviderConf.properties"/>
+ <util:properties id="localPropSource" location="file:#{systemProperties.cm.config.path}localIdentityProviderConf.properties"/>
+ <util:properties id="handlePropSource" location="file:#{systemProperties.cm.config.path}handleIdentityProviderConf.properties"/>  
+ <util:properties id="nlaPropSource" location="file:#{systemProperties.cm.config.path}nlaIdentityProviderConf.properties"/>                               
                                    
   <bean id="local" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerLocalIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
   <bean id="handle" class="au.com.redboxresearchdata.curationmanager.identityProviderService.CurationManagerHandleIPService" scope="singleton"/> <!-- scope="singleton" autowire="byType" -->
