@@ -206,7 +206,7 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 
 		//Build the record template data
 		def jsonDataMap = [
-			"recordId":oid,
+			"recordId":depdentIdentifier,
 			"control":[
 				"maintenanceAgency":["agencyCode":getAgencyCode(), "agencyName":getAgencyName()],
 				"maintenanceHistory":[
@@ -229,7 +229,7 @@ class CurationManagerNLAIPService implements IdentityProviderService{
 			],
 			"data":[
 				[
-					"recordId":recordId,
+					"recordId":depdentIdentifier,
 					"metadataPrefix":mdPrefix,
 					"source":recordSource,
 					"jsonData":jsonDataMap
