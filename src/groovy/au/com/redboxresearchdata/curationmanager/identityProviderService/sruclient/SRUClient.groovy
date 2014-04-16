@@ -521,7 +521,9 @@ public class SRUClient {
             return null;
         }
         if (results.size() > 1) {
-            log.warn("This identifier matches multiple records! Returning only the first.");
+            log.error("The identifier "+id+" matches multiple records!");
+			throw new Exception("The identifier "+id+" matches multiple records!");
+
         }
 
         // Return first(only?) record
@@ -570,10 +572,10 @@ public class SRUClient {
         }
 
         List<Node> otherIds = node.selectNodes("eac:control/eac:otherRecordId");
-		if(null != otherIds && otherIds.size() > 1){
-			log.error("More than one record found with the same Name");
-			throw new Exception("More than one record found with the same Name");
-		}
+//		if(null != otherIds && otherIds.size() > 1){
+//			log.error("More than one record found with the same Name");
+//			throw new Exception("More than one record found with the same Name");
+//		}
 		
         for (Node idNode : otherIds) {
             String otherId = idNode.getText();
