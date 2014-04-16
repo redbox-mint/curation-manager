@@ -46,7 +46,7 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
-		compile "org.quartz-scheduler:quartz:2.1.5"
+		//compile "org.quartz-scheduler:quartz:2.1.5"
 		compile 'org.dspace:handle:6.2.5.02'
 		compile 'org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.1.1'
 		compile('org.apache.activemq:activemq-core:5.3.0',
@@ -91,7 +91,7 @@ grails.project.dependency.resolution = {
 	}
 
 	plugins {
-		//compile ":quartz:1.0.1"
+		compile ":quartz:1.0.1"
 		compile ":jms:1.2"
 		build ":tomcat:7.0.47"
 		compile ":scaffolding:2.0.1"
