@@ -1,11 +1,11 @@
 dataSource {
-	
 	pooled = false
-	driverClassName = "org.postgresql.Driver"
+	driverClassName = ""
 	dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-	url = "jdbc:postgresql://localhost/curationmanager"
-	username = "curationmanager"
-	password = "curationmanager"
+	url = ""
+	dialect = ""
+	username = ""
+	password = ""
 }
 
 hibernate {
@@ -20,31 +20,33 @@ environments {
 	development {
 		dataSource {
 			pooled = false
-			driverClassName = "org.postgresql.Driver"
+			driverClassName = ""
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			dialect = ""
+			username = ""
+			password = ""
 		}
 	}
 	test {
 		dataSource {
 			pooled = false
-			driverClassName = "org.postgresql.Driver"
+			driverClassName = ""
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			url = "jdbc:"
+			dialect = ""
+			username = ""
+			password = ""
 		}
 	}
 	production {
 		dataSource {
 			pooled = false
-			driverClassName = "org.postgresql.Driver"
+			driverClassName = ""
 			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:postgresql://localhost/curationmanager"
-			username = "curationmanager"
-			password = "curationmanager"
+			url = ""
+			dialect = ""
+			username = ""
+			password = ""
 		}
 	}
 }

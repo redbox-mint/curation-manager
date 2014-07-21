@@ -64,23 +64,5 @@ class JsonUtil {
 	}	
 	
 	
-	def static Map getMapFromMetaDataForNLA(String metaData){
-		JSONObject jsonMetaData = new JSONObject(metaData);
-		Map filterMap = new HashMap();
-		if(null != jsonMetaData){
-			if(jsonMetaData.containsKey("description")){
-			   String description = (String)jsonMetaData.get("description");
-			   filterMap.put("description", description);
-			}
-			if(jsonMetaData.containsKey("salutation")){
-			  String salutation = (String)jsonMetaData.get("salutation");
-			  filterMap.put("salutation", salutation);
-			}
-			String givenName = (String)jsonMetaData.get("forename");
-			String familyName = (String)jsonMetaData.get("surname");
-			filterMap.put("forename", givenName);
-			filterMap.put("surname", familyName);
-		}
-		return filterMap;
-	}
+	
 }

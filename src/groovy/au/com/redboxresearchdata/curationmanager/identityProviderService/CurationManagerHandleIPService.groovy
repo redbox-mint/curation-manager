@@ -140,7 +140,7 @@ class CurationManagerHandleIPService implements IdentityProviderService{
 	}
 	
 	public String getPrivateKeyPath(){
-		return privateKeyPath;
+		return System.getProperty("appPath")+privateKeyPath;
 	}
 	
 	public Map<String, String> getMetaDataMap(String metaData) {
