@@ -1,2 +1,3 @@
-curation-manager
+Curation Manager
 ================
+
