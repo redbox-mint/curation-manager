@@ -1,0 +1,110 @@
+---
+grails:
+    profile: web
+    codegen:
+        defaultPackage: au.com.redboxresearchdata.cm
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    groovy:
+        template:
+            check-template-location: false
+
+---
+grails:
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            all: '*/*'
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            form: application/x-www-form-urlencoded
+            html: 
+              - text/html
+              - application/xhtml+xml
+            js: text/javascript
+            json:
+              - application/json
+              - text/json
+            multipartForm: multipart/form-data
+            rss: application/rss+xml
+            text: text/plain
+            hal: 
+              - application/hal+json
+              - application/hal+xml
+            xml:
+              - text/xml
+              - application/xml
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+    hibernate:
+        cache:
+            queries: false
+    views:
+        default:
+            codec: html
+        gsp:
+            encoding: UTF-8
+            htmlcodec: xml
+            codecs:
+                expression: html
+                scriptlets: html
+                taglib: none
+                staticparts: none
+
+---
+dataSource:
+    pooled: true
+    jmxExport: true
+    driverClassName: org.postgresql.Driver
+    username: sa
+    password:
+
+environments:
+    development:
+        dataSource:
+            dbCreate: create-drop
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: jdbc:postgresql://localhost/curationmanager
+    test:
+        dataSource:
+            dbCreate: create
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: jdbc:postgresql://localhost/curationmanager
+    production:
+        dataSource:
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: jdbc:postgresql://localhost/curationmanager
+# Domain configuration
+domain:
+    curation_status_lookup:
+        - in_progress
+        - complete
+        - failed
+        - curating
+    entry_type_lookup:
+        - person
+        - group
+        - document
+        - dataset
+        - service
+        - activity
