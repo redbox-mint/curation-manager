@@ -12,6 +12,7 @@ appender('STDOUT', ConsoleAppender) {
 root(ERROR, ['STDOUT'])
 
 if(Environment.current == Environment.DEVELOPMENT) {
+	println "Logback is in Dev environment."
     def targetDir = BuildSettings.TARGET_DIR
     if(targetDir) {
         appender("FULL_STACKTRACE", FileAppender) {
@@ -32,7 +33,7 @@ if(Environment.current == Environment.DEVELOPMENT) {
 		}
         logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false )
 		logger "curation.manager.Application", DEBUG, ['STDOUT','MAIN_LOG'], false
-		logger "au.com.redboxresearchdata.cm", DEBUG, ['STDOUT','MAIN_LOG'], false
+		logger "au.com.redboxresearchdata.cm.controller.JobController", DEBUG, ['STDOUT', 'MAIN_LOG'], false
 		logger "grails.app.init.BootStrap", DEBUG, ['STDOUT','MAIN_LOG'], false
     }
 }

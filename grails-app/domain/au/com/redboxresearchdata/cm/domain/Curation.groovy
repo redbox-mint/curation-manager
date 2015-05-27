@@ -31,6 +31,7 @@ class Curation {
 	CurationStatusLookup status
 	String error
 	Date dateCompleted
+	String metadata
 	
 	Date dateCreated
 	

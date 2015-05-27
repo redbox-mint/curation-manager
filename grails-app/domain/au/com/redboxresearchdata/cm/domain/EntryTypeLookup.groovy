@@ -17,14 +17,15 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.domain
 /**
- * Etry Types
+ * Entry Types
  *
  * @author <a href="https://github.com/shilob" target="_blank">Shilo Banihit</a>
  * @since 0.1
  *
  */
 class EntryTypeLookup {
-
+	
+	String value
     static constraints = {
     }
 }

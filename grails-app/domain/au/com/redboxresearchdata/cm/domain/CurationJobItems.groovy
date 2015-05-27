@@ -26,6 +26,7 @@ package au.com.redboxresearchdata.cm.domain
 class CurationJobItems {
 	
 	CurationJob job
+	
 	static hasMany = [curations:Curation]
 	
     static constraints = {

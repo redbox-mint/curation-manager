@@ -45,6 +45,10 @@ class BootStrap {
 				log.debug("Adding status: ${it}")
 				def newStatus = new CurationStatusLookup(value:it)
 				newStatus.save(flush:true)
+				if (!grailsApplication.config.domain.lookups.curation_status_lookup) {
+					grailsApplication.config.domain.lookups.curation_status_lookup = [:]
+				}
+				grailsApplication.config.domain.lookups.curation_status_lookup.put(it, newStatus)
 			}
 		}
 		def entryTypeConfig = grailsApplication.config.domain.entry_type_lookup
@@ -60,6 +64,10 @@ class BootStrap {
 				log.debug("Adding entry type: ${it}")
 				def newEntryType = new EntryTypeLookup(value:it)
 				newEntryType.save(flush:true)
+				if (!grailsApplication.config.domain.lookups.entry_type_lookup) {
+					grailsApplication.config.domain.lookups.entry_type_lookup = [:]
+				}
+				grailsApplication.config.domain.lookups.curation_status_lookup.put(it, newEntryType)
 			}
 		}
     }
