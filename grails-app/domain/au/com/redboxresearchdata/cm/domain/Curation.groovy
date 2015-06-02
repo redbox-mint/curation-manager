@@ -42,7 +42,9 @@ class Curation {
 	}
 	
     static constraints = {
+		dateCompleted nullable:true
+		error nullable:true
+		metadata nullable:true
+		identifier nullable:true
     }
-	
-	static belongsTo = [jobItem:CurationJobItems]
 }

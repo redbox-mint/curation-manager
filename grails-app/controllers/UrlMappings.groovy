@@ -12,7 +12,7 @@ class UrlMappings {
 		"/v-${version}/jobs/${status}"(controller: "job", action: "index", method: "GET")
 		"/v-${version}/job/${id}"(controller: "job", action: "show", method: "GET")
 		"/v-${version}/job"(controller: "job", action: "create", method: "POST")
-		"/v-${version}/oid/${id}"(controller: "job", action: "show", method: "GET")
+		"/v-${version}/oid/${id}"(controller: "job", action: "showOid", method: "GET")
 
         "/"(view:"/index")
         "500"(view:'/error')

@@ -63,6 +63,7 @@ dependencies {
 	// Custom libs
 	compile "au.com.redboxresearchdata:utilities:1.0.0.BUILD-SNAPSHOT"
 	compile 'org.postgresql:postgresql:9.4-1201-jdbc41'
+	compile 'mysql:mysql-connector-java:5.1.6'
 	
     runtime "org.grails.plugins:asset-pipeline"
     runtime "org.grails.plugins:scaffolding"

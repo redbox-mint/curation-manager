@@ -31,6 +31,11 @@ class BootStrap {
 		log.info("Curation Manager BootStrap starting...")
 		// Shilo's note to self: refactor this later to become more generic, etc. 
 		log.debug("Checking domain information...")
+		initStatus()
+		initEntryType()
+    }
+	
+	def initStatus() {
 		log.debug("Checking curation_status_lookup...")
 		def statusConfig = grailsApplication.config.domain.curation_status_lookup
 		def statusList = CurationStatusLookup.list()
@@ -41,7 +46,7 @@ class BootStrap {
 				statusListValues << it.value
 			}
 			def diff = getMissingRecords(statusListValues, statusConfig)
-			diff.each { 
+			diff.each {
 				log.debug("Adding status: ${it}")
 				def newStatus = new CurationStatusLookup(value:it)
 				newStatus.save(flush:true)
@@ -51,12 +56,15 @@ class BootStrap {
 				grailsApplication.config.domain.lookups.curation_status_lookup.put(it, newStatus)
 			}
 		}
+	}
+	
+	def initEntryType() {
 		def entryTypeConfig = grailsApplication.config.domain.entry_type_lookup
 		def entryTypeList = EntryTypeLookup.list()
 		if (entryTypeList.size() != entryTypeConfig.size()) {
 			log.debug("Loading entry_type_lookup data...")
 			def entryTypeListValues = []
-			statusList.each {
+			entryTypeList.each {
 				entryTypeListValues << it.value
 			}
 			def diff = getMissingRecords(entryTypeListValues, entryTypeConfig)
@@ -67,10 +75,10 @@ class BootStrap {
 				if (!grailsApplication.config.domain.lookups.entry_type_lookup) {
 					grailsApplication.config.domain.lookups.entry_type_lookup = [:]
 				}
-				grailsApplication.config.domain.lookups.curation_status_lookup.put(it, newEntryType)
+				grailsApplication.config.domain.lookups.entry_type_lookup.put(it, newEntryType)
 			}
 		}
-    }
+	}
 	
     def destroy = {
     }

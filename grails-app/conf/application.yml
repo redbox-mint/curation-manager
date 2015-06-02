@@ -73,8 +73,6 @@ dataSource:
     pooled: true
     jmxExport: true
     driverClassName: org.postgresql.Driver
-    username: sa
-    password:
 
 environments:
     development:
@@ -118,7 +116,7 @@ api:
                 message: "What is there to curate?"
             failed_validation:
                 code: 400
-                message: "The API call did not contain the required parameters in the POST data."
+                message: "The API call did not contain the required parameters in the POST data: %1s"
             parse_error:
                 code: 400
                 message: "Failed to parse request."

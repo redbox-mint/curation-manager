@@ -40,5 +40,6 @@ class CurationJob {
 	static hasMany = [items:CurationJobItems]
 	
     static constraints = {
+		dateCompleted nullable:true
     }
 }

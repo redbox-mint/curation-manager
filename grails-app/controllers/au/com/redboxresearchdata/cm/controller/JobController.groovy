@@ -19,6 +19,7 @@ package au.com.redboxresearchdata.cm.controller
 
 import org.grails.web.converters.exceptions.ConverterException
 import au.com.redboxresearchdata.cm.domain.*
+import grails.converters.JSON
 import groovy.json.*
 /**
  * Job Contollers
@@ -92,11 +93,8 @@ class JobController {
 		def statNoIdType = config.api.job.error.invalid_id_type
 		def statMismatchedType = config.api.job.error.mismatch_type
 		def statNothing = config.api.job.error.nothing_to_curate
-		println("Got request for a curation job...")
 		try {
 			def json = request.JSON
-			println "Got data:" 
-			println json
 			// array must at least have an entry...
 			if (json.size() > 0) {
 				// creating the Job request
@@ -105,16 +103,17 @@ class JobController {
 					// validating the entries
 					// 1.1 - require oid, title, type fields
 					if (!item.oid || !item.title || !item.type) {
-						return render(status:statFailedVal.code, statFailedVal.message) 
+						return render(status:statFailedVal.code, sprintf(statFailedVal.message, sprintf("OID: '%s' Title: '%s' Type: '%s'", item.oid, item.title, item.type))) 
 					}
 					// 1.1 - validate that we handle this item type
+					
 					def entryType = config.domain.lookups.entry_type_lookup[item.type]
 					if (!entryType) {
-						return render(status:statFailedVal.code, statFailedVal.message)
+						return render(status:statFailedVal.code, sprintf(statFailedVal.message, "Entry type not found on DB:" + item.type + ", " + config.domain.lookups.entry_type_lookup))
 					}
-					def jobItem = new CurationJobItems()
+					def jobItem = new CurationJobItems(job:job)
 					// retrieve if there's an existing entry for this type
-					def entry = Entry.get(item.oid)
+					def entry = Entry.get("${item.oid}") // explicitly convert to string
 					// 1.3 - validate to see if the OID exists but conflicting type. Implicitly, it means that duplicate items are ignored.
 					if (entry && entry.type.value != item.type) {
 						return render(status:statMismatchedType.code, sprintf(statMismatchedType.message, item.type, entry.type.value))
@@ -132,7 +131,7 @@ class JobController {
 					item.required_identifiers.each { reqId ->
 						// 1.2 - validate that we handle this identity provider
 						if (!reqId.identifier_type) {
-							return render(status:statFailedVal.code, statFailedVal.message)
+							return render(status:statFailedVal.code, sprintf(statFailedVal.message,  "No identifier type"))
 						}
 						// 1.2 - list through the enabled ID providers if the type is there....
 						def idProviders = config.id_providers.enabled
@@ -143,13 +142,17 @@ class JobController {
 								hasProvider = true
 								def metadata = reqId?.metadata ? JsonOutput.toJson(reqId.metadata) : null
 								// check if there is an existing curation record
-								def curation = Curation.findByEntry(entry)
+								def qCuration = Curation.where {
+									entry == entry && identifier_type == reqId.identifier_type
+								}
+								def curation = qCuration.find()
 								if (curation) {
-									log.debug("Curation record exists for oid:" + entry.oid)
+									 log.debug "Doing nothing, curation record exists for oid:" + entry.oid
+									 jobItem.addToCurations(curation)
 								} else {
 									curation = new Curation(entry:entry, identifier_type:reqId.identifier_type, status:startStat, jobItem:jobItem, metadata:metadata)
-									jobItem.addToCurations(curation)
 									curation.save()
+									jobItem.addToCurations(curation)
 								}
 							}
 						}
@@ -158,12 +161,24 @@ class JobController {
 							return render(status:statNoIdType.code, sprintf(statNoIdType.message, reqId.identifier_type))
 						}
 					}
-					job.addToJobItems(jobItem)
+					if (!jobItem.validate()) {
+						jobItem.errors.each {
+							log.error it
+						}
+					}
+					jobItem.save()
+					job.addToItems(jobItem)
 				}
-				
-				job.save(flush:true)
+				if (!job.validate()) {
+					job.errors.each {
+						log.error it
+					}
+				} else {
+					job.save(flush:true)
+				}
 				// return the job data
-				render getJobInfo(job.id)
+				def data = getJobMap(job)
+				render data as JSON
 			} else {
 				return render(status:statNothing.code, statNothing.message)
 			}
@@ -173,23 +188,65 @@ class JobController {
 	}
 	
 	def show() {
-		getJobInfo(params.id)
-		render data
+		def job = CurationJob.get(params.id)
+		render getJobMap(job) as JSON
 	}
 	
-	def getJobInfo(jobId) {
-		def data = []
-		if (jobId) {
-			log.debug("Getting job id:" + params.id)
-			def job = Curation.get(params.id)
-			if (job) {
-				data.job_id = job.id
-				data.status = job.status.value
-				data.date_created = job.date_created
-				data.date_completed = job.date_completed
-				data.job_items = []
+	def getJobMap(job) {
+		def data = [:]
+		if (job) {
+			data.job_id = job.id
+			data.status = job.status.value
+			data.date_created = job.dateCreated
+			data.date_completed = job.dateCompleted
+			
+			data.job_items = []
+			job.items.each { jobItem ->
+				def item = [:]
+				item.required_identifiers = []
+				jobItem.curations.each {curation ->
+					if (!item.oid) {
+						// oid is in the Entry and not on the Job item, so set only once
+						item.oid = curation.entry.oid
+						item.title = curation.entry.title
+						item.type = curation.entry.type.value
+					}
+					def req_id = [:]
+					req_id.identifier_type = curation.identifier_type
+					req_id.status = curation.status.value
+					req_id.identifier = curation.identifier
+					req_id.error = curation.error
+					req_id.date_completed = curation.dateCompleted
+					item.required_identifiers << req_id
+				}
+				data.job_items << item
 			}
+		} else {
+			log.debug "Job was null, returning empty job map."
 		}
 		return data
+	}
+	
+	def showOid() {
+		def item = [:]
+		item.required_identifiers = []
+		String oid = params.id
+		def entry = Entry.get(oid)
+		def curations = Curation.findByEntry(entry)
+		curations?.each {curation->
+			if (!item.oid) {
+				item.oid = curation.entry.oid
+				item.title = curation.entry.title
+				item.type = curation.entry.type.value
+			}
+			def req_id = [:]
+			req_id.identifier_type = curation.identifier_type
+			req_id.status = curation.status.value
+			req_id.identifier = curation.identifier
+			req_id.error = curation.error
+			req_id.date_completed = curation.dateCompleted
+			item.required_identifiers << req_id
+		}		
+		render item as JSON
 	}
 }
