@@ -17,6 +17,7 @@
  ******************************************************************************/
 import grails.util.Environment
 import au.com.redboxresearchdata.cm.domain.*
+import au.com.redboxresearchdata.cm.runner.*
 /**
  * Grails Bootstrap class
  *
@@ -26,6 +27,7 @@ import au.com.redboxresearchdata.cm.domain.*
  */
 class BootStrap {
 	def grailsApplication
+	def jobService
 	
     def init = { servletContext ->
 		log.info("Curation Manager BootStrap starting...")
@@ -33,6 +35,10 @@ class BootStrap {
 		log.debug("Checking domain information...")
 		initStatus()
 		initEntryType()
+		initIdProviders()
+		// Launch Runners...
+		JobRunner.instance.start(grailsApplication.config, jobService)
+		
     }
 	
 	def initStatus() {
@@ -77,6 +83,18 @@ class BootStrap {
 				}
 				grailsApplication.config.domain.lookups.entry_type_lookup.put(it, newEntryType)
 			}
+		}
+	}
+	
+	def initIdProviders() {
+		// instantiate all enabled ID providers
+		for (id in grailsApplication.config.id_providers.enabled) {
+			String id_className = grailsApplication.config.id_providers[id].className
+			log.debug "ID Provider: ${id}, creating: ${id_className}"
+			def id_config = grailsApplication.config.id_providers[id].config
+			def id_provider = Class.forName(id_className).newInstance()
+			id_provider.setConfig(id_config)
+			grailsApplication.config.id_providers[id].instance = id_provider
 		}
 	}
 	

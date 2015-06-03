@@ -128,8 +128,22 @@ api:
                 code: 400
                 # The first argument is the supplied type, secod is the existing type
                 message: "Requested type (%1s) is a mismatch for the oid's existing type (%2s)"
+runner:
+    job:
+        thread_pool_count: 5
+        sleep_time: 60000
+#
+# ID Provider configuration. Please note that IDs are case-sensitive and match to the "identifier_type" field in the request.
+# Grails has the ability to merge configurations so potentially the list below is not all-inclusive, so do check out your config locations.
+#
 id_providers:
     enabled:
         - local
-        - handle
-        - nla
+        # Commenting out the others until they are completed
+        # - handle
+        # - nla
+    # ID: 'local' Identity provider
+    local:
+        className: au.com.redboxresearchdata.cm.id.local.LocalIdProvider
+        config:
+            custom_config_value: "Put your custom config value here."

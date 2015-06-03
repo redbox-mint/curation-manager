@@ -15,43 +15,41 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  ******************************************************************************/
-package au.com.redboxresearchdata.cm.domain
-
-import groovy.json.JsonSlurper
+package au.com.redboxresearchdata.cm.id
 
 /**
- * Curation 
+ * FutureResult
  *
- * @author <a href="https://github.com/shilob" target="_blank">Shilo Banihit</a>
- * @since 0.1
+ * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
-class Curation {
-	
-	Entry entry
-	String identifier_type
-	String identifier
-	CurationStatusLookup status
-	String error
-	Date dateCompleted
+class FutureResult implements Result {
+
+	String identityProviderId
+	String oid
 	String metadata
 	
-	Date dateCreated
-	
-	def getJsonMetadata() {
-		return new JsonSlurper().parse(metadata)
+	/* (non-Javadoc)
+	 * @see au.com.redboxresearchdata.cm.id.Result#getIdentityProviderID()
+	 */
+	@Override
+	public String getIdentityProviderID() {
+		return identityProviderId;
 	}
-	
-	static mapping = {
-		id column:'curation_id'
-		entry index:'Entry_Idx'
-		identifier_type index:'Entry_Idx,IdentifierType_Idx'
+
+	/* (non-Javadoc)
+	 * @see au.com.redboxresearchdata.cm.id.Result#getOid()
+	 */
+	@Override
+	public String getOid() {
+		return oid;
 	}
-	
-    static constraints = {
-		dateCompleted nullable:true
-		error nullable:true
-		metadata nullable:true
-		identifier nullable:true
-    }
+
+	/* (non-Javadoc)
+	 * @see au.com.redboxresearchdata.cm.id.Result#getMetadata()
+	 */
+	@Override
+	public String getMetadata() {
+		return metadata
+	}
 }

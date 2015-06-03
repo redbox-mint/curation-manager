@@ -21,18 +21,21 @@ import grails.test.mixin.*
 import spock.lang.*
 import groovy.json.*
 import au.com.redboxresearchdata.cm.domain.*
+import au.com.redboxresearchdata.cm.service.*
 
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 
 @TestFor(JobController)
-@Mock([Curation, CurationJobItems, CurationJob, CurationStatusLookup,  Entry, EntryTypeLookup])
+@Mock([Curation, CurationJobItems, CurationJob, CurationStatusLookup,  Entry, EntryTypeLookup, JobService])
 class JobControllerSpec extends Specification {
-	def grailsApplication = [:]
+	def jobService = new JobService()
 	
     def setup() {
 		initDb()
+		jobService.grailsApplication = grailsApplication
+		controller.jobService = jobService
     }
 
     def cleanup() {
@@ -41,16 +44,8 @@ class JobControllerSpec extends Specification {
 	def initDb() {
 		def stats = ['in_progress', 'complete', 'failed', 'curating']
 		def types = ['person', 'group', 'document', 'dataset', 'service', 'activity']
-		def config = [
-				"domain": [
-					"lookups": [
-						"curation_status_lookup": [:],
-						"entry_type_lookup": [:]
-					]
-			]
-		]
-		
-		grailsApplication.config = config
+		grailsApplication.config.domain.lookups.curation_status_lookup = [:]
+		grailsApplication.config.domain.lookups.entry_type_lookup = [:]
 		
 		stats.each {
 			def stat = new CurationStatusLookup(value:it)
@@ -73,7 +68,8 @@ class JobControllerSpec extends Specification {
 			        "type": "activity",
 			        "required_identifiers": [
 			            [
-			                "identifier_type": "local"
+			                "identifier_type": "local",
+							"metadata":["field1":"value1"]
 			            ]
 			        ]
 			    ]
@@ -96,6 +92,7 @@ class JobControllerSpec extends Specification {
 			response.json.job_items[0] != null
 			response.json.job_items[0].required_identifiers[0].identifier_type == data[0].required_identifiers[0].identifier_type
 			response.json.job_items[0].required_identifiers[0].status == "in_progress"
+			new JsonSlurper().parseText(response.json.job_items[0].required_identifiers[0].metadata).field1 == "value1"
 			response.json.job_items[0].oid == data[0].oid
 			response.json.job_items[0].title == data[0].title
 			response.json.job_items[0].type == data[0].type
@@ -116,6 +113,7 @@ class JobControllerSpec extends Specification {
 			response.json.job_items[0] != null
 			response.json.job_items[0].required_identifiers[0].identifier_type == data[0].required_identifiers[0].identifier_type
 			response.json.job_items[0].required_identifiers[0].status == "in_progress"
+			new JsonSlurper().parseText(response.json.job_items[0].required_identifiers[0].metadata).field1 == "value1"
 			response.json.job_items[0].oid == data[0].oid
 			response.json.job_items[0].title == data[0].title
 			response.json.job_items[0].type == data[0].type
@@ -131,6 +129,7 @@ class JobControllerSpec extends Specification {
 			response.status == 200
 			response.json.required_identifiers[0].identifier_type == data[0].required_identifiers[0].identifier_type
 			response.json.required_identifiers[0].status == "in_progress"
+			new JsonSlurper().parseText(response.json.required_identifiers[0].metadata).field1 == "value1"
 			response.json.oid == data[0].oid
 			response.json.title == data[0].title
 			response.json.type == data[0].type
