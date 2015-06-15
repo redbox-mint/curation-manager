@@ -130,8 +130,18 @@ api:
                 message: "Requested type (%1s) is a mismatch for the oid's existing type (%2s)"
 runner:
     job:
-        thread_pool_count: 5
-        sleep_time: 60000
+        max_recent: 100
+        # Status runners
+        curation_runners:
+             - in_progress
+             - curating
+        # Each runner can have different sleep intervals thread pools to cater for different processing loads.
+        in_progress:
+            thread_pool_count: 5
+            sleep_time: 60000
+        curating:
+            thread_pool_count: 5
+            sleep_time: 60000
 #
 # ID Provider configuration. Please note that IDs are case-sensitive and match to the "identifier_type" field in the request.
 # Grails has the ability to merge configurations so potentially the list below is not all-inclusive, so do check out your config locations.
@@ -140,8 +150,8 @@ id_providers:
     enabled:
         - local
         # Commenting out the others until they are completed
+        - nla
         # - handle
-        # - nla
     # ID: 'local' Identity provider
     local:
         className: au.com.redboxresearchdata.cm.id.local.LocalIdProvider

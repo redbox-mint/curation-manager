@@ -28,29 +28,5 @@ class IdentifierResult implements Result {
 	String identityProviderId
 	String oid
 	String metadata
-	
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.Result#getIdentityProviderID()
-	 */
-	@Override
-	public String getIdentityProviderID() {
-		return identityProviderId;
-	}
-
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.Result#getOid()
-	 */
-	@Override
-	public String getOid() {
-		return oid;
-	}
-
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.Result#getMetadata()
-	 */
-	@Override
-	public String getMetadata() {
-		return metadata
-	}
-
+	String identifier
 }

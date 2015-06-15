@@ -24,7 +24,8 @@ package au.com.redboxresearchdata.cm.id;
  *
  */
 public interface Result {
-	String getIdentityProviderID()
+	String getIdentityProviderId()
 	String getOid()
 	String getMetadata()
+	String getIdentifier()
 }

@@ -17,7 +17,11 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.runner
 
+import au.com.redboxresearchdata.cm.id.IdentifierResult
+import au.com.redboxresearchdata.cm.domain.*
 import java.util.concurrent.*
+import groovy.util.logging.Slf4j
+import groovy.json.*
 
 /**
  * JobRunner
@@ -25,50 +29,87 @@ import java.util.concurrent.*
  * A singleton for running jobs. See https://qcifltd.atlassian.net/wiki/display/REDBOX/Job+Runner+subsystem
  * 
  * Should be spawned ideally from BootStrap.
+ * 
+ * Design document is at: https://qcifltd.atlassian.net/wiki/display/REDBOX/Job+Runner+subsystem
  *
  * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
+@Slf4j
 @Singleton
 class JobRunner {
 	def jobService
 	def thread
 	def config
-	def threadPool
+	def statCompleted
+	def statCurating
+	def statFailed
+	def recentJobs
+	def recentJobsMax
 	
-	private static Object runFlag = [runForestRun:true]
+	private static Object runnerMap = [:]
 	
 	def start(config, jobService) {
 		this.config = config
 		this.jobService = jobService
+		this.statCompleted =  config.domain.lookups.curation_status_lookup['complete']
+		this.statCurating =  config.domain.lookups.curation_status_lookup['curating']
+		this.statFailed =  config.domain.lookups.curation_status_lookup['failed']
+		this.recentJobs = [:]
+		this.recentJobsMax = config.runner.job.max_recent
+		// get the list of runners and init the flags
+		def runnerIds = config.runner.job.curation_runners
+		runnerIds.each { runnerId ->
+			runnerMap[runnerId] = [:]
+			runnerMap[runnerId].id = runnerId
+			runnerMap[runnerId].runForestRun = true
+			runnerMap[runnerId].thread_pool_count = config.runner.job[runnerId].thread_pool_count
+			runnerMap[runnerId].sleep_time = config.runner.job[runnerId].sleep_time
+			launchRunner(runnerMap[runnerId])
+		}
+	}
+	
+	def launchRunner = { runnerMapConfig ->
+		runnerMapConfig.threadPool = Executors.newFixedThreadPool(runnerMapConfig.thread_pool_count)
 		
-		threadPool = Executors.newFixedThreadPool(config.runner.job.thread_pool_count)
-		
-		thread = Thread.start {
-			synchronized(runFlag) {
-				while (runFlag.runForestRun) {
-					// retrieve the "in_progress" jobs...
-					def startStat = config.domain.lookups.curation_status_lookup[config.api.job.init_status]
-					def jobs = jobService.getJobs(startStat)
-					def futures = jobs.collect{job->
-						threadPool.submit({-> processJob job} as Callable)
+		runnerMapConfig.thread = Thread.start {
+			synchronized(runnerMapConfig) {
+				while (runnerMapConfig.runForestRun) {
+					// retrieve status jobs
+					log.debug "Processing jobs with status: ${runnerMapConfig.id}"
+					def jobs = jobService.getJobs(config.domain.lookups.curation_status_lookup[runnerMapConfig.id])
+					def futures = jobs.collect { job ->
+						log.debug "Submitting to ${runnerMapConfig.id} thread pool: ${job.id}"
+						runnerMapConfig.threadPool.submit({-> processJob job} as Callable)
 					}
+					log.debug "Waiting for ${runnerMapConfig.id} threads to return..."
 					futures.each { it.get() }
-					runFlag.wait(config.runner.job.sleep_time)
+					log.debug "${runnerMapConfig.id} Runner sleeping..."
+					runnerMapConfig.wait(runnerMapConfig.sleep_time) // required so other threads can grab the lock
 				}
 			}
 		}
 	}
-	// each Job is process by its own thread...
-	def processJob = { job->
-		
+	
+	def processJob = { job ->
+		def processedJob = jobService.curateJob(job)	
+		if (recentJobs.size() > recentJobsMax) {
+			log.debug "Recent jobs maxed out, clearing..."
+			recentJobs.clear()
+		}
+		recentJobs[processedJob.id] = processedJob.status.value
+		log.debug "Process Job: ${processedJob.id}, status: ${processedJob.status.value}"
 	}
 	
 	def stop() {
-		synchronized(runFlag) {
-			runFlag.runForestRun = false
-			runFlag.notifyAll()
+		log.debug "Runner stopping..."
+		runnerMap.each { id, runnerMapConfig ->
+			synchronized(runnerMapConfig) {
+				runnerMapConfig?.runForestRun = false
+				runnerMapConfig?.notifyAll()
+			}
+			runnerMapConfig.thread?.join()
 		}
-		thread.join()
+		log.debug "Runner stopped."
 	}
 }

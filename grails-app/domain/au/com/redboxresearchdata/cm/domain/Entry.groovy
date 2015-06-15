@@ -30,7 +30,7 @@ class Entry {
 	String title
 	
 	static mapping = {
-		id generator: 'assigned', name:'oid', column:'oid', type:'string'
+		id generator: 'assigned', name:'oid', column:'oid'
 	}
 	
     static constraints = {

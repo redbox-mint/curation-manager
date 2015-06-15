@@ -18,6 +18,7 @@
 package au.com.redboxresearchdata.cm.service
 
 import au.com.redboxresearchdata.cm.domain.*
+import au.com.redboxresearchdata.cm.id.IdentifierResult
 import org.grails.web.converters.exceptions.ConverterException
 import groovy.json.*
 
@@ -197,8 +198,81 @@ class JobService {
 		return item
 	}
 
+	/**
+	 * Returns a list of Jobs of the supplied status
+	 * 
+	 * @param status
+	 * @return List of Jobs ordered by date created, ascending
+	 */
 	def getJobs(status) {
-		def jobs = CurationJob.findByStatus(status)
-		return jobs
+		return CurationJob.findAllByStatus(status, [sort:'dateCreated', order:'asc'])
+	}
+	
+	def curateJob(job) {
+		def config = grailsApplication.config
+		def statCompleted =  config.domain.lookups.curation_status_lookup['complete']
+		def statCurating =  config.domain.lookups.curation_status_lookup['curating']
+		def statFailed =  config.domain.lookups.curation_status_lookup['failed']
+		
+		log.debug "Curating job: ${job.id}"
+		def jobStat = statCompleted // assume the Job is completed, will change depending on conditions below
+		
+		job.items.each { jobItem ->
+			log.debug "Job iterating getting curations..."
+			jobItem.curations.each {curation ->
+				log.debug "Checking if already curated..."
+				// optimization: Ideally curate() will return a consistent identifier for each oid, but we check if the date completed isn't set before calling it.
+				if (curation.dateCompleted != null) {
+					// means this is already curated
+					log.debug "Already curated. ${getIdTraceStr(curation, job)}"
+					return
+				}
+				def idProvider = config.id_providers[curation.identifier_type].instance
+				if (idProvider != null) {
+					try {
+						def result = idProvider.curate(String.valueOf(curation.entry.oid), JsonOutput.toJson(curation.metadata))
+						if (result instanceof IdentifierResult) {
+							curation.identifier = result.getIdentifier()
+							curation.status = statCompleted
+							curation.error = null
+							curation.dateCompleted = new Date()
+							log.debug "Curated. ${getIdTraceStr(curation,job)}"
+						} else {
+							// assume a FutureResult
+							curation.identifier = null
+							curation.status = statCurating
+							curation.error = null
+							jobStat = statCurating
+						}
+					} catch (Exception e) {
+						log.error "Calling curate() threw an exception.  ${getIdTraceStr(curation,job)}", e
+						curation.identifier = null
+						curation.status = statFailed
+						curation.error = e.toString()
+						curation.dateCompleted = new Date()
+						jobStat = statFailed
+					}
+					curation.save(flush:true, failOnError:true)
+				} else {
+					log.error "Cannot find ID Provider instance, please check your configuration. ${getIdTraceStr(curation,job)}"
+				}
+			}
+		}
+		if (jobStat != statCurating) {
+			job.dateCompleted = new Date()
+		}
+		job.status = jobStat
+		if (!job.validate()) {
+			job.errors.each {
+				log.debug it
+			}
+		}
+		job.save(flush:true, failOnError:true)
+		log.debug "Curate Job: ${job.id}, status: ${job.status.value}"
+		return job
+	}
+	
+	def getIdTraceStr(curation, job) {
+		return "Entry OID: '${curation.entry.oid}', ID Provider: '${curation.identifier_type}', Job ID: '${job.id}'"
 	}
 }

@@ -62,16 +62,15 @@ class LocalIdProvider implements IdentityProvider {
 	 */
 	@Override
 	public Result curate(String oid, String metadata) {
-		// TODO Auto-generated method stub
-		return null;
+		return null
 	}
 
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.IdentityProvider#exists(java.lang.String, java.lang.String)
+	/**
+	 * Checks 
+	 * 
 	 */
 	@Override
 	public Result exists(String oid, String metadata) {
-		// TODO Auto-generated method stub
-		return null;
+		return null
 	}
 }
