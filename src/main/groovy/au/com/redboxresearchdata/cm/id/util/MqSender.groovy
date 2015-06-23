@@ -15,24 +15,29 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  ******************************************************************************/
-package au.com.redboxresearchdata.cm.domain
+package au.com.redboxresearchdata.cm.id.util
+
+import org.apache.activemq.ActiveMQConnectionFactory
+import net.sf.gtools.jms.JmsCategory
+import javax.jms.*
+
 /**
- * Entry
+ * MqSender
  *
- * @author <a href="https://github.com/shilob" target="_blank">Shilo Banihit</a>
- * @since 0.1
+ * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
-class Entry {
-
-	String oid
-	EntryTypeLookup type
-	String title
+class MqSender {
 	
-	static mapping = {
-		oid unique:true
-	}
-	
-    static constraints = {
+	def sendMessage(brokerUrl, queueName, txt) {
+        use(JmsCategory) {
+            def jms = new ActiveMQConnectionFactory(brokerUrl)
+            jms.connect { c ->
+                c.queue(queueName) { q ->
+                    def msg = createTextMessage(txt)
+                    q.send(msg)
+                }
+            }
+        }
     }
 }

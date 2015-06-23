@@ -73,25 +73,6 @@ dataSource:
     pooled: true
     jmxExport: true
     driverClassName: org.postgresql.Driver
-
-environments:
-    development:
-        dataSource:
-            dbCreate: create-drop
-            username: curationmanager
-            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: jdbc:postgresql://localhost/curationmanager
-    test:
-        dataSource:
-            dbCreate: create
-            username: curationmanager
-            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: jdbc:postgresql://localhost/curationmanager
-    production:
-        dataSource:
-            username: curationmanager
-            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: jdbc:postgresql://localhost/curationmanager
 # Domain configuration
 domain:
     curation_status_lookup:
@@ -135,7 +116,7 @@ runner:
         curation_runners:
              - in_progress
              - curating
-        # Each runner can have different sleep intervals thread pools to cater for different processing loads.
+        # Each runner can have different sleep intervals, thread pools to cater to different processing loads.
         in_progress:
             thread_pool_count: 5
             sleep_time: 60000
@@ -150,10 +131,60 @@ id_providers:
     enabled:
         - local
         # Commenting out the others until they are completed
-        - nla
+        # - nla
         # - handle
     # ID: 'local' Identity provider
     local:
         className: au.com.redboxresearchdata.cm.id.local.LocalIdProvider
         config:
-            custom_config_value: "Put your custom config value here."
+            custom_config_value: "Put your custom config value here."            
+    nla:
+        sru:
+            recordSchema: "urn:isbn:1-931666-33-4"
+            version: "1.1"
+            recordPacking: "xml"
+        mq:
+            queue: "oaiPmhFeed"
+        templates:
+            person: "templates/person.json"
+## 
+## Environment-specific configuration
+##
+environments:
+    development:
+         id_providers:
+            nla:
+                sru:
+                    url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
+                mq
+                    broker_url: "tcp://localhost:9301"
+         dataSource:
+            dbCreate: create-drop
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: "jdbc:postgresql://localhost/curationmanager"
+    test:
+        id_providers:
+            nla:
+                sru:
+                    url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
+                mq
+                    broker_url: "tcp://localhost:9301"
+        dataSource:
+            dbCreate: create
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: "jdbc:postgresql://localhost/curationmanager"
+        
+    production:
+        id_providers:
+            nla:
+                sru:
+                    url:"http://www.nla.gov.au/apps/srw/search/peopleaustralia"
+                mq
+                    broker_url: "tcp://localhost:9301"
+        dataSource:
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: "jdbc:postgresql://localhost/curationmanager"
+            

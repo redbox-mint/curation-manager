@@ -15,24 +15,23 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  ******************************************************************************/
-package au.com.redboxresearchdata.cm.domain
+package au.com.redboxresearchdata.cm.domain.nla
+
+import au.com.redboxresearchdata.cm.domain.*
+
 /**
- * Entry
+ * NlaCurationEntry
  *
- * @author <a href="https://github.com/shilob" target="_blank">Shilo Banihit</a>
- * @since 0.1
+ * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
-class Entry {
-
-	String oid
-	EntryTypeLookup type
-	String title
+class NlaCurationEntry {
+	Entry entry
 	
-	static mapping = {
-		oid unique:true
+	Date dateCompleted  // the date when NLA ID was retrieved
+	Date dateCreated // date sumbitted to harvester
+	
+	static constraints = {
+		dateCompleted nullable:true
 	}
-	
-    static constraints = {
-    }
 }

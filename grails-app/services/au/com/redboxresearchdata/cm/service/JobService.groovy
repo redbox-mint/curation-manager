@@ -60,7 +60,7 @@ class JobService {
 					}
 					def jobItem = new CurationJobItems(job:job)
 					// retrieve if there's an existing entry for this type
-					def entry = Entry.get("${item.oid}") // explicitly convert to string
+					def entry = Entry.findByOid("${item.oid}") // explicitly convert to string
 					// 1.3 - validate to see if the OID exists but conflicting type. Implicitly, it means that duplicate items are ignored.
 					if (entry && entry.type.value != item.type) {
 						return [status:statMismatchedType.code, message:sprintf(statMismatchedType.message, item.type, entry.type.value)]
@@ -178,7 +178,7 @@ class JobService {
 	def getOid(oid) {
 		def item = [:]
 		item.required_identifiers = []
-		def entry = Entry.get(oid)
+		def entry = Entry.findByOid(oid)
 		def curations = Curation.findByEntry(entry)
 		curations?.each {curation->
 			if (!item.oid) {

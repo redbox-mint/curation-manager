@@ -93,7 +93,7 @@ class JobRunnerSpec extends Specification {
 		grailsApplication.config.runner.job.curating.sleep_time = 100
 	}
 
-	void "test Job processing with synch and asynch ID provider, should pass..."() {
+	void "test Job processing with synch and asynch ID provider..."() {
 		when:
 			def data = [
 				[
