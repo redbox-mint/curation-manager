@@ -156,7 +156,7 @@ environments:
             nla:
                 sru:
                     url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
-                mq
+                mq:
                     broker_url: "tcp://localhost:9301"
          dataSource:
             dbCreate: create-drop
@@ -168,7 +168,7 @@ environments:
             nla:
                 sru:
                     url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
-                mq
+                mq:
                     broker_url: "tcp://localhost:9301"
         dataSource:
             dbCreate: create
@@ -181,7 +181,7 @@ environments:
             nla:
                 sru:
                     url:"http://www.nla.gov.au/apps/srw/search/peopleaustralia"
-                mq
+                mq:
                     broker_url: "tcp://localhost:9301"
         dataSource:
             username: curationmanager
