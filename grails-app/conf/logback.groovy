@@ -32,8 +32,8 @@ if(Environment.current == Environment.DEVELOPMENT) {
 			}
 		}
         logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false )
-		logger "curation.manager.Application", DEBUG, ['STDOUT','MAIN_LOG'], false
-		logger "au.com.redboxresearchdata.cm.controller.JobController", DEBUG, ['STDOUT', 'MAIN_LOG'], false
+		logger "curation.manager", DEBUG, ['STDOUT','MAIN_LOG'], false
+		logger "au.com.redboxresearchdata.cm", DEBUG, ['STDOUT', 'MAIN_LOG'], false
 		logger "grails.app.init.BootStrap", DEBUG, ['STDOUT','MAIN_LOG'], false
     }
 }

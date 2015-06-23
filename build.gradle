@@ -65,7 +65,7 @@ dependencies {
 	compile 'org.postgresql:postgresql:9.4-1201-jdbc41'
 	compile 'mysql:mysql-connector-java:5.1.6'
 	compile 'com.squareup.okhttp:okhttp:2.4.0'
-	compile 'org.apache.activemq:activemq-all:5.11.1'
+	compile 'org.apache.activemq:activemq-all:5.2.0'
 	compile 'net.sf.gtools.jms:JmsCategory:0.2'
 	
     runtime "org.grails.plugins:asset-pipeline"
