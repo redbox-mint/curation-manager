@@ -21,6 +21,7 @@ import au.com.redboxresearchdata.cm.domain.*
 import au.com.redboxresearchdata.cm.id.IdentifierResult
 import org.grails.web.converters.exceptions.ConverterException
 import groovy.json.*
+import groovy.util.logging.Slf4j
 
 /**
  * JobService
@@ -28,6 +29,7 @@ import groovy.json.*
  * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
+@Slf4j
 class JobService {
 	static transactional = true
 	def grailsApplication
