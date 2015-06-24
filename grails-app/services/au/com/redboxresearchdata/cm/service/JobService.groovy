@@ -21,6 +21,7 @@ import au.com.redboxresearchdata.cm.domain.*
 import au.com.redboxresearchdata.cm.id.IdentifierResult
 import org.grails.web.converters.exceptions.ConverterException
 import groovy.json.*
+import grails.transaction.*
 import groovy.util.logging.Slf4j
 
 /**
@@ -218,27 +219,29 @@ class JobService {
 		
 		log.debug "Curating job: ${job.id}"
 		def jobStat = statCompleted // assume the Job is completed, will change depending on conditions below
-		
+		def jobId = job.id
 		job.items.each { jobItem ->
 			log.debug "Job iterating getting curations..."
 			jobItem.curations.each {curation ->
+				def oid = curation.entry.oid
+				def idProviderId = curation.identifier_type
 				log.debug "Checking if already curated..."
 				// optimization: Ideally curate() will return a consistent identifier for each oid, but we check if the date completed isn't set before calling it.
 				if (curation.dateCompleted != null) {
 					// means this is already curated
-					log.debug "Already curated. ${getIdTraceStr(curation, job)}"
+					log.debug "Already curated. '${getIdTraceStr(oid, idProviderId, jobId)}'"
 					return
 				}
 				def idProvider = config.id_providers[curation.identifier_type].instance
 				if (idProvider != null) {
 					try {
-						def result = idProvider.curate(String.valueOf(curation.entry.oid), JsonOutput.toJson(curation.metadata))
+						def result = idProvider.curate(String.valueOf(curation.entry.oid), curation.metadata)
 						if (result instanceof IdentifierResult) {
 							curation.identifier = result.getIdentifier()
 							curation.status = statCompleted
 							curation.error = null
 							curation.dateCompleted = new Date()
-							log.debug "Curated. ${getIdTraceStr(curation,job)}"
+							log.debug "Curated. ${getIdTraceStr(oid, idProviderId,jobId)}"
 						} else {
 							// assume a FutureResult
 							curation.identifier = null
@@ -247,7 +250,7 @@ class JobService {
 							jobStat = statCurating
 						}
 					} catch (Exception e) {
-						log.error "Calling curate() threw an exception.  ${getIdTraceStr(curation,job)}", e
+						log.error "Calling curate() threw an exception.  ${getIdTraceStr(oid, idProviderId, jobId)}", e
 						curation.identifier = null
 						curation.status = statFailed
 						curation.error = e.toString()
@@ -256,7 +259,7 @@ class JobService {
 					}
 					curation.save(flush:true, failOnError:true)
 				} else {
-					log.error "Cannot find ID Provider instance, please check your configuration. ${getIdTraceStr(curation,job)}"
+					log.error "Cannot find ID Provider instance, please check your configuration. ${getIdTraceStr(oid, idProviderId, jobId)}'"
 				}
 			}
 		}
@@ -270,11 +273,12 @@ class JobService {
 			}
 		}
 		job.save(flush:true, failOnError:true)
-		log.debug "Curate Job: ${job.id}, status: ${job.status.value}"
+		log.debug "Curate Job: ${jobId}, status: ${job.status.value}"
 		return job
 	}
 	
-	def getIdTraceStr(curation, job) {
-		return "Entry OID: '${curation.entry.oid}', ID Provider: '${curation.identifier_type}', Job ID: '${job.id}'"
+	@NotTransactional
+	def getIdTraceStr(oid, idProvider, jobId) {
+		return "Entry OID: '${oid}', ID Provider: '${idProvider}', Job ID: '${jobId}'"
 	}
 }

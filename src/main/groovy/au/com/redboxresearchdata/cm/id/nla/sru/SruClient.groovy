@@ -74,6 +74,7 @@ class SruClient {
 	}
 	
 	private String encode(value) {
+		log.debug "Encoding value: ${value}"
 		return URLEncoder.encode(value, "UTF-8");
 	}
 	

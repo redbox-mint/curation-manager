@@ -97,11 +97,13 @@ class NlaIdProvider implements IdentityProvider {
 	}
 	
 	def buildMessage(entry, metadata) {
-		String templateData = this.getClass().getResourceAsStream('templates/'+config.id_providers.nla.templates[entry.type.value]).text
+		def templateLoc = config.id_providers.nla.templates[entry.type.value]
+		log.debug "Retrieving template file: ${templateLoc}"
+		String templateData = this.class.classLoader.getResourceAsStream(templateLoc).text
 		// replace variables
 		templateData = templateData.replaceAll("<recordId>",entry.oid)
-		templateData = templateData.replaceAll("<dateStamp>", new Date().format('YYYY-MM-DDThh:mm:ssZ'))
-		println templateData
+		templateData = templateData.replaceAll("<dateStamp>", new Date().format("YYYY-MM-DD'T'hh:mm:ssZ"))
+		log.debug templateData
 		def slurper = new JsonSlurper()
 		def msgData = slurper.parseText(templateData)
 		def metadataObj = slurper.parseText(metadata)

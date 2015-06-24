@@ -26,7 +26,7 @@ import au.com.redboxresearchdata.cm.service.*
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  * 
- * curl --data "[{'oid': 'a123','title': 'Jim Smith','type': 'person','required_identifiers': [{'identifier_type-Type:application/json" -X POST -i http://localhost:8080/v-0.1/job/
+ *  curl --data "[{\"oid\": \"a12444223\",\"title\": \"Jim Smith\",\"type\": \"person\",\"required_identifiers\": [{\"identifier_type\": \"nla\",\"metadata\": {}}]}]" -X POST -H "Content-Type:application/json" -i http://localhost:8080/v-0.1/job/
  * 
  */
 

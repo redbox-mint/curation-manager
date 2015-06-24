@@ -119,7 +119,7 @@ runner:
         # Each runner can have different sleep intervals, thread pools to cater to different processing loads.
         in_progress:
             thread_pool_count: 5
-            sleep_time: 60000
+            sleep_time: 10000
         curating:
             thread_pool_count: 5
             sleep_time: 60000
@@ -131,7 +131,7 @@ id_providers:
     enabled:
         - local
         # Commenting out the others until they are completed
-        # - nla
+        - nla
         # - handle
     # ID: 'local' Identity provider
     local:
@@ -139,6 +139,7 @@ id_providers:
         config:
             custom_config_value: "Put your custom config value here."            
     nla:
+        className: au.com.redboxresearchdata.cm.id.nla.NlaIdProvider
         sru:
             recordSchema: "urn:isbn:1-931666-33-4"
             version: "1.1"

@@ -44,8 +44,9 @@ class Curation {
 	
 	static mapping = {
 		id column:'curation_id'
-		entry index:'Entry_Idx'
+		entry index:'Entry_Idx', lazy:false
 		identifier_type index:'Entry_Idx,IdentifierType_Idx'
+		status lazy:false
 	}
 	
     static constraints = {

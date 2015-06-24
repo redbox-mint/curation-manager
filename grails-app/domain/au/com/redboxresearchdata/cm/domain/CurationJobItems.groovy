@@ -30,4 +30,8 @@ class CurationJobItems {
     static constraints = {
 		job nullable:true
     }
+	
+	static mapping = {
+		curations lazy:false
+	}
 }

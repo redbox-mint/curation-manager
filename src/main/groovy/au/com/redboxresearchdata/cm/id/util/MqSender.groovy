@@ -20,13 +20,14 @@ package au.com.redboxresearchdata.cm.id.util
 import org.apache.activemq.ActiveMQConnectionFactory
 import net.sf.gtools.jms.JmsCategory
 import javax.jms.*
-
+import groovy.util.logging.Slf4j
 /**
  * MqSender
  *
  * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
+@Slf4j
 class MqSender {
 	
 	def sendMessage(brokerUrl, queueName, txt) {
@@ -36,6 +37,8 @@ class MqSender {
                 c.queue(queueName) { q ->
                     def msg = createTextMessage(txt)
                     q.send(msg)
+					log.debug "Sent message to MQ:"
+					log.debug txt
                 }
             }
         }

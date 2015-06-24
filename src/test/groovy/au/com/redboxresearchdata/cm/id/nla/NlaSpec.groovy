@@ -74,11 +74,12 @@ class NlaSpec extends Specification {
 			def type = new EntryTypeLookup(value:'person')
 			def title = 'testTitle'
 			def entry = new Entry(oid:oid, type:type, title:title)
-			String metadata = "{'field1':'value1'}"
+			String metadata = "{\"field1\":\"value1\"}"
 			def msg = nlaIdProvider.buildMessage(entry, metadata)
 		then:	
+			println "BuildMessage: "
+			println msg
 			msg != null
-			
 	}
 	
 	
