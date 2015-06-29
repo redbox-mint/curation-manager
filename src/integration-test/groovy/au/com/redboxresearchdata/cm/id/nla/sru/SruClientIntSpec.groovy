@@ -33,10 +33,10 @@ class SruClientIntSpec extends Specification {
     }
 
     void "Test Retrieval of Person Data"() {
-		when:
+		when: "Accessing the SRU client,"
 	        def data = sruClient.findByRecordId('c2a0533fc6de694eb7dd64026e7cfdfa')
 			println data
-		then:
+		then: "data should not be null."
 			data != null
     }
 }

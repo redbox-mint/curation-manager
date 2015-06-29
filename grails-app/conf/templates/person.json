@@ -7,10 +7,7 @@
             "recordId":"<recordId>",
             "dateStamp":"<dateStamp>",
             "metadataPrefix":["eac-cpf"],
-            "source":"Curation Manager - People",
-            "metadata": { 
-                "recordIDPrefix": "redbox-mint.googlecode.com/parties/people/"   
-            }
+            "source":"Curation Manager - People"
         }
     ]
 }

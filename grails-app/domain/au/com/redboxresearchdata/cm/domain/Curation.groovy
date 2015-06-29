@@ -47,6 +47,7 @@ class Curation {
 		entry index:'Entry_Idx', lazy:false
 		identifier_type index:'Entry_Idx,IdentifierType_Idx'
 		status lazy:false
+		metadata type:'text'
 	}
 	
     static constraints = {

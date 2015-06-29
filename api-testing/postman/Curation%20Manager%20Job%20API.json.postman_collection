@@ -5,7 +5,8 @@
 	"order": [
 		"ed422bd0-f4a6-8f61-64fc-73bab1b4b32e",
 		"1445d14f-8f85-42bb-f5d6-384f0f943916",
-		"39cf89ab-f961-d38d-b931-3341fee118c7"
+		"39cf89ab-f961-d38d-b931-3341fee118c7",
+		"3ec9fe78-38d5-ef88-2c12-1da213bceaef"
 	],
 	"folders": [],
 	"timestamp": 1435023365863,
@@ -13,7 +14,7 @@
 	"remoteLink": "",
 	"public": false,
 	"createdAt": 1435023365863,
-	"updatedAt": 1435023607599,
+	"updatedAt": 1435557263974,
 	"synced": false,
 	"requests": [
 		{
@@ -34,7 +35,8 @@
 			"description": "",
 			"collectionId": "10301eac-3a5c-43f8-149e-22972c8e0288",
 			"responses": [],
-			"synced": false
+			"synced": false,
+			"owner": 0
 		},
 		{
 			"id": "39cf89ab-f961-d38d-b931-3341fee118c7",
@@ -54,7 +56,32 @@
 			"description": "",
 			"collectionId": "10301eac-3a5c-43f8-149e-22972c8e0288",
 			"responses": [],
-			"synced": false
+			"synced": false,
+			"owner": 0
+		},
+		{
+			"id": "3ec9fe78-38d5-ef88-2c12-1da213bceaef",
+			"headers": "Accept-Encoding: application/json\nContent-Type: application/json\n",
+			"url": "http://localhost:8080/v-0.1/job",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "10301eac-3a5c-43f8-149e-22972c8e0288",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Create a Job for NLA",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1435023466344,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"collectionOwner": 0,
+			"synced": false,
+			"rawModeData": "[\r\n  {\r\n    \"oid\": \"a123\",\r\n    \"title\": \"Jim Smith\",\r\n    \"type\": \"person\",\r\n    \"required_identifiers\": [\r\n      {\r\n        \"identifier_type\": \"local\"\r\n      }\r\n    ]\r\n  }\r\n]",
+			"owner": 0
 		},
 		{
 			"id": "ed422bd0-f4a6-8f61-64fc-73bab1b4b32e",
@@ -77,7 +104,8 @@
 			"helperAttributes": {},
 			"collectionOwner": 0,
 			"synced": false,
-			"rawModeData": "[\r\n  {\r\n    \"oid\": \"a123\",\r\n    \"title\": \"Jim Smith\",\r\n    \"type\": \"person\",\r\n    \"required_identifiers\": [\r\n      {\r\n        \"identifier_type\": \"local\"\r\n      }\r\n    ]\r\n  }\r\n]"
+			"rawModeData": "[\r\n  {\r\n    \"oid\": \"a123\",\r\n    \"title\": \"Jim Smith\",\r\n    \"type\": \"person\",\r\n    \"required_identifiers\": [\r\n      {\r\n        \"identifier_type\": \"local\"\r\n      }\r\n    ]\r\n  }\r\n]",
+			"owner": 0
 		}
 	]
 }

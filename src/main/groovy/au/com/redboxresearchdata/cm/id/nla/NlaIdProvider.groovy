@@ -107,9 +107,10 @@ class NlaIdProvider implements IdentityProvider {
 		def slurper = new JsonSlurper()
 		def msgData = slurper.parseText(templateData)
 		def metadataObj = slurper.parseText(metadata)
-		msgData.metadata = metadataObj
-		// TODO: refactor the OAI Components to use constants out of main object
-		msgData.constants = metadataObj.constants
+		// set the individual fields as top level objects
+		msgData.data[0].metadata = metadataObj.metadata 
+		msgData.data[0].objectMetadata = metadataObj.objectMetadata
+		msgData.data[0].constants = metadataObj.constants
 		return JsonOutput.toJson(msgData)
 	}
 }
