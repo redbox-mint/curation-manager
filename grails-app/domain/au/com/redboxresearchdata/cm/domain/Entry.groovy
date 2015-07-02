@@ -24,15 +24,10 @@ package au.com.redboxresearchdata.cm.domain
  *
  */
 class Entry {
-
-	String oid
-	EntryTypeLookup type
-	String title
-	
-	static mapping = {
-		oid unique:true
-	}
-	
-    static constraints = {
+    String oid
+    EntryTypeLookup type
+    String title
+    static mapping = {
+        oid unique: true
     }
 }

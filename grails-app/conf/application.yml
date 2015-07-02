@@ -136,8 +136,8 @@ id_providers:
     # ID: 'local' Identity provider
     local:
         className: au.com.redboxresearchdata.cm.id.local.LocalIdProvider
-        config:
-            custom_config_value: "Put your custom config value here."            
+        template: "urn:uri:[[UUID]]"
+        validators: ["URN"]
     nla:
         className: au.com.redboxresearchdata.cm.id.nla.NlaIdProvider
         sru:

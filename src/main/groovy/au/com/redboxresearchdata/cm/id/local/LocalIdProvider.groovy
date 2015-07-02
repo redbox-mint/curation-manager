@@ -17,7 +17,21 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.id.local
 
+import au.com.redboxresearchdata.cm.Exception.IdProviderException
+import au.com.redboxresearchdata.cm.domain.Curation
+import au.com.redboxresearchdata.cm.domain.Entry
+import au.com.redboxresearchdata.cm.domain.local.LocalCurationEntry
+import au.com.redboxresearchdata.cm.domain.local.LocalCurationIncrementer
 import au.com.redboxresearchdata.cm.id.*
+import au.com.redboxresearchdata.cm.id.local.type.TemplatePlaceholder
+import au.com.redboxresearchdata.cm.service.validator.UrlValidatorService
+import au.com.redboxresearchdata.cm.service.validator.UrnValidatorService
+import au.com.redboxresearchdata.cm.service.validator.ValidatorService
+import groovy.util.logging.Slf4j
+import org.apache.commons.lang.StringUtils
+import org.apache.tomcat.jni.Local
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
 /**
  * LocalIdProvider
@@ -25,20 +39,29 @@ import au.com.redboxresearchdata.cm.id.*
  * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
+@Slf4j
+@Component
 class LocalIdProvider implements IdentityProvider {
-	
+	private static final String ID = "local"
+	private static final String name = "Local Identity Provider"
+	boolean synchronous = true
 	def config
-	
-	public LocalIdProvider() {
-		
+
+	List<ValidatorService> validatorServiceList
+
+    //TODO : replace with autowiring
+	LocalIdProvider() {
+		this.validatorServiceList = new ArrayList<>()
+		validatorServiceList.add(new UrlValidatorService())
+		validatorServiceList.add(new UrnValidatorService())
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see au.com.redboxresearchdata.cm.id.IdentityProvider#getID()
 	 */
 	@Override
 	public String getID() {
-		return "local"
+		return ID
 	}
 
 	/* (non-Javadoc)
@@ -46,7 +69,7 @@ class LocalIdProvider implements IdentityProvider {
 	 */
 	@Override
 	public String getName() {
-		return "Local Identity Provider"
+		return name
 	}
 
 	/* (non-Javadoc)
@@ -62,15 +85,53 @@ class LocalIdProvider implements IdentityProvider {
 	 */
 	@Override
 	public Result curate(String oid, String metadata) {
+		Entry entry = getExistingEntry(oid)
+		log.debug("Proceeding with local curation...")
+		// build the message
+		String identifier = populateTemplate(entry)
+		def idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: identifier)
+		log.debug("local id result is: " + idResult)
+		return idResult
+	}
+
+	@Override
+	public Result exists(String oid, String metadata) {
+		log.warn("Not implmented. Cannot access a generic URI for local provider id.")
 		return null
 	}
 
-	/**
-	 * Checks 
-	 * 
-	 */
-	@Override
-	public Result exists(String oid, String metadata) {
-		return null
+	private Entry getExistingEntry(String oid) {
+		Entry entry = Entry.findByOid(oid)
+		if (entry) {
+			log.debug("found existing entry: " + entry)
+			return entry
+		} else {
+			log.error "Couldn't find existing entry to undertake local curation for oid: ${oid}"
+			throw new IllegalStateException("Local Id provider should have an existing entry.")
+		}
 	}
+
+	private String populateTemplate(Entry entry) {
+		log.debug("Saving local curation entry...")
+		LocalCurationEntry localCurationEntry = new LocalCurationEntry(entry: entry)
+		LocalCurationEntry.withTransaction { status ->
+			try {
+				localCurationEntry.save(flush: true, failOnError: true)
+				String templateData = config.id_providers.local.template
+				String identifier = TemplatePlaceholder.populate(templateData, localCurationEntry)
+				this.validatorServiceList.each { validator ->
+					  if (!validator.isValid(identifier)) {
+						  throw new IdProviderException("Invalid template created.")
+					  }
+				}
+				status.flush()
+				return identifier
+			}  catch (IdProviderException e){
+				log.error("Could not complete local curation transaction. rolling back...")
+                status.setRollbackOnly()
+			}
+		}
+	}
+
+
 }
