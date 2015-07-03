@@ -17,12 +17,15 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.id
 
+import groovy.transform.ToString
+
 /**
  * IdentifierResult
  *
  * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
+@ToString
 class IdentifierResult implements Result {
 
 	String identityProviderId

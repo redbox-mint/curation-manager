@@ -27,6 +27,7 @@ import au.com.redboxresearchdata.cm.id.local.type.TemplatePlaceholder
 import au.com.redboxresearchdata.cm.service.validator.UrlValidatorService
 import au.com.redboxresearchdata.cm.service.validator.UrnValidatorService
 import au.com.redboxresearchdata.cm.service.validator.ValidatorService
+import grails.gorm.DetachedCriteria
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang.StringUtils
 import org.apache.tomcat.jni.Local
@@ -85,19 +86,37 @@ class LocalIdProvider implements IdentityProvider {
 	 */
 	@Override
 	public Result curate(String oid, String metadata) {
-		Entry entry = getExistingEntry(oid)
-		log.debug("Proceeding with local curation...")
-		// build the message
-		String identifier = populateTemplate(entry)
-		def idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: identifier)
-		log.debug("local id result is: " + idResult)
+		Result idResult = exists(oid, metadata)
+		if (!idResult) {
+			Entry entry = getExistingEntry(oid)
+			log.debug("Proceeding with local curation...")
+			String identifier = populateTemplate(entry)
+			idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: identifier)
+			log.debug("local id result is: " + idResult)
+		}
 		return idResult
 	}
 
+	/**
+	 *
+	 * @param oid
+	 * @param metadata
+	 * @return
+	 */
 	@Override
 	public Result exists(String oid, String metadata) {
-		log.warn("Not implmented. Cannot access a generic URI for local provider id.")
-		return null
+		DetachedCriteria criteria = new DetachedCriteria(Curation).build {
+			eq 'entry', getExistingEntry(oid)
+			isNotNull 'identifier'
+		}
+		boolean hasLocalCuration = criteria.asBoolean()
+		def idResult
+		if  (hasLocalCuration) {
+			idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: criteria?.get()?.identifier)
+		}
+		log.debug("Does local curation exist?: " + Boolean.toString(hasLocalCuration))
+		log.debug("Local curation identifier for oid: " + oid + ", is idResult: " + idResult)
+		return idResult
 	}
 
 	private Entry getExistingEntry(String oid) {

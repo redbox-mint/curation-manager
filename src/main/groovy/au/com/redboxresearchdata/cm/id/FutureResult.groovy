@@ -17,12 +17,15 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.id
 
+import groovy.transform.ToString
+
 /**
  * FutureResult
  *
  * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
  *
  */
+@ToString
 class FutureResult implements Result {
 
 	String identityProviderId
