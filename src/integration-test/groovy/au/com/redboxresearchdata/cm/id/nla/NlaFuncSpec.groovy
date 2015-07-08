@@ -9,21 +9,22 @@ import groovyx.net.http.*
 
 import spock.lang.*
 import geb.spock.*
-import au.com.redboxresearchdata.cm.service.*
 import groovy.json.*
-
+import grails.util.Holders
 /**
- * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
+ * 
+ * NlaFuncSpec
+ *
+ * @author <a target='_' href='https://github.com/shilob'>Shilo Banihit</a>
+ *
  */
 @Integration
 @Rollback
 class NlaFuncSpec extends GebSpec {
-	@Autowired
-	JobService jobService  // TODO:remove when you find a way to inject grailsApplication.config
 	def grailsApplication
 	
     def setup() {
-		grailsApplication = jobService.grailsApplication
+		grailsApplication = Holders.grailsApplication
     }
 
     def cleanup() {
@@ -37,7 +38,7 @@ class NlaFuncSpec extends GebSpec {
 		def metadataObj = new JsonSlurper().parseText(metadata)
 		def data = [
 				[
-					"oid": "e6656a2c87d086b015db7e4d9e60c65e",
+					"oid": "integration-test-delay-me_1",
 					"title": "Person Functional Test",
 					"type": "person",
 					"required_identifiers": [
