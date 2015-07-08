@@ -11,10 +11,10 @@ appender('STDOUT', ConsoleAppender) {
 
 root(ERROR, ['STDOUT'])
 def targetDir = BuildSettings.TARGET_DIR
+println "CM is in Environment: ${Environment.current.name}"
 if(Environment.current == Environment.DEVELOPMENT) {
-	println "CM is in Dev environment."
+	// do nothing :)
 } else {
-	println "CM is in QA/Prod Environment."
 	def baseDir = System.getProperty("catalina.base") ? System.getProperty("catalina.base") : "build" 
 	targetDir = "${baseDir}/logs"
 }

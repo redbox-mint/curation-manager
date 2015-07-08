@@ -181,12 +181,26 @@ environments:
             username: curationmanager
             password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
             url: "jdbc:postgresql://localhost/curationmanager"
-        
+            
+    staging:
+        server:
+            port: 8081
+        id_providers:
+            nla:
+                sru:
+                    url:"http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
+                mq:
+                    broker_url: "tcp://localhost:9301"
+        dataSource:
+            username: curationmanager
+            password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
+            url: "jdbc:postgresql://localhost/curationmanager"
+                
     production:
         id_providers:
             nla:
                 sru:
-                    url:"http://www.nla.gov.au/apps/srw/search/peopleaustralia"
+                    url:"http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
                 mq:
                     broker_url: "tcp://localhost:9301"
         dataSource:
