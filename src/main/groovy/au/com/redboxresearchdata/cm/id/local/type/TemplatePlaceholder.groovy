@@ -1,6 +1,6 @@
 package au.com.redboxresearchdata.cm.id.local.type
 
-import au.com.redboxresearchdata.cm.Exception.IdProviderException
+import au.com.redboxresearchdata.cm.exception.IdProviderException
 import au.com.redboxresearchdata.cm.domain.local.LocalCurationEntry
 import au.com.redboxresearchdata.cm.domain.local.LocalCurationIncrementer
 import groovy.util.logging.Slf4j

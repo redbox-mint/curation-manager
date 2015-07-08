@@ -18,7 +18,7 @@
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package au.com.redboxresearchdata.cm.Exception;
+package au.com.redboxresearchdata.cm.exception;
 
 /**
  * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
