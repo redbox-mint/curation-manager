@@ -31,7 +31,9 @@ local.properties
  
 # TeXlipse plugin
 .texlipse
- 
+
+# IntelliJ
+*.iml 
  
 ### Gradle ###
 .gradle
