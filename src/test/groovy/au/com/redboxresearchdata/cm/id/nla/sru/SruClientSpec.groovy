@@ -46,7 +46,7 @@ class SruClientSpec extends Specification {
 			String query = 'rec.identifier="c2a0533fc6de694eb7dd64026e7cfdfa"'
 			def url = client.generateUrl(query, null)
 		then:
-			url == "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia?version=1.1&recordSchema=urn%3Aisbn%3A1-931666-33-4&recordPacking=xml&operation=searchRetrieve&query=rec.identifier%3D%22c2a0533fc6de694eb7dd64026e7cfdfa%22"
+			url == "http://localhost:8081/apps/srw/search/peopleaustralia?version=1.1&recordSchema=urn%3Aisbn%3A1-931666-33-4&recordPacking=xml&operation=searchRetrieve&query=rec.identifier%3D%22c2a0533fc6de694eb7dd64026e7cfdfa%22"
 	}
 	
 	void "Test Data parsing..."() {

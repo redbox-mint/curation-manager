@@ -165,12 +165,17 @@ environments:
             password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
             url: "jdbc:postgresql://localhost/curationmanager"
     test:
+        runner:
+            job:
+                curating:
+                    thread_pool_count: 5
+                    sleep_time: 10000
         id_providers:
             nla:
                 sru:
-                    url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
+                    url: "http://localhost:8081/apps/srw/search/peopleaustralia"
                 mq:
-                    broker_url: "tcp://localhost:9301"
+                    broker_url: "tcp://localhost:9302"
         dataSource:
             dbCreate: create
             username: curationmanager

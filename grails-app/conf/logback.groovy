@@ -10,30 +10,34 @@ appender('STDOUT', ConsoleAppender) {
 }
 
 root(ERROR, ['STDOUT'])
-
+def targetDir = BuildSettings.TARGET_DIR
 if(Environment.current == Environment.DEVELOPMENT) {
-	println "Logback is in Dev environment."
-    def targetDir = BuildSettings.TARGET_DIR
-    if(targetDir) {
-        appender("FULL_STACKTRACE", FileAppender) {
+	println "CM is in Dev environment."
+} else {
+	println "CM is in QA/Prod Environment."
+	def baseDir = System.getProperty("catalina.base") ? System.getProperty("catalina.base") : "build" 
+	targetDir = "${baseDir}/logs"
+}
+if(targetDir) {
+	println "Using CM Log directory: ${targetDir}"
+	appender("FULL_STACKTRACE", FileAppender) {
 
-            file = "${targetDir}/stacktrace.log"
-            append = true
-            encoder(PatternLayoutEncoder) {
-                pattern = "%d{HH:mm:ss.SSS} |- %level %logger - %msg%n"
-            }
-        }
-		appender("MAIN_LOG", FileAppender) {
-
-			file = "${targetDir}/main.log"
-			append = true
-			encoder(PatternLayoutEncoder) {
-				pattern = "%d{HH:mm:ss.SSS} |- %level %logger - %msg%n"
-			}
+		file = "${targetDir}/cm_stacktrace.log"
+		append = true
+		encoder(PatternLayoutEncoder) {
+			pattern = "%d{HH:mm:ss.SSS} |- %level %logger - %msg%n"
 		}
-        logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false )
-		logger "curation.manager", DEBUG, ['STDOUT','MAIN_LOG'], false
-		logger "au.com.redboxresearchdata.cm", DEBUG, ['STDOUT', 'MAIN_LOG'], false
-		logger "grails.app.init.BootStrap", DEBUG, ['STDOUT','MAIN_LOG'], false
-    }
+	}
+	appender("MAIN_LOG", FileAppender) {
+
+		file = "${targetDir}/cm_main.log"
+		append = true
+		encoder(PatternLayoutEncoder) {
+			pattern = "%d{HH:mm:ss.SSS} |- %level %logger - %msg%n"
+		}
+	}
+	logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false )
+	logger "curation.manager", DEBUG, ['STDOUT','MAIN_LOG'], false
+	logger "au.com.redboxresearchdata.cm", DEBUG, ['STDOUT', 'MAIN_LOG'], false
+	logger "grails.app.init.BootStrap", DEBUG, ['STDOUT','MAIN_LOG'], false
 }

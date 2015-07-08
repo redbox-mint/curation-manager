@@ -8,7 +8,6 @@ import grails.transaction.*
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.*
 import au.com.redboxresearchdata.cm.id.nla.sru.SruClient
-import au.com.redboxresearchdata.cm.service.*
 
 /**
  * 
@@ -22,11 +21,9 @@ import au.com.redboxresearchdata.cm.service.*
 class SruClientIntSpec extends Specification {
 
 	def sruClient
-	@Autowired
-	JobService jobService  // TODO:remove when you find a way to inject grailsApplication.config
 	
     def setup() {
-		sruClient = new SruClient(config:jobService.grailsApplication.config)
+		sruClient = new SruClient(config:grails.util.Holders.grailsApplication.config)
     }
 
     def cleanup() {
