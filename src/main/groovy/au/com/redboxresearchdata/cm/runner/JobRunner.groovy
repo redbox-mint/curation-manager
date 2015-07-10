@@ -39,6 +39,7 @@ import groovy.json.*
 @Singleton
 class JobRunner {
 	def jobService
+	def importService
 	def thread
 	def config
 	def statCompleted
@@ -52,8 +53,8 @@ class JobRunner {
 	def start(config, jobService) {
 		this.config = config
 		this.jobService = jobService
-		this.statCompleted =  config.domain.lookups.curation_status_lookup['complete']
-		this.statCurating =  config.domain.lookups.curation_status_lookup['curating']
+		this.statCompleted = config.domain.lookups.curation_status_lookup['complete']
+		this.statCurating = config.domain.lookups.curation_status_lookup['curating']
 		this.statFailed =  config.domain.lookups.curation_status_lookup['failed']
 		this.recentJobs = [:]
 		this.recentJobsMax = config.runner.job.max_recent

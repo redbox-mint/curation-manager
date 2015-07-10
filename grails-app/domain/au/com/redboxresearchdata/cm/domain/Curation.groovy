@@ -18,6 +18,7 @@
 package au.com.redboxresearchdata.cm.domain
 
 import groovy.json.JsonSlurper
+import groovy.transform.ToString
 
 /**
  * Curation 
@@ -26,6 +27,7 @@ import groovy.json.JsonSlurper
  * @since 0.1
  *
  */
+@ToString
 class Curation {
 	
 	Entry entry

@@ -16,6 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.domain
+
+import groovy.transform.ToString
+
 /**
  * Curation Status Lookup
  *
@@ -23,6 +26,7 @@ package au.com.redboxresearchdata.cm.domain
  * @since 0.1
  *
  */
+@ToString
 class CurationStatusLookup {
 
 	String value

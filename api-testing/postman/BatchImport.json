@@ -1,0 +1,43 @@
+[
+  {
+    "oid": "123",
+    "title": "Jim Smith",
+    "type": "person",
+    "identifier_type": "local",
+    "identifier": "http://some.obsuresite.com/123",
+    "metadata": {
+      "dc_title": "testlocal"
+    }
+  },
+  {
+    "oid": "123",
+    "title": "Jim Smith",
+    "type": "person",
+    "identifier_type": "nla",
+    "identifier": "http://nla.gov.au/nla.party-1715189",
+    "metadata": {
+      "dc_title": "testnla"
+    }
+  },
+  {
+    "oid": "123",
+    "title": "Jim Smith",
+    "type": "person",
+    "required_identifiers": [
+      {
+        "identifier_type": "local",
+        "identifier": "http://some.site.com/123",
+        "metadata": {
+          "dc_title": "testlocal"
+        }
+      },
+      {
+        "identifier_type": "nla",
+        "identifier": "http://nla.gov.au/nla.party-1715189"
+        "metadata": {
+          "dc_title": "testnla"
+        }
+      }
+    ]
+  }
+]

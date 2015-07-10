@@ -27,6 +27,7 @@ import au.com.redboxresearchdata.cm.service.validator.UrlValidatorService
 import au.com.redboxresearchdata.cm.service.validator.UrnValidatorService
 import au.com.redboxresearchdata.cm.service.validator.ValidatorService
 import grails.gorm.DetachedCriteria
+import grails.transaction.NotTransactional
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
 

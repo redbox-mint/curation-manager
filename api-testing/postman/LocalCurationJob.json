@@ -1,0 +1,15 @@
+[
+  {
+    "oid": "206183",
+    "title": "John Smith",
+    "type": "person",
+    "required_identifiers": [
+      {
+        "identifier_type": "local",
+        "metadata": {
+          "dc_title": "testlocal"
+        }
+      }
+    ]
+  }
+]

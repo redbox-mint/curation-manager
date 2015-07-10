@@ -85,7 +85,7 @@ class JobController {
 			render createData as JSON
 		}
 	}
-	
+
 	def show() {
 		render jobService.getJob(params.id) as JSON
 	}

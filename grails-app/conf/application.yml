@@ -109,6 +109,17 @@ api:
                 code: 400
                 # The first argument is the supplied type, secod is the existing type
                 message: "Requested type (%1s) is a mismatch for the oid's existing type (%2s)"
+    import:
+        exit_status: complete
+        filters: ['metadata']
+        error:
+            nothing_to_import:
+                code: 400
+                message: "What is there to import?"
+            parse_error:
+                code: 400
+                message: "Failed to parse request."
+
 runner:
     job:
         max_recent: 100
@@ -188,7 +199,7 @@ environments:
         id_providers:
             nla:
                 sru:
-                    url:"http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
+                    url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
                 mq:
                     broker_url: "tcp://localhost:9301"
         dataSource:
@@ -200,7 +211,7 @@ environments:
         id_providers:
             nla:
                 sru:
-                    url:"http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
+                    url: "http://www-test.nla.gov.au/apps/srw/search/peopleaustralia"
                 mq:
                     broker_url: "tcp://localhost:9301"
         dataSource:
