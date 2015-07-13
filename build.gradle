@@ -62,7 +62,6 @@ dependencies {
     compile "org.grails.plugins:cache"
     compile "org.hibernate:hibernate-ehcache"
 	// Custom libs
-	compile "au.com.redboxresearchdata:utilities:1.0.0.BUILD-SNAPSHOT"
 	compile 'org.postgresql:postgresql:9.4-1201-jdbc41'
 	compile 'mysql:mysql-connector-java:5.1.6'
 	compile 'com.squareup.okhttp:okhttp:2.4.0'
