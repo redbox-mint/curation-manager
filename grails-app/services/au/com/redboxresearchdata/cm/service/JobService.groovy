@@ -136,9 +136,9 @@ class JobService {
                     } else {
                         job.save(flush: true)
                     }
-                    // return the job data
-                    return getJobMap(job)
                 }
+				// return the job data
+				return getJobMap(job)
             } else {
                 return [status: statNothing.code, message: statNothing.message]
             }
