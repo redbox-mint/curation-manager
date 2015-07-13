@@ -174,7 +174,7 @@ environments:
             dbCreate: create-drop
             username: curationmanager
             password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: "jdbc:postgresql://localhost/curationmanager"
+            url: "jdbc:postgresql://localhost/curationmanager_dev"
     test:
         runner:
             job:
@@ -191,7 +191,7 @@ environments:
             dbCreate: create
             username: curationmanager
             password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: "jdbc:postgresql://localhost/curationmanager"
+            url: "jdbc:postgresql://localhost/curationmanager_test"
             
     staging:
         server:
@@ -205,7 +205,7 @@ environments:
         dataSource:
             username: curationmanager
             password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: "jdbc:postgresql://localhost/curationmanager"
+            url: "jdbc:postgresql://localhost/curationmanager_staging"
                 
     production:
         id_providers:
@@ -217,5 +217,5 @@ environments:
         dataSource:
             username: curationmanager
             password: zrTAqx&cbOjE^2OZ94nr5QNY4Wxyb8IAZbY1nYkqCz@&@Q3&v4#v2Q@qL3x7L4#QDnr5Hw9P*QWgAsv!@
-            url: "jdbc:postgresql://localhost/curationmanager"
+            url: "jdbc:postgresql://localhost/curationmanager_prod"
             

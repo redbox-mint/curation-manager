@@ -55,16 +55,20 @@ class BootStrap {
 			diff.each {
 				log.debug("Adding status: ${it}")
 				def newStatus = new CurationStatusLookup(value:it)
-				newStatus.save(flush:true)
-				if (!grailsApplication.config.domain.lookups.curation_status_lookup) {
-					grailsApplication.config.domain.lookups.curation_status_lookup = [:]
-				}
-				grailsApplication.config.domain.lookups.curation_status_lookup.put(it, newStatus)
+				newStatus.save(flush:true, failOnError:true)
+				statusList << newStatus
 			}
+		}
+		statusList.each {statusItem ->
+			if (!grailsApplication.config.domain.lookups.curation_status_lookup) {
+				grailsApplication.config.domain.lookups.curation_status_lookup = [:]
+			}
+			grailsApplication.config.domain.lookups.curation_status_lookup.put(statusItem.value, statusItem)
 		}
 	}
 	
 	def initEntryType() {
+		log.debug("Checking entry_type_lookup....")
 		def entryTypeConfig = grailsApplication.config.domain.entry_type_lookup
 		def entryTypeList = EntryTypeLookup.list()
 		if (entryTypeList.size() != entryTypeConfig.size()) {
@@ -77,16 +81,20 @@ class BootStrap {
 			diff.each {
 				log.debug("Adding entry type: ${it}")
 				def newEntryType = new EntryTypeLookup(value:it)
-				newEntryType.save(flush:true)
-				if (!grailsApplication.config.domain.lookups.entry_type_lookup) {
-					grailsApplication.config.domain.lookups.entry_type_lookup = [:]
-				}
-				grailsApplication.config.domain.lookups.entry_type_lookup.put(it, newEntryType)
+				newEntryType.save(flush:true, failOnError:true)
+				entryTypeList << newEntryType
 			}
+		} 
+		entryTypeList.each { dbEntry->
+			if (!grailsApplication.config.domain.lookups.entry_type_lookup) {
+				grailsApplication.config.domain.lookups.entry_type_lookup = [:]
+			}
+			grailsApplication.config.domain.lookups.entry_type_lookup.put(dbEntry.value, dbEntry)
 		}
 	}
 	
 	def initIdProviders() {
+		log.debug("Checking id_providers...")
 		// instantiate all enabled ID providers
 		for (id in grailsApplication.config.id_providers.enabled) {
 			String id_className = grailsApplication.config.id_providers[id].className

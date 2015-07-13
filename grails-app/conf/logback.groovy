@@ -10,14 +10,12 @@ appender('STDOUT', ConsoleAppender) {
 }
 
 root(ERROR, ['STDOUT'])
-def targetDir = BuildSettings.TARGET_DIR
 println "CM is in Environment: ${Environment.current.name}"
 if(Environment.current == Environment.DEVELOPMENT) {
 	// do nothing :)
-} else {
-	def baseDir = System.getProperty("catalina.base") ? System.getProperty("catalina.base") : "build" 
-	targetDir = "${baseDir}/logs"
 }
+def baseDir = System.getProperty("catalina.base") ? System.getProperty("catalina.base") : "build"
+def targetDir = "${baseDir}/logs"
 if(targetDir) {
 	println "Using CM Log directory: ${targetDir}"
 	appender("FULL_STACKTRACE", FileAppender) {
