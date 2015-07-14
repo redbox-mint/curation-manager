@@ -105,6 +105,7 @@ class LocalIdProvider implements IdentityProvider {
 		DetachedCriteria criteria = new DetachedCriteria(Curation).build {
 			eq 'entry', Entry.findByOid(oid)
 			isNotNull 'identifier'
+			eq 'identifier_type', 'local'
 		}
 		boolean hasLocalCuration = criteria.asBoolean()
 		def idResult
