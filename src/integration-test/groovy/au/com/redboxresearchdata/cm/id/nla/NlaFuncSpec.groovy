@@ -50,6 +50,20 @@ class NlaFuncSpec extends GebSpec {
 							"identifier_type": "local"
 						]
 					]
+				],
+				[
+					"oid": "integration-test-delay-me-second-oid_1",
+					"title": "Person Functional Test2",
+					"type": "person",
+					"required_identifiers": [
+						[
+							"identifier_type": "nla",
+							"metadata":metadataObj
+						],
+						[
+							"identifier_type": "local"
+						]
+					]
 				]
 			]
         when:"Adding a new job,"
@@ -73,15 +87,17 @@ class NlaFuncSpec extends GebSpec {
 			waitResp != null
 			waitResp.status == 200
 			waitResp.data.status == "complete"
+			waitResp.data.job_items.size() == data.size()
+			def identifierTypeAndValueMatches = true
 			waitResp.data.job_items.each {item->
 				item.required_identifiers.each {reqId ->
-					if (reqId.identifier_type == "local") {
-						reqId.identifier.startsWith("urn") == true
-					} else {
-						reqId.identifier.startsWith("http://nla.gov.au") == true
+					if ((reqId.identifier_type == "local" && reqId.identifier.startsWith("urn") == false) 
+						|| (reqId.identifier_type == "nla" && reqId.identifier.startsWith("http://nla.gov.au") == false) ) {
+						identifierTypeAndValueMatches = false
 					}
 				}
 			}
+			identifierTypeAndValueMatches == true
     }
 	
 	def metadata = """\
