@@ -236,11 +236,12 @@ class JobService {
             jobItem.curations.each { curation ->
                 def oid = curation.entry.oid
                 def idProviderId = curation.identifier_type
+				def curationId = curation.id
                 log.debug "Checking if already curated..."
                 // optimization: Ideally curate() will return a consistent identifier for each oid, but we check if the date completed isn't set before calling it.
                 if (curation.dateCompleted != null) {
                     // means this is already curated
-                    log.debug "Already curated. '${getIdTraceStr(oid, idProviderId, jobId)}'"
+                    log.debug "Already curated with identifier: ${curation.identifier} '${getIdTraceStr(oid, idProviderId, jobId, curationId)}'"
                     return
                 }
                 def idProvider = config.id_providers[curation.identifier_type].instance
@@ -252,7 +253,7 @@ class JobService {
                             curation.status = statCompleted
                             curation.error = null
                             curation.dateCompleted = new Date()
-                            log.debug "Curated. ${getIdTraceStr(oid, idProviderId, jobId)}"
+                            log.debug "Curated with Identifier: ${curation.identifier} '${getIdTraceStr(oid, idProviderId, jobId, curationId)}'"
                         } else {
                             // assume a FutureResult
                             curation.identifier = null
@@ -289,7 +290,7 @@ class JobService {
     }
 
     @NotTransactional
-    def getIdTraceStr(oid, idProvider, jobId) {
-        return "Entry OID: '${oid}', ID Provider: '${idProvider}', Job ID: '${jobId}'"
+    def getIdTraceStr(oid, idProvider, jobId, curationId='') {
+        return "Entry OID: '${oid}', ID Provider: '${idProvider}', Job ID: '${jobId}', Curation ID: ${curationId}"
     }
 }
