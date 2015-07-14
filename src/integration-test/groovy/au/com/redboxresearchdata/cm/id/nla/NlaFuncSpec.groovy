@@ -45,6 +45,9 @@ class NlaFuncSpec extends GebSpec {
 						[
 							"identifier_type": "nla",
 							"metadata":metadataObj
+						],
+						[
+							"identifier_type": "local"
 						]
 					]
 				]
@@ -70,6 +73,15 @@ class NlaFuncSpec extends GebSpec {
 			waitResp != null
 			waitResp.status == 200
 			waitResp.data.status == "complete"
+			waitResp.data.job_items.each {item->
+				item.required_identifiers.each {reqId ->
+					if (reqId.identifier_type == "local") {
+						reqId.identifier.startsWith("urn") == true
+					} else {
+						reqId.identifier.startsWith("http://nla.gov.au") == true
+					}
+				}
+			}
     }
 	
 	def metadata = """\
