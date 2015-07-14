@@ -17,18 +17,18 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.id.local
 
-import au.com.redboxresearchdata.cm.exception.IdProviderException
 import au.com.redboxresearchdata.cm.domain.Curation
 import au.com.redboxresearchdata.cm.domain.Entry
 import au.com.redboxresearchdata.cm.domain.local.LocalCurationEntry
-import au.com.redboxresearchdata.cm.id.*
+import au.com.redboxresearchdata.cm.exception.IdProviderException
+import au.com.redboxresearchdata.cm.id.IdentifierResult
+import au.com.redboxresearchdata.cm.id.IdentityProvider
+import au.com.redboxresearchdata.cm.id.Result
 import au.com.redboxresearchdata.cm.id.local.type.TemplatePlaceholder
-import au.com.redboxresearchdata.cm.service.validator.UrlValidatorService
-import au.com.redboxresearchdata.cm.service.validator.UrnValidatorService
-import au.com.redboxresearchdata.cm.service.validator.ValidatorService
+import au.com.redboxresearchdata.cm.service.validator.ValidatorFlagService
 import grails.gorm.DetachedCriteria
-import grails.transaction.NotTransactional
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 /**
@@ -38,106 +38,127 @@ import org.springframework.stereotype.Component
  *
  */
 @Slf4j
-@Component
 class LocalIdProvider implements IdentityProvider {
-	static final String ID = "local"
-	static final String name = "Local Identity Provider"
-	boolean synchronous = true
-	def config
+    static final String ID = "local"
+    static final String name = "Local Identity Provider"
+    boolean synchronous = true
+    def config
 
-	List<ValidatorService> validatorServiceList
+    //TODO : autowire
+    ValidatorFlagService validatorFlagService
 
-    //TODO : replace with autowiring
-	LocalIdProvider() {
-		this.validatorServiceList = new ArrayList<>()
-		validatorServiceList.add(new UrlValidatorService())
-		validatorServiceList.add(new UrnValidatorService())
-	}
+    LocalIdProvider() {
+        this.validatorFlagService = new ValidatorFlagService()
+    }
 
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.IdentityProvider#getID()
-	 */
-	@Override
-	String getID() {
-		return ID
-	}
+    /* (non-Javadoc)
+     * @see au.com.redboxresearchdata.cm.id.IdentityProvider#getID()
+     */
 
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.IdentityProvider#getName()
-	 */
-	@Override
-	String getName() {
-		return name
-	}
+    @Override
+    String getID() {
+        return ID
+    }
 
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.IdentityProvider#isSynchronous()
-	 */
-	@Override
-	boolean isSynchronous() {
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see au.com.redboxresearchdata.cm.id.IdentityProvider#getName()
+     */
 
-	/* (non-Javadoc)
-	 * @see au.com.redboxresearchdata.cm.id.IdentityProvider#curate(java.lang.String, java.lang.String)
-	 */
-	@Override
-	Result curate(String oid, String metadata) {
-		Result idResult = exists(oid, metadata)
-		if (!idResult) {
-			Entry entry = Entry.findByOid(oid)
-			log.debug("Proceeding with local curation...")
-			String identifier = populateTemplate(entry)
-			idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: identifier)
-			log.debug("local id result is: " + idResult)
-		}
-		return idResult
-	}
+    @Override
+    String getName() {
+        return name
+    }
 
-	/**
-	 *
-	 * @param oid
-	 * @param metadata
-	 * @return
-	 */
-	@Override
-	Result exists(String oid, String metadata) {
-		DetachedCriteria criteria = new DetachedCriteria(Curation).build {
-			eq 'entry', Entry.findByOid(oid)
-			isNotNull 'identifier'
-			eq 'identifier_type', 'local'
-		}
-		boolean hasLocalCuration = criteria.asBoolean()
-		def idResult
-		if  (hasLocalCuration) {
-			idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: criteria?.get()?.identifier)
-		}
-		log.debug("Does local curation exist?: " + Boolean.toString(hasLocalCuration))
-		log.debug("Local curation identifier for oid: " + oid + ", is idResult: " + idResult)
-		return idResult
-	}
+    /* (non-Javadoc)
+     * @see au.com.redboxresearchdata.cm.id.IdentityProvider#isSynchronous()
+     */
 
-	String populateTemplate(Entry entry) {
-		log.debug("Saving local curation entry...")
-		LocalCurationEntry localCurationEntry = new LocalCurationEntry(entry: entry)
-		LocalCurationEntry.withTransaction { status ->
-			try {
-				localCurationEntry.save(flush: true, failOnError: true)
-				String templateData = config.id_providers.local.template
-				String identifier = TemplatePlaceholder.populate(templateData, localCurationEntry)
-				this.validatorServiceList.each { validator ->
-					  if (!validator.isValid(identifier)) {
-						  throw new IdProviderException("Invalid template created.")
-					  }
-				}
-				status.flush()
-				return identifier
-			}  catch (IdProviderException e){
-				log.error("Could not complete local curation transaction. rolling back...")
-                status.setRollbackOnly()
-			}
-		}
-	}
+    @Override
+    boolean isSynchronous() {
+        return true;
+    }
+
+    /* (non-Javadoc)
+     * @see au.com.redboxresearchdata.cm.id.IdentityProvider#curate(java.lang.String, java.lang.String)
+     */
+
+    @Override
+    Result curate(String oid, String metadata) {
+        Result idResult = exists(oid, metadata)
+        if (!idResult) {
+            Entry entry = Entry.findByOid(oid)
+            log.debug("Proceeding with local curation...")
+            String identifier = populateTemplate(entry)
+            idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: identifier)
+            log.debug("local id result is: " + idResult)
+        }
+        return idResult
+    }
+
+    /**
+     *
+     * @param oid
+     * @param metadata
+     * @return
+     */
+    @Override
+    Result exists(String oid, String metadata) {
+        DetachedCriteria criteria = new DetachedCriteria(Curation).build {
+            eq 'entry', Entry.findByOid(oid)
+            isNotNull 'identifier'
+            eq 'identifier_type', 'local'
+        }
+        boolean hasLocalCuration = criteria.asBoolean()
+        def idResult
+        if (hasLocalCuration) {
+            idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: criteria?.get()?.identifier)
+        }
+        log.debug("Does local curation exist?: " + Boolean.toString(hasLocalCuration))
+        log.debug("Local curation identifier for oid: " + oid + ", is idResult: " + idResult)
+        return idResult
+    }
+
+    String populateTemplate(Entry entry) {
+        log.debug("Saving local curation entry...")
+        def currentRecordType = entry?.type?.value
+        def typeConfig = extractConfig(currentRecordType)
+        if (typeConfig) {
+            LocalCurationEntry.withTransaction { status ->
+                try {
+                    String templateData = typeConfig['template']
+                    LocalCurationEntry localCurationEntry = new LocalCurationEntry(entry: entry)
+                    localCurationEntry.save(flush: true, failOnError: true)
+                    String identifier = TemplatePlaceholder.populate(templateData, localCurationEntry)
+                    def validatorConfig = typeConfig['validators']
+                    log.debug("validator config is: " + validatorConfig)
+                    if (!validatorFlagService.isValid(identifier, validatorConfig)) {
+                        throw new IdProviderException("Invalid template created.")
+                    }
+                    status.flush()
+                    return identifier
+                } catch (IdProviderException e) {
+                    log.error("Could not complete local curation transaction. rolling back...")
+                    status.setRollbackOnly()
+                }
+            }
+        } else {
+            log.warn("Aborting curation. No local curation template found. No local curation record saved.")
+        }
+    }
+
+    def extractConfig(def recordType) {
+        def allLocalTemplateData = config?.id_providers?.local?.templates
+        log.debug("local template data is: " + allLocalTemplateData)
+        log.debug("current record type is: " + recordType)
+        def typeConfig
+        if (allLocalTemplateData && recordType) {
+            typeConfig = allLocalTemplateData[recordType]
+            log.debug("type config is: " + typeConfig)
+        } else {
+            log.error("Unable to find local template matching record type: " + recordType)
+        }
+        return typeConfig
+    }
 
 
 }

@@ -147,8 +147,15 @@ id_providers:
     # ID: 'local' Identity provider
     local:
         className: au.com.redboxresearchdata.cm.id.local.LocalIdProvider
-        template: "urn:uri:[[UUID]]"
-        validators: ["URN"]
+        templates:
+            dataset:
+                template: "urn:uri:[[UUID]]"
+                validators: ["URN"]
+            person:
+                template: "http://www.example.edu.au/people/[[OID]]"
+                validators: ["URL"]
+            group:
+                template: "http://www.some.site.com/group/[[INC]]"
     nla:
         className: au.com.redboxresearchdata.cm.id.nla.NlaIdProvider
         sru:

@@ -21,6 +21,7 @@
 package au.com.redboxresearchdata.cm.service.validator
 
 import groovy.util.logging.Slf4j
+import org.springframework.stereotype.Component
 
 /**
  * @version
@@ -28,15 +29,29 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 class ValidatorFlagService {
-    static def VALIDATORS_FLAGGED
 
-    boolean isFlagged(flag) {
-        def boolean isFlagged = VALIDATORS_FLAGGED.contains(flag)
-        if (!isFlagged) {
-            log.debug("Not flagged for ${flag} validation.")
-        } else {
-            log.debug("Flagged for ${flag} validation")
+    def validatorServices = [
+            URN: new UrnValidatorService(),
+            URL: new UrlValidatorService()
+    ]
+
+    boolean isValid(identifier, validatorKeys) {
+        def validators = getValidators(validatorKeys)
+        def hasFailed = validators.any { validator ->
+            !validator.isValid(identifier)
         }
-        return isFlagged
+        def isValid = !hasFailed
+        log.debug("validator flag service returns: " + Boolean.toString(isValid))
+        return isValid
+    }
+
+    def getValidators(def validatorKeys) {
+        log.debug("validator keys: " + validatorKeys)
+        def flagged = validatorKeys.collect { validator ->
+            log.debug("checking key: " + validator)
+            return validatorServices[validator]
+        }
+        log.debug("flagged validators: " + flagged)
+        return flagged
     }
 }

@@ -6,6 +6,4 @@ package au.com.redboxresearchdata.cm.service.validator
  */
 interface ValidatorService {
     boolean isValid(String value)
-
-    boolean isFlagged()
 }

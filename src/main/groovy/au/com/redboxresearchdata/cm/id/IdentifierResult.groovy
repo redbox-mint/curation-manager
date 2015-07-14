@@ -27,9 +27,8 @@ import groovy.transform.ToString
  */
 @ToString
 class IdentifierResult implements Result {
-
-	String identityProviderId
-	String oid
-	String metadata
-	String identifier
+    String identityProviderId
+    String oid
+    String metadata
+    String identifier
 }
