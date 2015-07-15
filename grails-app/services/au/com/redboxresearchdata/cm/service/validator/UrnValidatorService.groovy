@@ -1,6 +1,7 @@
 package au.com.redboxresearchdata.cm.service.validator
 
 import groovy.util.logging.Slf4j
+import org.apache.commons.lang.StringUtils
 
 import java.util.regex.Pattern
 
@@ -15,7 +16,8 @@ class UrnValidatorService implements ValidatorService {
 
     @Override
     boolean isValid(String value) {
-        boolean isMatch = URN_PATTERN.matcher(value).matches()
+        boolean isMatch = false
+        isMatch = URN_PATTERN.matcher(StringUtils.defaultIfBlank(value,"")).matches()
         log.debug("urn is: " + (isMatch ? "valid" : "invalid"))
         return isMatch
     }

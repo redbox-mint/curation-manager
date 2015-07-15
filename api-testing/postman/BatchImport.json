@@ -39,5 +39,45 @@
         }
       }
     ]
+  },
+  {
+    "oid": "2062121",
+    "title": "John Jones",
+    "type": "person",
+    "required_identifiers": [
+      {
+        "identifier": "urn:uri:a90028b1-6aed-4884-91ae-d4cc0293dc6c",
+        "identifier_type": "local",
+        "metadata": {
+          "dc_title": "testlocal"
+        }
+      },
+      {
+        "identifier_type": "nla",
+        "metadata": {
+          "dc_title": "testnla"
+        }
+      }
+    ]
+  },
+  {
+    "oid": "206195",
+    "title": "Bob Smith",
+    "type": "person",
+    "required_identifiers": [
+      {
+        "identifier": "st",
+        "identifier_type": "local",
+        "metadata": {
+          "dc_title": "testlocal"
+        }
+      },
+      {
+        "identifier_type": "nla",
+        "metadata": {
+          "dc_title": "testnla"
+        }
+      }
+    ]
   }
 ]

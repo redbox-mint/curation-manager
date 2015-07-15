@@ -39,7 +39,7 @@ enum TemplatePlaceholder {
     }
 
 
-    def static populate(String templateData, LocalCurationEntry localCurationEntry) throws IdProviderException {
+    def static populate(String templateData, localCurationEntry) throws IdProviderException {
         try {
             log.debug("Before population, template data is: " + templateData)
             String populatedValue = new String(templateData)

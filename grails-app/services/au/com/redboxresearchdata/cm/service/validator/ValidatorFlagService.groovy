@@ -21,7 +21,6 @@
 package au.com.redboxresearchdata.cm.service.validator
 
 import groovy.util.logging.Slf4j
-import org.springframework.stereotype.Component
 
 /**
  * @version
@@ -35,7 +34,7 @@ class ValidatorFlagService {
             URL: new UrlValidatorService()
     ]
 
-    boolean isValid(identifier, validatorKeys) {
+    boolean isValid(validatorKeys, identifier) {
         def validators = getValidators(validatorKeys)
         def hasFailed = validators.any { validator ->
             !validator.isValid(identifier)
@@ -46,12 +45,15 @@ class ValidatorFlagService {
     }
 
     def getValidators(def validatorKeys) {
-        log.debug("validator keys: " + validatorKeys)
-        def flagged = validatorKeys.collect { validator ->
-            log.debug("checking key: " + validator)
-            return validatorServices[validator]
+        def flagged
+        if (validatorKeys) {
+            log.debug("validator keys: " + validatorKeys)
+            flagged = validatorKeys.collect { validator ->
+                log.debug("checking key: " + validator)
+                return validatorServices[validator]
+            }
+            log.debug("flagged validators: " + flagged)
         }
-        log.debug("flagged validators: " + flagged)
         return flagged
     }
 }

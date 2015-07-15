@@ -17,6 +17,7 @@
  ******************************************************************************/
 package au.com.redboxresearchdata.cm.domain
 
+import grails.gorm.DetachedCriteria
 import groovy.json.JsonSlurper
 import groovy.transform.ToString
 
@@ -24,6 +25,7 @@ import groovy.transform.ToString
  * Curation 
  *
  * @author <a href="https://github.com/shilob" target="_blank">Shilo Banihit</a>
+ * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
  * @since 0.1
  *
  */
@@ -58,4 +60,12 @@ class Curation {
 		metadata nullable:true
 		identifier nullable:true
     }
+
+	static def  existsCriteria = { oid, curationType ->
+		return new DetachedCriteria(Curation).build {
+			eq 'entry', Entry.findByOid(oid)
+			isNotNull 'identifier'
+			eq 'identifier_type', curationType
+		}
+	}
 }

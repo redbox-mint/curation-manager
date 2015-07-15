@@ -28,8 +28,6 @@ import au.com.redboxresearchdata.cm.id.local.type.TemplatePlaceholder
 import au.com.redboxresearchdata.cm.service.validator.ValidatorFlagService
 import grails.gorm.DetachedCriteria
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
 
 /**
  * LocalIdProvider
@@ -88,7 +86,7 @@ class LocalIdProvider implements IdentityProvider {
         if (!idResult) {
             Entry entry = Entry.findByOid(oid)
             log.debug("Proceeding with local curation...")
-            String identifier = populateTemplate(entry)
+            String identifier = saveLocal(entry)
             idResult = new IdentifierResult(identityProviderId: ID, oid: oid, metadata: metadata, identifier: identifier)
             log.debug("local id result is: " + idResult)
         }
@@ -103,11 +101,7 @@ class LocalIdProvider implements IdentityProvider {
      */
     @Override
     Result exists(String oid, String metadata) {
-        DetachedCriteria criteria = new DetachedCriteria(Curation).build {
-            eq 'entry', Entry.findByOid(oid)
-            isNotNull 'identifier'
-            eq 'identifier_type', 'local'
-        }
+        DetachedCriteria criteria = Curation.existsCriteria(oid, ID)
         boolean hasLocalCuration = criteria.asBoolean()
         def idResult
         if (hasLocalCuration) {
@@ -118,31 +112,31 @@ class LocalIdProvider implements IdentityProvider {
         return idResult
     }
 
-    String populateTemplate(Entry entry) {
+    String saveLocal(Entry entry) {
         log.debug("Saving local curation entry...")
         def currentRecordType = entry?.type?.value
         def typeConfig = extractConfig(currentRecordType)
+        def chained = this.populateAndValidate.curry(typeConfig)
         if (typeConfig) {
-            LocalCurationEntry.withTransaction { status ->
-                try {
-                    String templateData = typeConfig['template']
-                    LocalCurationEntry localCurationEntry = new LocalCurationEntry(entry: entry)
-                    localCurationEntry.save(flush: true, failOnError: true)
-                    String identifier = TemplatePlaceholder.populate(templateData, localCurationEntry)
-                    def validatorConfig = typeConfig['validators']
-                    log.debug("validator config is: " + validatorConfig)
-                    if (!validatorFlagService.isValid(identifier, validatorConfig)) {
-                        throw new IdProviderException("Invalid template created.")
-                    }
-                    status.flush()
-                    return identifier
-                } catch (IdProviderException e) {
-                    log.error("Could not complete local curation transaction. rolling back...")
-                    status.setRollbackOnly()
-                }
-            }
+            LocalCurationEntry.chainSave(entry, chained)
         } else {
             log.warn("Aborting curation. No local curation template found. No local curation record saved.")
+        }
+    }
+
+    def populateAndValidate = { typeConfig, localCurationEntry ->
+        def identifier = populate(typeConfig, localCurationEntry)
+        validate(typeConfig, identifier)
+        return identifier
+    }
+
+    def populate(typeConfig, localCurationEntry) {
+        return TemplatePlaceholder.populate(typeConfig['template'], localCurationEntry)
+    }
+
+    def validate(typeConfig, identifier) {
+        if (!validatorFlagService.isValid(typeConfig['validators'], identifier)) {
+            throw new IdProviderException("Invalid template created.")
         }
     }
 
