@@ -43,7 +43,8 @@ class ImportController {
     private def renderPost(def data) {
         if (data instanceof Map && data?.message) {
             render(status: data.status, text: data.message)
+        } else {
+            render data as JSON
         }
-        render data as JSON
     }
 }
