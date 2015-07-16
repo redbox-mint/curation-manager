@@ -20,22 +20,16 @@
 
 package au.com.redboxresearchdata.cm.service
 
-import au.com.redboxresearchdata.cm.data.CurationDto
-import au.com.redboxresearchdata.cm.data.EntryDto
-import au.com.redboxresearchdata.cm.data.ImportDto
-import au.com.redboxresearchdata.cm.domain.Curation
-import au.com.redboxresearchdata.cm.domain.Entry
-import grails.transaction.NotTransactional
 import groovy.util.logging.Slf4j
-import org.grails.web.converters.exceptions.ConverterException
 
 /**
- * Import service imports new records only. Existing records that require changes need to use Update service.
+ * Update service only updates existing records, where the relevant data differs. New records need to use Import Service.
  * @version
  * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
  */
 @Slf4j
-class ImportService extends MigrateService {
+class UpdateService extends MigrateService {
+
     @Override
     def process(incoming, existingCurations, importCollector) {
         log.debug("import dto is: " + importCollector)
@@ -45,12 +39,14 @@ class ImportService extends MigrateService {
                 importCollector.addMatched(incoming)
                 existingCurations.remove(existing)
                 return true
-            } else if (incoming.mismatches(existing)) {
-                importCollector.addMismatched(incoming)
+            } else if (incoming.mismatches(existing) && save(incoming)) {
+                // an update overwrites existing data
+                importCollector.addSaved(incoming)
                 existingCurations.remove(existing)
                 return true
             }
             return false
-        } || (save(incoming) ? importCollector.addSaved(incoming) : importCollector.addError(incoming))
+            // anything not saved/matched/mismatched is an error. Updates do not persist new records.
+        } || importCollector.addError(incoming)
     }
 }

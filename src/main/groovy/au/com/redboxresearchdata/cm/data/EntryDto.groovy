@@ -21,9 +21,11 @@
 package au.com.redboxresearchdata.cm.data
 
 import au.com.redboxresearchdata.cm.domain.Entry
+import grails.transaction.NotTransactional
 import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
+import groovy.util.logging.Slf4j
 
 /**
  * @version
@@ -31,18 +33,17 @@ import groovy.transform.ToString
  */
 
 @Canonical
+@Slf4j
 class EntryDto{
     String oid
     String type
     String title
-    volatile boolean isSaved
 
     static def getInstance(def data) {
         return new EntryDto(oid: data.oid, title: data.title, type: data.type)
     }
 
     static def getInstance(Entry data) {
-        return new EntryDto(oid: data.oid, title: data.title, type: data.type.value)
+        return new EntryDto(oid: data.oid, title: data.title, type: data?.type?.value)
     }
-
 }

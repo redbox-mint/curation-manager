@@ -31,41 +31,47 @@ import groovy.transform.ToString
  */
 @ToString
 class Curation {
-	
-	Entry entry
-	String identifier_type
-	String identifier
-	CurationStatusLookup status
-	String error
-	Date dateCompleted
-	String metadata
-	
-	Date dateCreated
-	
-	def getJsonMetadata() {
-		return new JsonSlurper().parse(metadata)
-	}
-	
-	static mapping = {
-		id column:'curation_id'
-		entry index:'Entry_Idx', lazy:false
-		identifier_type index:'Entry_Idx,IdentifierType_Idx'
-		status lazy:false
-		metadata type:'text'
-	}
-	
-    static constraints = {
-		dateCompleted nullable:true
-		error nullable:true
-		metadata nullable:true
-		identifier nullable:true
+    Entry entry
+    String identifier_type
+    String identifier
+    CurationStatusLookup status
+    String error
+    Date dateCompleted
+    String metadata
+
+    Date dateCreated
+
+    def getJsonMetadata() {
+        return new JsonSlurper().parse(metadata)
     }
 
-	static def  existsCriteria = { oid, curationType ->
-		return new DetachedCriteria(Curation).build {
-			eq 'entry', Entry.findByOid(oid)
-			isNotNull 'identifier'
-			eq 'identifier_type', curationType
-		}
-	}
+    static mapping = {
+        id column: 'curation_id'
+        entry index: 'Entry_Idx', lazy: false
+        identifier_type index: 'Entry_Idx,IdentifierType_Idx'
+        status lazy: false
+        metadata type: 'text'
+    }
+
+    static constraints = {
+        dateCompleted nullable: true
+        error nullable: true
+        metadata nullable: true
+        identifier nullable: true
+    }
+
+    static def existsCriteria = { oid, curationType ->
+        return new DetachedCriteria(Curation).build {
+            eq 'entry', Entry.findByOid(oid)
+            isNotNull 'identifier'
+            eq 'identifier_type', curationType
+        }
+    }
+
+    static def entryAndTypeCriteria = { entry, curationData ->
+        return new DetachedCriteria(Curation).build {
+            eq 'entry', entry
+            eq 'identifier_type', curationData['identifier_type']
+        }
+    }
 }

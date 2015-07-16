@@ -28,18 +28,22 @@ import grails.converters.JSON
  */
 class ImportController {
 
-    def importService
+    def importService, updateService
 
     def batchImport() {
         def batchData = importService.batchImport(request.JSON)
         renderPost(batchData)
     }
 
+    def batchUpdate() {
+        def batchData = updateService.batchImport(request.JSON)
+        renderPost(batchData)
+    }
+
     private def renderPost(def data) {
-        if (data?.message) {
+        if (data instanceof Map && data?.message) {
             render(status: data.status, text: data.message)
-        } else {
-            render data as JSON
         }
+        render data as JSON
     }
 }

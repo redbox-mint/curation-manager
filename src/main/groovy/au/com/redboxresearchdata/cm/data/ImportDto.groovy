@@ -20,38 +20,69 @@
 
 package au.com.redboxresearchdata.cm.data
 
+import groovy.json.JsonSlurper
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 
 /**
+ * Data transfer object that stores string arrays
  * @version
  * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
  */
 @Slf4j
+@ToString
 class ImportDto {
     def saved = []
     def matched = []
     def mismatched = []
     def error = []
 
-    def addSaved(def json) {
-        saved.add(json)
-        log.debug("added to saved: " + json)
+    def addSaved(CurationDto datum) {
+        saved.add(datum.map())
+        log.debug("added to saved: " + datum)
     }
 
-    def addMatched(def json) {
-        matched.add(json)
-        log.debug("added to matched: " + json)
+    def addMatched(CurationDto datum) {
+        matched.add(datum.map())
+        log.debug("added to matched: " + datum)
     }
 
-    def addMismatched(def json) {
-        mismatched.add(json)
-        log.debug("added to mismatched: " + json)
+    def addMismatched(CurationDto datum) {
+        mismatched.add(datum.map())
+        log.debug("added to mismatched: " + datum)
     }
 
-    def addError(def json) {
-        error.add(json)
-        log.debug("added to error: " + json)
+    def addError(def datum) {
+        def mapped
+        if (datum instanceof String) {
+            mapped = new JsonSlurper().parseText(datum)
+        } else if (datum instanceof CurationDto) {
+            mapped = datum.map()
+        } else {
+            log.warn("Could not map error data. Adding raw data to error count...")
+            mapped = datum
+        }
+        error.add(mapped)
+        log.debug("added to error: " + datum)
+    }
+
+    static {
+        grails.converters.JSON.registerObjectMarshaller(ImportDto) { it ->
+            def closure = {
+                if (it instanceof Map && it?.oid) {
+                    return ["oid": it.oid]
+                } else {
+                    return it
+                }
+            }
+            def map = [:]
+            map["count"] = ["error": it.error.size(), "matched": it.matched.size(), "mismatched": it.mismatched.size(), "saved": it.saved.size()]
+            map["error"] = it.error.collect closure
+            map["matched"] = it.matched.collect closure
+            map["mismatched"] = it.mismatched.collect closure
+            map["saved"] = it.saved.collect closure
+            return map
+        }
     }
 
 }

@@ -53,6 +53,7 @@ grails:
         defaultScope: singleton
     converters:
         encoding: UTF-8
+
     hibernate:
         cache:
             queries: false
