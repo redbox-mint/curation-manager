@@ -96,16 +96,16 @@ class CurationDto {
 
     static def getCheckedMetadata(data) {
         def metadata
-        if (isMetadataIncluded()) {
+        if (isMetadataExcluded()) {
+            log.debug("excluding metadata...")
+        } else {
             log.debug("including metadata...")
             metadata = data.metadata
-        } else {
-            log.debug("excluding metadata...")
         }
         return metadata
     }
 
-    static def isMetadataIncluded() {
+    static def isMetadataExcluded() {
         return FILTERS.contains('metadata')
     }
 
