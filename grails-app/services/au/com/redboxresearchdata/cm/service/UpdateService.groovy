@@ -20,6 +20,10 @@
 
 package au.com.redboxresearchdata.cm.service
 
+import au.com.redboxresearchdata.cm.data.CurationDto
+import au.com.redboxresearchdata.cm.domain.Curation
+import au.com.redboxresearchdata.cm.domain.Entry
+import au.com.redboxresearchdata.cm.domain.EntryTypeLookup
 import groovy.util.logging.Slf4j
 
 /**
@@ -32,14 +36,13 @@ class UpdateService extends MigrateService {
 
     @Override
     def process(incoming, existingCurations, importCollector) {
-        log.debug("import dto is: " + importCollector)
-        log.debug("existing curations: " + existingCurations)
         existingCurations.any { existing ->
+            log.debug("existing is: " + existing)
             if (incoming.equals(existing)) {
                 importCollector.addMatched(incoming)
                 existingCurations.remove(existing)
                 return true
-            } else if (incoming.mismatches(existing) && save(incoming)) {
+            } else if (CurationDto.mismatches(incoming, existing) && save(incoming)) {
                 // an update overwrites existing data
                 importCollector.addSaved(incoming)
                 existingCurations.remove(existing)
@@ -48,5 +51,31 @@ class UpdateService extends MigrateService {
             return false
             // anything not saved/matched/mismatched is an error. Updates do not persist new records.
         } || importCollector.addError(incoming)
+    }
+
+    @Override
+    Entry saveOrUpdateEntry(Entry entry, EntryTypeLookup entryTypeLookup, item) {
+       if (item.title != entry.title || item.type != entryTypeLookup) {
+            entry.title = item.title
+            entry.type = entryTypeLookup
+            entry.save(failOnError: true, flush: true)
+            log.debug("Entry updated.")
+        } else {
+            log.debug("entry exists and matches. Presuming update has already been applied.")
+        }
+        return entry
+    }
+
+    @Override
+    boolean saveOrUpdateCuration(Entry entry, curationStatus, item) {
+        Curation curation = Curation.findByEntry(entry)
+        curation.identifier = item.identifier
+        curation.identifier_type = item.identifier_type
+        curation.status = curationStatus
+        curation.metadata = item.metadata
+        curation.dateCompleted = new Date()
+        curation.save(failOnError: true, flush: true)
+        log.debug("Curation updated is: " + curation)
+        return true
     }
 }

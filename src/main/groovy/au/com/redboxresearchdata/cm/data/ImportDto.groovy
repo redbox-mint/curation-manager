@@ -20,9 +20,9 @@
 
 package au.com.redboxresearchdata.cm.data
 
-import groovy.json.JsonSlurper
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
+import org.grails.web.converters.exceptions.ConverterException
 
 /**
  * Data transfer object that stores string arrays
@@ -37,43 +37,39 @@ class ImportDto {
     def mismatched = []
     def error = []
 
-    def addSaved(CurationDto datum) {
-        saved.add(datum.map())
-        log.debug("added to saved: " + datum)
+    def addSaved(map) {
+        saved.add(map)
+        log.debug("added to saved: " + map)
     }
 
-    def addMatched(CurationDto datum) {
-        matched.add(datum.map())
-        log.debug("added to matched: " + datum)
+    def addMatched(map) {
+        matched.add(map)
+        log.debug("added to matched: " + map)
     }
 
-    def addMismatched(CurationDto datum) {
-        mismatched.add(datum.map())
-        log.debug("added to mismatched: " + datum)
+    def addMismatched(map) {
+        mismatched.add(map)
+        log.debug("added to mismatched: " + map)
     }
 
-    def addError(def datum) {
-        def mapped
-        if (datum instanceof String) {
-            mapped = new JsonSlurper().parseText(datum)
-        } else if (datum instanceof CurationDto) {
-            mapped = datum.map()
-        } else {
-            log.warn("Could not map error data. Adding raw data to error count...")
-            mapped = datum
+    def addError(data) {
+        def mapped = data
+        if (!data instanceof Map) {
+            log.debug("converting error item to curation dto...")
+            try {
+                mapped = CurationDto.getInstances(data)
+            } catch (Exception e) {
+                throw new ConverterException("Unable to add data to error record...", e)
+            }
         }
         error.add(mapped)
-        log.debug("added to error: " + datum)
+        log.debug("added to error: " + mapped)
     }
 
     static {
         grails.converters.JSON.registerObjectMarshaller(ImportDto) { it ->
             def closure = {
-                if (it instanceof Map && it?.oid) {
-                    return ["oid": it.oid]
-                } else {
-                    return it
-                }
+                return ["oid": it.oid]
             }
             def map = [:]
             map["count"] = ["error": it.error.size(), "matched": it.matched.size(), "mismatched": it.mismatched.size(), "saved": it.saved.size()]

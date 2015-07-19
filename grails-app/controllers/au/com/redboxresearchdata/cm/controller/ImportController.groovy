@@ -21,26 +21,42 @@
 package au.com.redboxresearchdata.cm.controller
 
 import grails.converters.JSON
+import org.grails.web.converters.exceptions.ConverterException
 
 /**
  * @version
  * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
  */
 class ImportController {
+    static def STAT_ERROR
 
     def importService, updateService
 
     def batchImport() {
-        def batchData = importService.batchImport(request.JSON)
-        renderPost(batchData)
+        parseRequest(request, {
+            importService.batchImport it
+        })
     }
 
     def batchUpdate() {
-        def batchData = updateService.batchImport(request.JSON)
-        renderPost(batchData)
+        parseRequest(request, {
+            updateService.batchImport it
+        })
     }
 
-    private def renderPost(def data) {
+    def parseRequest(data, service) {
+        try {
+            if (!data) {
+                renderPost([status: STAT_ERROR.nothing_to_import.code, message: STAT_ERROR.nothing_to_import.message])
+            }
+            def result = service(data.JSON)
+            renderPost(result)
+        } catch (ConverterException e) {
+            renderPost([status: STAT_ERROR.parse_error.code, message: STAT_ERROR.parse_error.message])
+        }
+    }
+
+    def renderPost(data) {
         if (data instanceof Map && data?.message) {
             render(status: data.status, text: data.message)
         } else {

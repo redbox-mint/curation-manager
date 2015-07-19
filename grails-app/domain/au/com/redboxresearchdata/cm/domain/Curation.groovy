@@ -61,17 +61,11 @@ class Curation {
     }
 
     static def existsCriteria = { oid, curationType ->
+        log.debug("looking for oid with: " + oid)
         return new DetachedCriteria(Curation).build {
             eq 'entry', Entry.findByOid(oid)
             isNotNull 'identifier'
             eq 'identifier_type', curationType
-        }
-    }
-
-    static def entryAndTypeCriteria = { entry, curationData ->
-        return new DetachedCriteria(Curation).build {
-            eq 'entry', entry
-            eq 'identifier_type', curationData['identifier_type']
         }
     }
 }

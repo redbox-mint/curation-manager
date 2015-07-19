@@ -21,11 +21,11 @@
 package au.com.redboxresearchdata.cm.service
 
 import au.com.redboxresearchdata.cm.data.CurationDto
-import au.com.redboxresearchdata.cm.data.EntryDto
 import au.com.redboxresearchdata.cm.data.ImportDto
 import au.com.redboxresearchdata.cm.domain.Curation
 import au.com.redboxresearchdata.cm.domain.Entry
-import grails.transaction.NotTransactional
+import au.com.redboxresearchdata.cm.domain.EntryTypeLookup
+import au.com.redboxresearchdata.cm.exception.IdProviderException
 import groovy.util.logging.Slf4j
 import org.grails.web.converters.exceptions.ConverterException
 
@@ -39,34 +39,25 @@ abstract class MigrateService {
     static transactional = true
 
     static def CURATION_STATUS_COMPLETE_KEY
-    static def STAT_MESSAGES
     static def ENTRY_TYPE_LOOKUP
     static def CONFIG
 
-    def batchImport(json) {
-        try {
-            if (json) {
-                ImportDto importCollector = new ImportDto()
-                for (item in json) {
-                    if (isValid(item)) {
-                        match(item, importCollector)
-                    } else {
-                        log.debug("invalid item: " + item + " Adding to error...")
-                        importCollector.addError(item)
-                    }
-                }
-                log.debug("printing results: " + importCollector)
-                return importCollector
+    def batchImport(json) throws ConverterException {
+        ImportDto importCollector = new ImportDto()
+        for (item in json) {
+            if (isValid(item)) {
+                match(item, importCollector)
             } else {
-                return [status: statNothing.code, message: STAT_MESSAGES.nothing_to_import.message]
+                log.debug("invalid item: " + item + " Adding to error...")
+                importCollector.addError(item)
             }
-        } catch (ConverterException e) {
-            return [status: statParseError.code, message: STAT_MESSAGES.parse_error.message]
         }
+        log.debug("printing results: " + importCollector)
+        return importCollector
     }
 
     def isValid(item) {
-        return (item.oid && item.title && item.type)
+        return (item.oid && item.title && item.type && ENTRY_TYPE_LOOKUP[item.type])
     }
 
     def match(item, ImportDto importCollector) {
@@ -80,36 +71,40 @@ abstract class MigrateService {
 
     def abstract process(incoming, existingCurations, importCollector)
 
-    boolean save(CurationDto item) {
-        try {
-            def curationStatus = CONFIG?.domain?.lookups?.curation_status_lookup[CURATION_STATUS_COMPLETE_KEY]
-            def identifierType = item?.identifier_type
-            Entry entry = saveEntry(item.entry)
-            if (!identifierType || !curationStatus || !entry) {
-                log.debug("Invalid curation properties found. Aborting save.")
-                return false
+    boolean save(item) {
+        def hasSaved = false
+        Entry.withTransaction { status ->
+            try {
+                hasSaved = saveCuration(saveEntry(item), item)
+                status.flush()
+            } catch (Exception e) {
+                log.error(e.getMessage())
+                log.error("Problem with saving curation data. rolling back...")
+                status.setRollbackOnly()
+            } finally {
+                return hasSaved
             }
-            def curation = new Curation(entry: entry, identifier: item.identifier, identifier_type: identifierType, status: curationStatus, metadata: item.metadata, dateCompleted: new Date())
-            curation.save(failOnError: true)
-            log.debug("Curation saved is: " + curation)
-            return true
-        } catch (Exception e) {
-            log.error("Problem with saving curation data.", e)
-            return false
         }
     }
 
-    Entry saveEntry(EntryDto item) throws Exception {
-        def entryType = ENTRY_TYPE_LOOKUP[item.type]
-        log.debug("entry type is: " + entryType)
-        //check that entry has not already persisted.
+    Entry saveEntry(item) {
         Entry entry = Entry.findByOid(item.oid)
-        if ((!entry) && entryType) {
-            entry = new Entry(oid: item.oid, title: item.title, type: entryType)
-            entry.save(failOnError: true)
-            log.debug("Entry saved.")
-        }
-        log.debug("Entry was: " + entry)
-        return entry
+        EntryTypeLookup entryType = ENTRY_TYPE_LOOKUP[item.type]
+        //check that entry has not already persisted.
+        return saveOrUpdateEntry(entry, entryType, item)
     }
+
+    boolean saveCuration(Entry entry, item) {
+        def curationStatus = CONFIG?.domain?.lookups?.curation_status_lookup[CURATION_STATUS_COMPLETE_KEY]
+        def idProviders = CONFIG.id_providers.enabled
+        if (!entry || !curationStatus || !idProviders.contains(item.identifier_type)) {
+            throw new IllegalStateException("Required properties missing for curation save/update.")
+        }
+        return saveOrUpdateCuration(entry, curationStatus, item)
+    }
+
+    abstract Entry saveOrUpdateEntry(Entry entry, EntryTypeLookup entryTypeLookup, item);
+
+    abstract boolean saveOrUpdateCuration(Entry entry, curationStatus, item);
+
 }

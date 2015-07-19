@@ -35,17 +35,4 @@ class Entry {
     static mapping = {
         oid unique: true
     }
-
-    static def oidAndTypeCriteria = {
-        def iOid = it?.oid
-        def iType = it?.type
-        if (iOid && iType) {
-            return where {
-                oid == iOid && type.value == iType
-            }
-        } else {
-            return new DetachedCriteria<Entry>()
-        }
-
-    }
 }

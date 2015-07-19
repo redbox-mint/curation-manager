@@ -21,8 +21,7 @@
 package au.com.redboxresearchdata.cm.data
 
 import au.com.redboxresearchdata.cm.domain.Curation
-import au.com.redboxresearchdata.cm.domain.Entry
-import groovy.transform.Canonical
+import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 
 /**
@@ -30,51 +29,35 @@ import groovy.util.logging.Slf4j
  * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
  */
 @Slf4j
-@Canonical
 class CurationDto {
-    EntryDto entry
-    String identifier_type
-    String identifier
-    String metadata
     static def FILTERS
 
-    static CurationDto getInstance(def data, EntryDto entryData) {
-        return new CurationDto(entry: entryData, identifier: data.identifier, identifier_type: data.identifier_type, metadata: getCheckedMetadata(data))
-    }
-
-    static CurationDto getExistingInstance(Curation curation) {
-        EntryDto entryData = EntryDto.getInstance(curation.entry)
-        return getInstance(curation, entryData)
-    }
-
     static def getInstances(data) {
-        EntryDto entryData = EntryDto.getInstance(data)
-        return findByRequiredIdentifiers(getCurations, data, entryData)
-    }
-
-    static def getExistingInstances(item) {
-        Entry entry = Entry.oidAndTypeCriteria(item).find()
-        return findByRequiredIdentifiers(getExistingCurations, item, entry)
-    }
-
-    static def getCurations = { curationsIdentifierData, entry ->
-        return curationsIdentifierData.collect { curation ->
-            getInstance(curation, entry)
+        return getRequiredIdentifiers(data).collect {
+            log.debug("trying to get instance...")
+            new Builder(data)
+                .entryType(data?.type)
+                .title(data?.title)
+                .metadata(it)
+                .requiredIdentifiers(it)
+                .build()
         }
     }
 
-    static def getExistingCurations = { curationsIdentifierData, existingEntry ->
-        def curations = []
-        curationsIdentifierData.each {
+    static def getExistingInstances(data) {
+        return getRequiredIdentifiers(data).findResults {
             log.debug("looking for curations with: " + it)
-            def found = Curation.entryAndTypeCriteria(existingEntry, it).find()
-            log.debug("found identifier: " + found)
+            def found = Curation.existsCriteria(data.oid, it?.identifier_type).find()
+            log.debug("found: " + found)
             if (found) {
-                curations.add(getExistingInstance(found))
+                new Builder(data)
+                    .entryType(found.entry.type.value)
+                    .title(found.entry.title)
+                    .metadata(found)
+                    .requiredIdentifiers(found)
+                    .build()
             }
         }
-        log.debug("returning existing curations found: " + curations)
-        return curations
     }
 
     /**
@@ -83,47 +66,65 @@ class CurationDto {
      * @param data
      * @return
      */
-    static def findByRequiredIdentifiers(findClosure, item, entry) {
-        def curations
-        if (item.required_identifiers) {
-            log.debug("checking required identifiers...")
-            curations = findClosure(item.required_identifiers, entry)
+    static def getRequiredIdentifiers(data) {
+        if (data.required_identifiers) {
+            log.debug("required identifiers are in first: " + data.required_identifiers)
+            return data.required_identifiers
         } else {
-            curations = findClosure([item], entry)
+            log.debug("required identifiers are in second: " + data)
+            return data
         }
-        return curations
     }
 
-    static def getCheckedMetadata(data) {
-        def metadata
-        if (isMetadataExcluded()) {
-            log.debug("excluding metadata...")
-        } else {
-            log.debug("including metadata...")
-            metadata = data.metadata
+    @ToString
+    static class Builder {
+        def map = [:]
+
+        public Builder(def data) {
+            map["oid"] = data?.oid
+            map["type"] = null
+            map["title"] = null
+            map["identifier_type"] = null
+            map["identifier"] = null
+            map["metadata"] = null
         }
-        return metadata
+
+        public Builder entryType(String entryType) {
+            map["type"] = entryType
+            return this
+        }
+
+        public Builder title(String entryTitle) {
+            map["title"] = entryTitle
+            return this
+        }
+
+        public Builder requiredIdentifiers(def data) {
+            map["identifier_type"] = data?.identifier_type
+            map["identifier"] = data?.identifier
+            return this
+        }
+
+        public Builder metadata(def data) {
+            if (!isMetadataExcluded()) {
+                map["metadata"] = data?.metadata
+            }
+            return this
+        }
+
+        public Map build() {
+            return this.map
+        }
     }
 
     static def isMetadataExcluded() {
         return FILTERS.contains('metadata')
     }
 
-    def mismatches(CurationDto other) {
-        return other in CurationDto && !this.equals(other) &&
-                this.entry.oid == other?.entry?.oid &&
-                this.identifier_type == other?.identifier_type
-    }
-
-    def map() {
-        def map = [:]
-        map["oid"] = this.entry.oid
-        map["type"] = this.entry.type
-        map["title"] = this.entry.title
-        map["identifier_type"] = this.identifier_type
-        map["identifier"] = this.identifier
-        map["metadata"] = this.metadata
-        return map
-
+    static boolean mismatches(one, other) {
+        return one instanceof Map && other instanceof Map &&
+                one["oid"] == other["oid"] &&
+                one["identifier_type"] == other["identifier_type"] &&
+                !one.equals(other)
     }
 }

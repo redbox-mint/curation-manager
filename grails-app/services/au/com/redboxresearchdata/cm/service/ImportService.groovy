@@ -21,13 +21,10 @@
 package au.com.redboxresearchdata.cm.service
 
 import au.com.redboxresearchdata.cm.data.CurationDto
-import au.com.redboxresearchdata.cm.data.EntryDto
-import au.com.redboxresearchdata.cm.data.ImportDto
 import au.com.redboxresearchdata.cm.domain.Curation
 import au.com.redboxresearchdata.cm.domain.Entry
-import grails.transaction.NotTransactional
+import au.com.redboxresearchdata.cm.domain.EntryTypeLookup
 import groovy.util.logging.Slf4j
-import org.grails.web.converters.exceptions.ConverterException
 
 /**
  * Import service imports new records only. Existing records that require changes need to use Update service.
@@ -38,14 +35,13 @@ import org.grails.web.converters.exceptions.ConverterException
 class ImportService extends MigrateService {
     @Override
     def process(incoming, existingCurations, importCollector) {
-        log.debug("import dto is: " + importCollector)
-        log.debug("existing curations: " + existingCurations)
         existingCurations.any { existing ->
+            log.debug("existing is: " + existing)
             if (incoming.equals(existing)) {
                 importCollector.addMatched(incoming)
                 existingCurations.remove(existing)
                 return true
-            } else if (incoming.mismatches(existing)) {
+            } else if (CurationDto.mismatches(incoming, existing)) {
                 importCollector.addMismatched(incoming)
                 existingCurations.remove(existing)
                 return true
@@ -53,4 +49,25 @@ class ImportService extends MigrateService {
             return false
         } || (save(incoming) ? importCollector.addSaved(incoming) : importCollector.addError(incoming))
     }
+
+    Entry saveOrUpdateEntry(Entry entry, EntryTypeLookup entryTypeLookup, item) {
+        if (!entry) {
+            entry = new Entry(oid: item.oid, title: item.title, type: entryTypeLookup)
+            entry.save(failOnError: true)
+            log.debug("Entry saved: " + entry)
+        } else if (item.title != entry.title || item.type != entry.type.value) {
+            throw new IllegalStateException("Entry should match for a previous save with different curation identifier. Aborting...")
+        } else {
+            log.debug("entry exists. Presuming save has already been applied.")
+        }
+        return entry
+    }
+
+    boolean saveOrUpdateCuration(Entry entry, curationStatus, item) {
+        Curation curation = new Curation(entry: entry, identifier: item.identifier, identifier_type: item.identifier_type, status: curationStatus, metadata: item.metadata, dateCompleted: new Date())
+        curation.save(failOnError: true, flush: true)
+        log.debug("Curation saved is: " + curation)
+        return true
+    }
+
 }
