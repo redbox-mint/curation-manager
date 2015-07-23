@@ -64,7 +64,7 @@ class ImportService extends MigrateService {
     }
 
     boolean saveOrUpdateCuration(Entry entry, curationStatus, item) {
-        Curation curation = new Curation(entry: entry, identifier: item.identifier, identifier_type: item.identifier_type, status: curationStatus, metadata: item.metadata, dateCompleted: new Date())
+        Curation curation = new Curation(entry: entry, identifier: item?.identifier, identifier_type: item?.identifier_type, status: curationStatus, metadata: item?.metadata, dateCompleted: new Date())
         curation.save(failOnError: true, flush: true)
         log.debug("Curation saved is: " + curation)
         return true
