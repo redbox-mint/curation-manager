@@ -42,9 +42,10 @@ class UpdateService extends MigrateService {
                 importCollector.addMatched(incoming)
                 existingCurations.remove(existing)
                 return true
-            } else if (CurationDto.mismatches(incoming, existing) && save(incoming)) {
+            } else if (CurationDto.mismatches(incoming, existing)) {
                 // an update overwrites existing data
-                importCollector.addSaved(incoming)
+                save(incoming) ? importCollector.addSaved(incoming)
+                        : importCollector.addError(incoming)
                 existingCurations.remove(existing)
                 return true
             }
@@ -53,9 +54,10 @@ class UpdateService extends MigrateService {
         } || importCollector.addError(incoming)
     }
 
+
     @Override
     Entry saveOrUpdateEntry(Entry entry, EntryTypeLookup entryTypeLookup, item) {
-       if (item.title != entry.title || item.type != entryTypeLookup) {
+        if (item.title != entry.title || item.type != entryTypeLookup.value) {
             entry.title = item.title
             entry.type = entryTypeLookup
             entry.save(failOnError: true, flush: true)
@@ -69,13 +71,17 @@ class UpdateService extends MigrateService {
     @Override
     boolean saveOrUpdateCuration(Entry entry, curationStatus, item) {
         Curation curation = Curation.findByEntry(entry)
-        curation.identifier = item.identifier
-        curation.identifier_type = item.identifier_type
-        curation.status = curationStatus
-        curation.metadata = item.metadata
-        curation.dateCompleted = new Date()
-        curation.save(failOnError: true, flush: true)
-        log.debug("Curation updated is: " + curation)
+        if (curation && curationStatus && item) {
+            curation.identifier = item.identifier
+            curation.identifier_type = item.identifier_type
+            curation.status = curationStatus
+            curation.metadata = item.metadata
+            curation.dateCompleted = new Date()
+            curation.save(failOnError: true, flush: true)
+            log.debug("Curation updated is: " + curation)
+        } else {
+            throw new IllegalStateException("Curation object and associated data should exist! There might be a problem with existing data.")
+        }
         return true
     }
 }

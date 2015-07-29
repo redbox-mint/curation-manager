@@ -23,10 +23,9 @@ package au.com.redboxresearchdata.cm.services
 import au.com.redboxresearchdata.cm.data.CurationDto
 import au.com.redboxresearchdata.cm.data.ImportDto
 import au.com.redboxresearchdata.cm.domain.Curation
-import au.com.redboxresearchdata.cm.domain.CurationStatusLookup
 import au.com.redboxresearchdata.cm.domain.Entry
 import au.com.redboxresearchdata.cm.domain.EntryTypeLookup
-import au.com.redboxresearchdata.cm.service.ImportService
+import au.com.redboxresearchdata.cm.service.UpdateService
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import groovy.util.logging.Slf4j
@@ -38,56 +37,70 @@ import spock.lang.Unroll
  * @author <a href="matt@redboxresearchdata.com.au">Matt Mulholland</a>
  */
 @Slf4j
-class ImportServiceSpec extends Specification {
+class UpdateServiceSpec extends Specification {
     def serviceUnderTest
 
     def setup() {
-        this.serviceUnderTest = new ImportService()
+        this.serviceUnderTest = new UpdateService()
     }
 
-    def "save curation returns true for expected arguments and only creates new Curation instance and saves it"() {
+    @Unroll
+    def "update curation returns true for expected arguments and only updates existing curation for status: #curationStatus, item: #item"() {
         given:
         def curation = GroovyMock(Curation, global: true)
-        def capturedArgs
         when:
         def result = serviceUnderTest.saveOrUpdateCuration(entry, curationStatus, item)
         then:
-        0 * Curation.findByEntry(*_)
-        1 * new Curation({ capturedArgs = it }) >> curation
+        0 * new Curation(*_)
+        1 * Curation.findByEntry(entry) >> curation
+        1 * curation.asBoolean() >> true
+        1 * curation.setIdentifier(item?.identifier)
+        1 * curation.setIdentifier_type(item?.identifier_type)
+        1 * curation.setStatus(curationStatus)
+        1 * curation.setMetadata(item?.metadata)
+        1 * curation.setDateCompleted(_ as Date)
         1 * curation.save(*_)
         0 * _
-        capturedArgs.entry == entry
-        capturedArgs.identifier == item.identifier
-        capturedArgs.identifier_type == item.identifier_type
-        capturedArgs.status == curationStatus
-        capturedArgs.metadata == item.metadata
-        capturedArgs.dateCompleted instanceof Date
         result == true
         where:
         entry       | curationStatus | item
         Mock(Entry) | "complete"     | stubbedItem()
+        Mock(Entry) | "complete"     | [identifier: null, identifier_type: "local", metadata: ["dc_foo": "testlocal"]]
+        Mock(Entry) | "complete"     | [identifier: "http://foo.bar.com", identifier_type: null, metadata: ["dc_foo": "testlocal"]]
+        Mock(Entry) | "complete"     | [identifier: "http://foo.bar.com", identifier_type: "local", metadata: null]
+        Mock(Entry) | "complete"     | [identifier_type: "local", metadata: null]
+        Mock(Entry) | "complete"     | [identifier: "http://foo.bar.com", metadata: null]
+        Mock(Entry) | "complete"     | [metadata: ["dc_foo": "testlocal"]]
     }
 
-    def "save entry only creates new Entry instance if none exists, saves it, and returns it"() {
+    @Unroll
+    def "update curation throws Exception where entry exists and curation status: #curationStatus and item: #item"() {
         given:
-        def capturedArgs
-        def entry = GroovyMock(Entry, global: true)
+        def curation = GroovyMock(Curation, global: true)
         when:
-        def result = serviceUnderTest.saveOrUpdateEntry(entryArg, entryTypeLookup, item)
+        def result = serviceUnderTest.saveOrUpdateCuration(entry, curationStatus, item)
         then:
-        1 * new Entry({ capturedArgs = it }) >> entry
-        1 * entry.save(*_)
+        0 * new Curation(*_)
+        if (entry) {
+            1 * Curation.findByEntry(entry) >> curation
+            1 * curation.asBoolean() >> true
+        } else {
+            1 * Curation.findByEntry(entry) >> null
+        }
+        Exception e = thrown()
+        e.getClass() == IllegalStateException
+        result == null
         0 * _
-        capturedArgs.oid == item.oid
-        capturedArgs.title == item.title
-        capturedArgs.type == entryTypeLookup
-        result == entry
         where:
-        entryArg | entryTypeLookup       | item
-        null     | Mock(EntryTypeLookup) | stubbedItem()
+        entry       | curationStatus | item
+        Mock(Entry) | "complete"     | null
+        Mock(Entry) | null           | stubbedItem()
+        null        | "complete"     | stubbedItem()
+        Mock(Entry) | "complete"     | []
+        Mock(Entry) | ""             | stubbedItem()
     }
 
-    def "save entry simply returns existing entry if it exists with no new entry or save"() {
+    def "update entry returns existing entry with no update, matching incoming data only on title and type"() {
         given:
         def entry = Mock(Entry)
         def entryTypeLookup = Mock(EntryTypeLookup)
@@ -95,47 +108,49 @@ class ImportServiceSpec extends Specification {
         when:
         def result = serviceUnderTest.saveOrUpdateEntry(entry, entryTypeLookup, item)
         then:
-        1 * entry.title >> stubbedItem().title
-        1 * entry.type >> entryTypeLookup
-        1 * entryTypeLookup.value >> stubbedItem().type
+        1 * entry.title >> entryTitle
+        1 * entryTypeLookup.value >> entryType
         0 * _
         result == entry
+        where:
+        entryTitle          | entryType
+        stubbedItem().title | stubbedItem().type
     }
 
     @Unroll
-    def "save entry throws error if has existing entry but does not match item data: #itemStub"() {
+    def "entry updated if title or type different when title: #entryTitle and type: #entryType"() {
         given:
         def entry = Mock(Entry)
         def entryTypeLookup = Mock(EntryTypeLookup)
-        def item = itemStub
+        def item = stubbedItem()
         when:
-        def result = serviceUnderTest.saveOrUpdateEntry(entry, entryTypeLookup, itemStub)
+        def result = serviceUnderTest.saveOrUpdateEntry(entry, entryTypeLookup, item)
         then:
-        _ * entry.title >> entryStub.title
-        _ * entry.type >> entryTypeLookup
-        _ * entryTypeLookup.value >> entryStub.type.value
-        0 * _
-        Exception e = thrown()
-        e.getClass() == IllegalStateException
-        result == null
+        _ * entry.getTitle() >> entryTitle
+        _ * entryTypeLookup.getValue() >> entryType
+        1 * entry.setTitle(item.title)
+        1 * entry.setType(entryTypeLookup)
+        1 * entry.save(*_)
+        result == entry
         where:
-        entryStub                                                   | itemStub
-        [oid: "1234", title: "title test", type: [value: 'person']] | [oid: "1234", title: null, type: "person"]
-        [oid: "1234", title: "title test", type: [value: 'person']] | [oid: "1234", title: "title test", type: null]
+        entryTitle          | entryType
+        stubbedItem().title | ""
+        ""                  | stubbedItem().type
+        stubbedItem().title | null
+        null                | stubbedItem().type
+        "foo"               | stubbedItem().type
+        stubbedItem().title | "bar"
     }
 
-    def "unique incoming saved and, if succeeds, adds to import dto's saved collection for #existing and #incoming"() {
+    def "unique incoming is added to import dto's error collection for #existingCurations and #incoming"() {
         given:
-        this.serviceUnderTest = Spy(ImportService) {
-            1 * save(incoming) >> true
-        }
         def importCollector = Mock(ImportDto)
         def initialSize = existingCurations?.size()
         when:
         def result = this.serviceUnderTest.process(incoming, existingCurations, importCollector)
         then:
         result == true
-        1 * importCollector.addSaved(incoming) >> true
+        1 * importCollector.addError(incoming) >> true
         0 * importCollector._
         initialSize == existingCurations?.size()
         where:
@@ -153,9 +168,6 @@ class ImportServiceSpec extends Specification {
         given:
         def importCollector = Mock(ImportDto)
         def incoming = GroovyMock(CurationDto, global: true)
-        this.serviceUnderTest = Spy(ImportService) {
-            1 * save(incoming) >> true
-        }
         def initialSize = existingCurations?.size()
         when:
         def result = this.serviceUnderTest.process(incoming, existingCurations, importCollector)
@@ -163,16 +175,17 @@ class ImportServiceSpec extends Specification {
         result == true
         initialSize * incoming.equals(_) >> false
         initialSize * CurationDto.mismatches(*_) >> false
-        1 * importCollector.addSaved(incoming) >> true
+        1 * importCollector.addError(incoming) >> true
         0 * importCollector._
         initialSize == existingCurations?.size()
         where:
         existingCurations << [[stubbedItem7(), stubbedItem8()], [stubbedItem7(), stubbedItem8(), stubbedItem7(), stubbedItem8()]]
     }
 
-    def "unique incoming saved and, if fails, adds to import dto's error collection for #existing and #incoming"() {
+    @Unroll
+    def "unique incoming mismatched, saved and, if fails, adds to import dto's error collection for existing: #existingCurations and incoming: #incoming"() {
         given:
-        this.serviceUnderTest = Spy(ImportService) {
+        this.serviceUnderTest = Spy(UpdateService) {
             1 * save(incoming) >> false
         }
         def importCollector = Mock(ImportDto)
@@ -183,18 +196,17 @@ class ImportServiceSpec extends Specification {
         result == true
         1 * importCollector.addError(incoming) >> true
         0 * importCollector._
-        initialSize == existingCurations?.size()
+        existingCurations?.size() == initialSize - 1
         where:
         incoming      | existingCurations
-        stubbedItem() | []
-        stubbedItem() | [stubbedItem7(), stubbedItem8()]
-
+        stubbedItem() | [stubbedItem2(), stubbedItem3()]
+        stubbedItem() | [stubbedItem3(), stubbedItem4(), stubbedItem5(), stubbedItem6()]
     }
 
-
-    def "matched incoming added to import dto's matched collection with only 1 processed and no save triggered for [existing: #existing] and [incoming: #incoming]"() {
+    @Unroll
+    def "matched incoming added to import dto's matched collection with only 1 processed and no save triggered for [existing: #existingCurations] and [incoming: #incoming]"() {
         given:
-        this.serviceUnderTest = Spy(ImportService) {
+        this.serviceUnderTest = Spy(UpdateService) {
             0 * save(incoming)
         }
         def importCollector = Mock(ImportDto)
@@ -214,10 +226,10 @@ class ImportServiceSpec extends Specification {
                          stubbedItem7()]
     }
 
-    def "mismatched incoming added to import dto's mismatched collection with no save triggered for [existing: #existing] and [incoming: #incoming]"() {
+    def "mismatched incoming added to import dto's saved collection on successful save for [existing: #existing] and [incoming: #incoming]"() {
         given:
-        this.serviceUnderTest = Spy(ImportService) {
-            0 * save(incoming)
+        this.serviceUnderTest = Spy(UpdateService) {
+            1 * save(incoming) >> true
         }
         def importCollector = Mock(ImportDto)
         def initialSize = existingCurations.size()
@@ -225,8 +237,7 @@ class ImportServiceSpec extends Specification {
         def result = this.serviceUnderTest.process(incoming, existingCurations, importCollector)
         then:
         result == true
-        1 * importCollector.addMismatched(incoming) >> true
-        0 * importCollector._
+        1 * importCollector.addSaved(incoming) >> true
         existingCurations.size() == initialSize - 1
         where:
         incoming       | existingCurations
@@ -277,13 +288,5 @@ class ImportServiceSpec extends Specification {
     // different curation type is a new record
     def stubbedItem8() {
         return [oid: "1234", title: "title test", type: "person", identifier: "http://foo.bar.com", identifier_type: "nla", status: 'complete', metadata: ["dc_foo": "testlocal"]]
-    }
-
-    def stubbedItem9() {
-        return [
-                stubbedItem(),
-                stubbedItem6(),
-                stubbedItem7()
-        ]
     }
 }
