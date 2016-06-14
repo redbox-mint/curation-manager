@@ -1,4 +1,6 @@
 language: java
+script:
+  - gradle assemble
 after_success:
   - gradle publish
 env:
