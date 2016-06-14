@@ -96,6 +96,7 @@ test {
         showStandardStreams = true
     }
 }
+
 publishing {
     publications {
     	  mavenWar(MavenPublication) {
@@ -119,8 +120,8 @@ publishing {
     repositories {
         maven {
             credentials {
-                username "$nexususername"
-                password "$nexuspassword"
+                username "$System.env.NEXUS_USERNAME"
+                password "$System.env.NEXUS_PASSWORD"
             }
             url "http://dev.redboxresearchdata.com.au/nexus/content/repositories/snapshots/"
         }
