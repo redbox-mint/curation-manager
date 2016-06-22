@@ -35,7 +35,7 @@ class CurationJob {
 	static mapping = {
 		id column: 'job_id'
 		status index:'status_idx', lazy:false
-		items lazy:false
+		items lazy:false, fetch:'join'
 	}
 	
 	static hasMany = [items:CurationJobItems]

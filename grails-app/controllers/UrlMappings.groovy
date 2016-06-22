@@ -1,8 +1,14 @@
+import groovy.util.logging.Slf4j
+
 class UrlMappings {
 	
     static mappings = {
 		def grailsApplication = grails.util.Holders.grailsApplication
 		def version = grailsApplication.config.info.app.version
+		if(version.indexOf("-SNAPSHOT") != 0) {
+			version = version.replaceAll("-SNAPSHOT","")
+		}
+		//log.info "API accessible on the context /v-"+version
         "/$controller/$action?/$id?(.$format)?"{
             constraints {
                 // apply constraints here

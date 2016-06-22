@@ -32,6 +32,6 @@ class CurationJobItems {
     }
 	
 	static mapping = {
-		curations lazy:false
+		curations lazy:false, fetch:'join'
 	}
 }
