@@ -114,9 +114,12 @@ class NlaIdProvider implements IdentityProvider {
 		 metadataObj.constants = [:]
 		}
 		def eacCpfMap = [:]
-		eacCpfMap["redbox.identity"]["RIF-CS Group"]=config.id_providers.nla.eaccpf["RIFCSGroup"]
-		eacCpfMap["curation"]["nlaIntegration"]["agencyCode"]=config.id_providers.nla.eaccpf["agencyCode"]
-		eacCpfMap["curation"]["nlaIntegration"]["agencyName"]=config.id_providers.nla.eaccpf["agencyName"]
+		eacCpfMap["redbox.identity"] = [:]
+		eacCpfMap["redbox.identity"]["RIF-CS Group"] = config.id_providers.nla.eaccpf["RIFCSGroup"]
+		eacCpfMap["curation"] = [:]
+		eacCpfMap["curation"]["nlaIntegration"] = [:]
+		eacCpfMap["curation"]["nlaIntegration"]["agencyCode"] = config.id_providers.nla.eaccpf["agencyCode"]
+		eacCpfMap["curation"]["nlaIntegration"]["agencyName"] = config.id_providers.nla.eaccpf["agencyName"]
 		metadataObj.constants["eac-cpf"] = eacCpfMap
 		msgData.data[0].constants = metadataObj.constants
 		return JsonOutput.toJson(msgData)
