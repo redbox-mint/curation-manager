@@ -168,9 +168,9 @@ id_providers:
         templates:
             person: "templates/person.json"
         eaccpf:
-        	RIFCSGroup: "University Of Examples"
-        	agencyCode: "AU-UOE"
-        	agencyName: "University of Examples"
+            RIFCSGroup: "University Of Examples"
+            agencyCode: "AU-UOE"
+            agencyName: "University of Examples"
 ## 
 ## Environment-specific configuration
 ##
